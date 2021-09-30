@@ -3,8 +3,12 @@ project(COMP_345_PROJECT_TEAM_N12)
 
 set(CMAKE_CXX_STANDARD 20)
 
-include_directories(.)
-include_directories(src)
+set(SOURCES src/main_driver.cpp src/cards/cards.cpp src/game_engine/game_engine.cpp src/map/map.cpp src/orders_list/orders_list.cpp src/player/player.cpp)
 
-add_executable(COMP_345_PROJECT_TEAM_N12
-        src/map/map_driver.cpp)
+set(HEADERS src/cards/cards.h src/game_engine/game_engine.h src/map/map.h src/orders_list/orders_list.h src/player/player.h)
+
+add_executable(RISK_APPLICATION
+        ${SOURCES}
+        ${HEADERS})
+
+target_include_directories(RISK_APPLICATION PRIVATE src)
