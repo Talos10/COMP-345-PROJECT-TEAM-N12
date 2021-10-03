@@ -4,47 +4,38 @@
 
 #include "cards.h"
 #include <time.h>
+#include <random>
 
 void main_card() {
     cout << "Running main driver!" << endl;
 
     srand(time(NULL)); //Initialize random seed
-    Card c1;
-    Card c2;
-    Card c3;
-    vector<Card> ayre;
-    ayre.emplace_back(c1);
-    ayre.emplace_back(c2);
-    ayre.emplace_back(c3);
-    Deck d1 (ayre);
+    Card c1, c2, c3, c4, c5, c6, c7, c8, c9, c10;
 
-    Deck d2 (d1);
+    vector<Card> deck_template;
 
-    Deck d3 = d1;
+    deck_template.emplace_back(c1);
+    deck_template.emplace_back(c2);
+    deck_template.emplace_back(c3);
+    deck_template.emplace_back(c4);
+    deck_template.emplace_back(c5);
+    deck_template.emplace_back(c6);
+    deck_template.emplace_back(c7);
+    deck_template.emplace_back(c8);
+    deck_template.emplace_back(c9);
+    deck_template.emplace_back(c10);
 
-    Deck d4;
-    d4 = d1;
+    Deck deck (deck_template);
 
-//    cout << d1 << endl;
-//    cout << d2 << endl;
-//    cout << d3 << endl;
-//    cout << d4 << endl;
+    Hand handObj;
+    cout << deck << endl;
+    cout << handObj << endl;
 
-    Card c4;
-    Card c5;
-    Card c6;
-    vector<Card> zob;
-    zob.emplace_back(c4);
-    zob.emplace_back(c5);
-    zob.emplace_back(c6);
-    Deck d5 {zob};
-    Hand h1 {ayre};
+    deck.draw(handObj);
+    deck.draw(handObj);
+    deck.draw(handObj);
+    deck.draw(handObj);
 
-    cout << d5 << endl;
-    cout << h1 << endl;
-
-    d5.draw(h1);
-
-    cout << d5 << endl;
-    cout << h1 << endl;
+    cout << deck << endl;
+    cout << handObj << endl;
 }

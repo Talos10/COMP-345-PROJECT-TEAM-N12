@@ -9,6 +9,11 @@ using namespace std;
 // Enumeration for the type of cards
 enum Type {bomb, reinforcement, blockade, airlift, diplomacy};
 
+// Forward declarations
+class Deck;
+class Hand;
+class Card;
+
 // This class represents the cards that will be played during the game, they can each have one of the 5 types
 class Card {
 private:
@@ -28,22 +33,19 @@ public:
     Card& operator=(const Card& card);
 
     // Insertion operator
-    friend istream& operator >> (istream &in,  Card &c);
-
-    // Output operator
     friend ostream& operator << (ostream& os, const Card& c);
 
     // Destructor
     ~Card();
 
     // Getter for enum
-    Type *getType() const;
+    Type* getType() const;
 
     // Setter for enum
     void setType(const Type& type);
 
     // A function which lets a player create orders. If a card has been played, remove it from the hands and put it back in the deck
-    void play(const Hand& hand, const Deck& deck);
+    void play(Deck& deck, Hand& hand);
 };
 
 // This class represents the set of cards that will be held by the players during the gme
@@ -65,9 +67,6 @@ public:
     Hand& operator=(const Hand& hand);
 
     // Insertion operator
-    friend istream& operator >> (istream &in, Hand &h);
-
-    // Output operator
     friend ostream& operator << (ostream& os, const Hand& h);
 
     //Destructor
@@ -99,9 +98,6 @@ public:
     Deck &operator=(const Deck& deck);
 
     // Insertion operator
-    friend istream& operator >> (istream &in, Deck &d);
-
-    // Output operator
     friend ostream& operator << (ostream& os, const Deck& d);
 
     //Destructor
