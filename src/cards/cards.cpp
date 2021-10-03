@@ -51,15 +51,15 @@ void Card::setType(const Type& type) {
 }
 
 void play(Deck& deck, Hand& hand) {
-//    // Create an order with this function
-//    cout << "Creating an order..." << endl;
-//    // Remove it from hand, put it in deck
-//    hand.getHandsCards()->erase(std::remove_if(
-//            hand.getHandsCards()->begin(), hand.getHandsCards()->end(),
-//            [](const Card &card) {
-//                return card.getType()
-//            }), hand.getHandsCards()->end());
+    // Create an order with this function
+    cout << "Creating an order..." << endl;
+    // Remove it from hand, put it in deck
 
+    hand.getHandsCards()->erase(std::remove_if(
+            hand.getHandsCards()->begin(), hand.getHandsCards()->end(),
+            [](const Card &card) {
+                return card.getType() == this->
+            }), hand.getHandsCards()->end());
 }
 
 // Default constructor of the Deck class
