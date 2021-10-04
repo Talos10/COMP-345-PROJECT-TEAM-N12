@@ -26,7 +26,7 @@ public:
     Order& operator=(const Order& order);
 };
 
-class Deploy : Order {
+class Deploy : public Order {
 public:
     Deploy();
     Deploy(const Deploy& order);
@@ -38,7 +38,7 @@ public:
     Deploy& operator=(const Deploy& order);
 };
 
-class Advance : Order {
+class Advance : public Order {
 public:
     Advance();
     Advance(const Advance& order);
@@ -50,7 +50,7 @@ public:
     Advance& operator=(const Advance& order);
 };
 
-class Bomb : Order {
+class Bomb : public Order {
 public:
     Bomb();
     Bomb(const Bomb& order);
@@ -62,7 +62,7 @@ public:
     Bomb& operator=(const Bomb& order);
 };
 
-class Blockade : Order {
+class Blockade : public Order {
 public:
     Blockade();
     Blockade(const Blockade& order);
@@ -74,7 +74,7 @@ public:
     Blockade& operator=(const Blockade& order);
 };
 
-class Airlift : Order {
+class Airlift : public Order {
 public:
     Airlift();
     Airlift(const Airlift& order);
@@ -86,7 +86,7 @@ public:
     Airlift& operator=(const Airlift& order);
 };
 
-class Negotiate : Order {
+class Negotiate : public Order {
 public:
     Negotiate();
     Negotiate(const Negotiate& order);

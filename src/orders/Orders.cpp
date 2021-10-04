@@ -1,9 +1,7 @@
 #include "Orders.h"
 
 ////////////////////////////Order CLASS////////////////////////////////////
-Order::Order() {
-    cout << "Default Order created" <<endl;
-}
+Order::Order() : Order("generic order", "no effect") {}
 Order::Order(string description, string effect) {
     this->description = new string(description);
     this->effect = new string(effect);
@@ -301,30 +299,34 @@ void orders_driver() {
     Negotiate negotiate;
 
     //add orders
-    //orders_list.addOrder(order1);
-    cout << deploy << endl;
+    orders_list.addOrder(order1);
+    orders_list.addOrder(deploy);
+    orders_list.addOrder(advance);
+    orders_list.addOrder(bomb);
+    orders_list + blockade;
+    orders_list + airlift;
+    orders_list + negotiate;
     cout << orders_list << endl;
-    // orders_list.addOrder(deploy);
-    // orders_list.addOrder(advance);
-    // orders_list.addOrder(bomb);
-    // orders_list + blockade;
-    // orders_list + airlift;
-    // orders_list + negotiate;
-
+    
     //retrieve orders
-    // vector<Order> orders = orders_list.getOrders();
+    vector<Order> orders = orders_list.getOrders();
 
     //move orders
-    // orders_list.move(1, 4);
+    orders_list.move(1, 4);
+    cout << "Moved order at index 1 to index 4!" << endl; 
+    cout << orders_list << endl;
 
-    // //remove orders
-    // orders_list.remove(3);
+    //remove orders
+    orders_list.remove(3);
+    cout << "Removed order at index 3!" << endl; 
+    cout << orders_list << endl;
 
     // //validate orders
-    // orders[0].validate();
+    cout << "Checking if order 1 is valid: ";
+    orders[1].validate();
 
     // //execute orders
-    // orders[0].execute();
+    orders_list.getOrders()[1].execute();
+
+    cout << orders_list << endl;
 }
-
-
