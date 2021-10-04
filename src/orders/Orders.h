@@ -1,105 +1,122 @@
-// Describe the use of the orders list class.
-#ifndef COMP_345_PROJECT_TEAM_N12_ORDERS_H
-#define COMP_345_PROJECT_TEAM_N12_ORDERS_H
-
+#pragma once
 #include <vector>
 #include <iostream>
+#include <string>
 using namespace std;
-
-class OrdersList {
-private:
-    vector<Order> orders;
-public:
-    OrdersList(){}
-    OrdersList(vector<Order>& orders){}
-    ~OrdersList(){} 
-
-    void move();
-    void remove();
-    void getOrders();
-    void addOrder();
-
-    void operator<<(ostream& out);
-    void operator=(OrdersList& ordersList);
-    void operator+(Order& order);
-    void operator-(Order& order);
-};
 
 class Order {
 private:
-    
+    string *description;
+    string *effect;
+
 public:
-    virtual void validate();
+    Order();
+    Order(string description, string effect);
+    Order(const Order& order);
+    ~Order();
+    virtual bool validate();
     virtual void execute();
 
-    void operator<<(ostream& out);
-    void operator=(Order& order);
+    string getDescription() const;
+    string getEffect() const;
+    void setDescription(const string& description);
+    void setEffect(const string& effect);
+
+    friend ostream & operator<<(ostream& out, const Order& order);
+    Order& operator=(const Order& order);
 };
 
 class Deploy : Order {
-private:
-    
 public:
-    void validate() override;
+    Deploy();
+    Deploy(const Deploy& order);
+    ~Deploy();
+    bool validate() override;
     void execute() override;
 
-    void operator<<(ostream& out);
-    void operator=(Deploy& order);
+    friend ostream & operator<<(ostream& out, const Deploy& deploy);
+    Deploy& operator=(const Deploy& order);
 };
 
 class Advance : Order {
-private:
-    
 public:
-    void validate() override;
+    Advance();
+    Advance(const Advance& order);
+    ~Advance();
+    bool validate() override;
     void execute() override;
 
-    void operator<<(ostream& out);
-    void operator=(Advance& order);
+    friend ostream & operator<<(ostream& out, const Advance& advance);
+    Advance& operator=(const Advance& order);
 };
 
 class Bomb : Order {
-private:
-    
 public:
-    void validate() override;
+    Bomb();
+    Bomb(const Bomb& order);
+    ~Bomb();
+    bool validate() override;
     void execute() override;
 
-    void operator<<(ostream& out);
-    void operator=(Bomb& order);
+    friend ostream & operator<<(ostream& out, const Bomb& bomb);
+    Bomb& operator=(const Bomb& order);
 };
 
 class Blockade : Order {
-private:
-    
 public:
-    void validate() override;
+    Blockade();
+    Blockade(const Blockade& order);
+    ~Blockade();
+    bool validate() override;
     void execute() override;
 
-    void operator<<(ostream& out);
-    void operator=(Blockade& order);
+    friend ostream & operator<<(ostream& out, const Blockade& blockade);
+    Blockade& operator=(const Blockade& order);
 };
 
 class Airlift : Order {
-private:
-    
 public:
-    void validate() override;
+    Airlift();
+    Airlift(const Airlift& order);
+    ~Airlift();
+    bool validate() override;
     void execute() override;
 
-    void operator<<(ostream& out);
-    void operator=(Airlift& order);
+    friend ostream & operator<<(ostream& out, const Airlift& airlift);
+    Airlift& operator=(const Airlift& order);
 };
 
 class Negotiate : Order {
-private:
-    
 public:
-    void validate() override;
+    Negotiate();
+    Negotiate(const Negotiate& order);
+    ~Negotiate();
+    bool validate() override;
     void execute() override;
 
-    void operator<<(ostream& out);
-    void operator=(Negotiate& order);
+    friend ostream & operator<<(ostream& out, const Negotiate& negotiate);
+    Negotiate& operator=(const Negotiate& order);
 };
 
-#endif //COMP_345_PROJECT_TEAM_N12_ORDERS_H
+class OrdersList {
+private:
+    vector<Order>* orders;
+public:
+    OrdersList();
+    OrdersList(vector<Order>& orders);
+    OrdersList(const OrdersList& o_list);
+    ~OrdersList();
+
+    void move(int currentIndex, int newIndex);
+    void remove(int orderPosition);
+    vector<Order>& getOrders() const;
+    void addOrder(const Order& order);
+    void addOrder(const Order& order, int index);
+
+    friend ostream & operator<<(ostream& out, const OrdersList& ol);
+    OrdersList& operator=(const OrdersList& ordersList);
+    void operator+(Order& order);
+};
+
+// Free function in order to test the functionality of the Orders.cpp for assignment #1.
+void orders_driver();
