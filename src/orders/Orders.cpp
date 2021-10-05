@@ -42,7 +42,7 @@ void Order::setEffect(const string& effect) {
     *(this->effect) = effect;
 }
 
-//Defining the equality operator
+//Defining the assignment operator
 Order& Order::operator=(const Order& order) {
     this->description = new string(*(order.description));
     this->effect = new string(*(order.effect));
@@ -67,7 +67,7 @@ void Order::execute() {
 
 ////////////////////////////Deploy CLASS////////////////////////////////////
 //Default constructor
-Deploy::Deploy(): Order("Deploy Default", "Deploy effect") {}
+Deploy::Deploy(): Order("Deploy Order", "Deploy effect") {}
 
 //Copy constructor
 Deploy::Deploy(const Deploy& deploy_order): Order(deploy_order) {}
@@ -92,7 +92,7 @@ void Deploy::execute() {
     }
 }
 
-//Defining the equality operator
+//Defining the assignment operator
 Deploy& Deploy::operator=(const Deploy& deploy_order) {
     Order::operator=(deploy_order);
     return *this;
@@ -106,7 +106,7 @@ ostream& operator<<(ostream& out, const Deploy& deploy) {
 
 ////////////////////////////Advance CLASS////////////////////////////////////
 //Default constructor
-Advance::Advance(): Order("Advance Default", "Advance effect") {}
+Advance::Advance(): Order("Advance Order", "Advance effect") {}
 
 //Copy constructor
 Advance::Advance(const Advance& adv_order): Order(adv_order) {}
@@ -131,7 +131,7 @@ void Advance::execute() {
     }
 }
 
-//Defining the equality operator
+//Defining the assignment operator
 Advance& Advance::operator=(const Advance& adv_order) {
     Order::operator=(adv_order);
     return *this;
@@ -145,7 +145,7 @@ ostream& operator<<(ostream& out, const Advance& advance) {
 
 ////////////////////////////Bomb CLASS////////////////////////////////////
 //Default constructor
-Bomb::Bomb(): Order("Bomb Default", "Bomb effect") {}
+Bomb::Bomb(): Order("Bomb Order", "Bomb effect") {}
 
 //Copy constructor
 Bomb::Bomb(const Bomb& bomb_order): Order(bomb_order) {}
@@ -170,7 +170,7 @@ void Bomb::execute() {
     }
 }
 
-//Defining the equality operator
+//Defining the assignment operator
 Bomb& Bomb::operator=(const Bomb& bomb_order) {
     Order::operator=(bomb_order);
     return *this;
@@ -184,7 +184,7 @@ ostream& operator<<(ostream& out, const Bomb& bomb) {
 
 ////////////////////////////Blockade CLASS////////////////////////////////////
 //Default constructor
-Blockade::Blockade(): Order("Blockade Default", "Blockade effect") {}
+Blockade::Blockade(): Order("Blockade Order", "Blockade effect") {}
 
 //Copy constructor
 Blockade::Blockade(const Blockade& blockade_order): Order(blockade_order) {}
@@ -210,7 +210,7 @@ void Blockade::execute() {
     
 }
 
-//Defining the equality operator
+//Defining the assignment operator
 Blockade& Blockade::operator=(const Blockade& blockade_order) {
     Order::operator=(blockade_order);
     return *this;
@@ -224,7 +224,7 @@ ostream& operator<<(ostream& out, const Blockade& blockade) {
 
 ////////////////////////////Airlift CLASS////////////////////////////////////
 //Default constructor
-Airlift::Airlift(): Order("Airlift Default", "Airlift effect") {}
+Airlift::Airlift(): Order("Airlift Order", "Airlift effect") {}
 
 //Copy constructor
 Airlift::Airlift(const Airlift& airlift_order): Order(airlift_order) {}
@@ -249,7 +249,7 @@ void Airlift::execute() {
     }
 }
 
-//Defining the equality operator
+//Defining the assignment operator
 Airlift& Airlift::operator=(const Airlift& airlift_order) {
     Order::operator=(airlift_order);
     return *this;
@@ -263,7 +263,7 @@ ostream& operator<<(ostream& out, const Airlift& airlift) {
 
 ////////////////////////////Negotiate CLASS////////////////////////////////////
 //Default constructor
-Negotiate::Negotiate(): Order("Negotiate Default", "Negotiate effect") {}
+Negotiate::Negotiate(): Order("Negotiate Order", "Negotiate effect") {}
 
 //Copy constructor
 Negotiate::Negotiate(const Negotiate& negotiate_order): Order(negotiate_order) {}
@@ -282,7 +282,7 @@ void Negotiate::execute() {
     cout << "Executing Negotiate Order" << endl;
 }
 
-//Defining the equality operator
+//Defining the assignment operator
 Negotiate& Negotiate::operator=(const Negotiate& negotiate_order) {
     Order::operator=(negotiate_order);
     return *this;
@@ -300,36 +300,35 @@ OrdersList::OrdersList() {
     this->orders = new vector<Order*>();
 }
 
-//Parameterized constructor which instantiates the vector of orders with the provided vector of orders
-OrdersList::OrdersList(vector<Order*>& orders) {
-    this->orders = new vector<Order*>(orders);
-}
-
 //Copy constructor
 OrdersList::OrdersList(const OrdersList& o_list) {
-    //IS THIS CORRECT???
-    this->orders = new vector<Order*>(*o_list.orders);
+    for (int i = 0; i < o_list.getOrders().size(); i++) {
+       Order* o = new Order(*(o_list.orders)->at(i));
+       this->addOrder(o);
+    }
 }
 
 //Destructor
 OrdersList::~OrdersList() {
-    delete orders;  //might be wrong???
-    //HOW ABOUT THIS???
+    //delete each order on heap
     for (Order* order : *this->orders) {
         delete order;
     }
-    this->orders->clear();
-    delete this->orders;
+    this->orders->clear();  //delete all Order pointers in vector
+    delete this->orders;    //delete orders pointer
     this->orders = nullptr;
 } 
 
 //Move an Order in the vector to a new index by providing its current index and the index it should be moved to
 void OrdersList::move(int currentIndex, int newIndex) {
     int order_list_size = this->orders->size();
-    if (currentIndex < order_list_size && newIndex < order_list_size && currentIndex >= 0 && newIndex >= 0) {
+    if (order_list_size == 0) {
+        cout << "Cannot move an order because rhere are no orders in the OrdersList!" << endl;
+    }
+    else if (currentIndex < order_list_size && newIndex < order_list_size && currentIndex >= 0 && newIndex >= 0) {
         Order* orderToMove = this->orders->at(currentIndex);
-        this->orders->erase(this->orders->begin() + currentIndex);
         this->orders->insert(this->orders->begin() + newIndex, orderToMove);
+        this->orders->erase(this->orders->begin() + currentIndex);
     }
     else {
         cout << "Invalid Index position specified" << endl;
@@ -338,8 +337,12 @@ void OrdersList::move(int currentIndex, int newIndex) {
 
 //Remove an order in the vector by specifying its respective index
 void OrdersList::remove(const int orderIndex) {
-    if (orderIndex >= 0 && orderIndex < this->orders->size()) {
-        this->orders->erase(this->orders->begin() + orderIndex);
+    if (this->orders->size() == 0) {
+        cout << "Cannot remove an order because there are no orders in the OrdersList!" << endl;
+    }
+    else if (orderIndex >= 0 && orderIndex < this->orders->size()) {
+        delete this->orders->at(orderIndex);    //free memory
+        this->orders->erase(this->orders->begin() + orderIndex);    //deletes pointer from vector
     }
     else {
         cout << "Invalid order position" << endl;
@@ -353,17 +356,25 @@ vector<Order*>& OrdersList::getOrders() const {
 
 //Add an order to the vector by providing an Order
 void OrdersList::addOrder(Order* order) {
-    this->orders->push_back(order);
+    if (order == nullptr) {
+        cout << "null pointer! Order cannot be added!" << endl;
+    }
+    else {
+        this->orders->push_back(order);
+    }
 }
 
-//Add an order to the vector at a specific index by providing an Order and the desired index position
-void OrdersList::addOrder(Order* order, int index) {
-        this->orders->insert(this->orders->begin() + index, order);
-}
-
-//Defining the equality operator
-OrdersList& OrdersList::operator=(const OrdersList& ordersList) {
-    this->orders = new vector<Order*>(*(ordersList.orders));
+//Defining the assignment operator
+OrdersList& OrdersList::operator=(const OrdersList& o_list) {
+    //delete all orders in left hand side OrdersList
+    for (int index = 0; index < this->orders->size(); index++) {
+        this->remove(index);
+    }
+    //add all orders from right hand side OrdersList into left hand side
+    for (int i = 0; i < o_list.getOrders().size(); i++) {
+        Order* o = new Order(*(o_list.orders)->at(i));
+        this->addOrder(o);
+    }
     return *this;
 }
 
@@ -385,7 +396,6 @@ ostream& operator<<(ostream& out, const OrdersList& ol) {
 void orders_driver() {
     cout << "\n### Running Orders driver! ###" << endl;
     OrdersList orders_list;
-    Order* order1 = new Order();
     Deploy* deploy = new Deploy();
     Advance* advance = new Advance();
     Bomb* bomb = new Bomb();
@@ -395,7 +405,6 @@ void orders_driver() {
     Bomb copyBomb(*bomb);
 
     //add orders
-    orders_list.addOrder(order1);
     orders_list.addOrder(deploy);
     orders_list.addOrder(advance);
     orders_list.addOrder(bomb);
@@ -410,7 +419,7 @@ void orders_driver() {
 
     //move orders
     orders_list.move(1, 4);
-    cout << "Moved order at index 1 to index 4!" << endl; 
+    cout << "Moved order at index 1 to position 4!" << endl; 
     cout << orders_list << endl;
 
     //remove orders
