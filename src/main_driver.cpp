@@ -8,7 +8,7 @@ int main() {
     cout << "Running main driver!" << endl;
 
     game_engine_driver();
-    //orders_driver();
+    orders_driver();
 
 
     return 0;

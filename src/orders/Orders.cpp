@@ -394,7 +394,9 @@ ostream& operator<<(ostream& out, const OrdersList& ol) {
 
 // Free function in order to test the functionality of the Orders.cpp for assignment #1.
 void orders_driver() {
-    cout << "\n### Running Orders driver! ###" << endl;
+    cout << "\n##############################################################" << endl;
+    cout << "################### Running Orders driver! ###################" << endl;
+    cout << "##############################################################" << endl;
     OrdersList orders_list;
     Deploy* deploy = new Deploy();
     Advance* advance = new Advance();
@@ -405,6 +407,7 @@ void orders_driver() {
     Bomb copyBomb(*bomb);
 
     //add orders
+    cout << "Adding orders to the OrdersList..." << endl;
     orders_list.addOrder(deploy);
     orders_list.addOrder(advance);
     orders_list.addOrder(bomb);
@@ -413,28 +416,36 @@ void orders_driver() {
     orders_list + negotiate;
     orders_list.addOrder(&copyBomb);
     cout << orders_list << endl;
-    
-    //retrieve orders
-    vector<Order*> orders = orders_list.getOrders();
 
     //move orders
     orders_list.move(1, 4);
-    cout << "Moved order at index 1 to position 4!" << endl; 
+    cout << "#####Moved order at index 1 to position 4!#####" << endl; 
     cout << orders_list << endl;
 
     //remove orders
     orders_list.remove(3);
-    cout << "Removed order at index 3!" << endl; 
+    cout << "#####Removed order at index 3!#####" << endl; 
     cout << orders_list << endl;
 
     //validate orders
-    cout << "Checking if order 1 is valid: " << endl;
-    if (orders[1]->validate()) {
-        cout << "The order is valid!" << endl;
+    cout << "#####Checking if order at index 1 is valid#####" << endl;
+    bool isOrderValid = orders_list.getOrders().at(1)->validate();
+    if (isOrderValid) {
+        cout << "The order is valid!" << endl << endl;
     }
 
     //execute orders
-    orders_list.getOrders()[1]->execute();
+    cout << "#####Executing order at index 2#####" << endl;
+    orders_list.getOrders()[2]->execute();
 
-    cout << orders_list << endl;
+    //Copy constructor
+    // cout << "#####Checking OrderList copy Constructor#####" << endl;
+    // OrdersList orders_list_copy = (orders_list);
+    // cout << "Orders List " << endl;
+    // cout << orders_list << endl;
+    // cout << &orders_list.getOrders() << endl;
+    // cout << "Copied Orders List: " << endl; 
+    // cout << orders_list_copy << endl;
+    // cout << &orders_list_copy.getOrders() << endl;
 }
+
