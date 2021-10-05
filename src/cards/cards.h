@@ -110,7 +110,7 @@ public:
     void setWarzoneCards(const vector<Card> &cards);
 
     // A function which lets a player draw a card from the deck and places it in their hand
-    void draw(const Hand& hand);
+    Card& draw(const Hand& hand);
 
     // Get a random card from the deck
     int pickCard();
