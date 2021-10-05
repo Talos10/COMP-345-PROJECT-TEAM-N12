@@ -1,6 +1,8 @@
 #include <iostream>
 #include "game_engine/game_engine.h"
 #include "player/player.h"
+#include "cards/cards.h"
+#include <time.h>
 
 using namespace std;
 
@@ -10,8 +12,6 @@ int main() {
     //game_engine_driver();
 
     player_driver();
-
-
 
     return 0;
 }
