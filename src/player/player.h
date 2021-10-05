@@ -45,7 +45,7 @@ public:
     std::vector<pair <string, string>> toAttack();
 
     //A function that will create an Order object and add it to the list of Orders.
-    void issueOrder();
+    void issueOrder(const string &description, const string &effect);
 
     // Getter for the territories.
     [[nodiscard]] std::vector<pair <string, string>> *getTerritories() const;

@@ -13,7 +13,6 @@ using namespace std;
 Player::Player(){
 
     //Territories, hand and ordersList initialization.
-
     territories = new std::vector<pair <string, string>>{};
     hand = new Hand();
     ordersList = new OrdersList();
@@ -106,13 +105,12 @@ vector<pair<string, string>> Player::toAttack() {
 }
 
 //A function which creates an Order object and adds it to the list of Orders.
-void issueOrder(){
-
+void Player::issueOrder(const string &description, const string &effect){
+    ordersList->addOrder(*(new Order(description, effect)));
 }
 
 // Free function in order to test the functionality of the Player for assignment #1.
 void player_driver() {
-    //Game_Engine gameEngine;
 
 
     cout << "\nPlayer driver function" << endl;
@@ -130,5 +128,4 @@ void player_driver() {
         cout << "\n" << territory.first << endl;
     }
 
-    //gameEngine.start();
 }
