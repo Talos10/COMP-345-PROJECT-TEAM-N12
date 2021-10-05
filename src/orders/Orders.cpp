@@ -297,31 +297,39 @@ ostream& operator<<(ostream& out, const Negotiate& negotiate) {
 ////////////////////////////OrdersList CLASS////////////////////////////////////
 //Default constructor
 OrdersList::OrdersList() {
-    this->orders = new vector<Order>();
+    this->orders = new vector<Order*>();
 }
 
 //Parameterized constructor which instantiates the vector of orders with the provided vector of orders
-OrdersList::OrdersList(vector<Order>& orders) {
-    this->orders = new vector<Order>(orders);
+OrdersList::OrdersList(vector<Order*>& orders) {
+    this->orders = new vector<Order*>(orders);
 }
 
 //Copy constructor
 OrdersList::OrdersList(const OrdersList& o_list) {
-    this->orders = new vector<Order>(*o_list.orders);
+    //IS THIS CORRECT???
+    this->orders = new vector<Order*>(*o_list.orders);
 }
 
 //Destructor
 OrdersList::~OrdersList() {
     delete orders;  //might be wrong???
+    //HOW ABOUT THIS???
+    for (Order* order : *this->orders) {
+        delete order;
+    }
+    this->orders->clear();
+    delete this->orders;
+    this->orders = nullptr;
 } 
 
 //Move an Order in the vector to a new index by providing its current index and the index it should be moved to
 void OrdersList::move(int currentIndex, int newIndex) {
     int order_list_size = this->orders->size();
     if (currentIndex < order_list_size && newIndex < order_list_size && currentIndex >= 0 && newIndex >= 0) {
-        const Order o = this->orders->at(currentIndex);
+        Order* orderToMove = this->orders->at(currentIndex);
         this->orders->erase(this->orders->begin() + currentIndex);
-        this->orders->insert(this->orders->begin() + newIndex, o);
+        this->orders->insert(this->orders->begin() + newIndex, orderToMove);
     }
     else {
         cout << "Invalid Index position specified" << endl;
@@ -330,7 +338,7 @@ void OrdersList::move(int currentIndex, int newIndex) {
 
 //Remove an order in the vector by specifying its respective index
 void OrdersList::remove(const int orderIndex) {
-    if (orderIndex < this->orders->size()) {
+    if (orderIndex >= 0 && orderIndex < this->orders->size()) {
         this->orders->erase(this->orders->begin() + orderIndex);
     }
     else {
@@ -339,36 +347,36 @@ void OrdersList::remove(const int orderIndex) {
 }
 
 //Getter for the vector of orders
-vector<Order>& OrdersList::getOrders() const {
+vector<Order*>& OrdersList::getOrders() const {
     return *(this->orders);
 }
 
 //Add an order to the vector by providing an Order
-void OrdersList::addOrder(const Order& order) {
+void OrdersList::addOrder(Order* order) {
     this->orders->push_back(order);
 }
 
 //Add an order to the vector at a specific index by providing an Order and the desired index position
-void OrdersList::addOrder(const Order& order, int index) {
+void OrdersList::addOrder(Order* order, int index) {
         this->orders->insert(this->orders->begin() + index, order);
 }
 
 //Defining the equality operator
 OrdersList& OrdersList::operator=(const OrdersList& ordersList) {
-    this->orders = new vector<Order>(*(ordersList.orders));
+    this->orders = new vector<Order*>(*(ordersList.orders));
     return *this;
 }
 
 //Defining the addition operator
-void OrdersList::operator+(Order& order) {
+void OrdersList::operator+(Order* order) {
     this->addOrder(order);
 }
 
 //Defining the output operator
 ostream& operator<<(ostream& out, const OrdersList& ol) {
 	out << "The OrdersList contains " << ol.orders->size() << " orders:" << endl;
-    for (Order order : *(ol.orders)) {
-        out << order << endl;
+    for (Order* order : *(ol.orders)) {
+        out << *order << endl;
     }
 	return out;
 }
@@ -377,13 +385,14 @@ ostream& operator<<(ostream& out, const OrdersList& ol) {
 void orders_driver() {
     cout << "\n### Running Orders driver! ###" << endl;
     OrdersList orders_list;
-    Order order1;
-    Deploy deploy;
-    Advance advance;
-    Bomb bomb;
-    Blockade blockade;
-    Airlift airlift;
-    Negotiate negotiate;
+    Order* order1 = new Order();
+    Deploy* deploy = new Deploy();
+    Advance* advance = new Advance();
+    Bomb* bomb = new Bomb();
+    Blockade* blockade = new Blockade();
+    Airlift* airlift = new Airlift();
+    Negotiate* negotiate = new Negotiate();
+    Bomb copyBomb(*bomb);
 
     //add orders
     orders_list.addOrder(order1);
@@ -393,10 +402,11 @@ void orders_driver() {
     orders_list + blockade;
     orders_list + airlift;
     orders_list + negotiate;
+    orders_list.addOrder(&copyBomb);
     cout << orders_list << endl;
     
     //retrieve orders
-    vector<Order> orders = orders_list.getOrders();
+    vector<Order*> orders = orders_list.getOrders();
 
     //move orders
     orders_list.move(1, 4);
@@ -408,12 +418,14 @@ void orders_driver() {
     cout << "Removed order at index 3!" << endl; 
     cout << orders_list << endl;
 
-    // //validate orders
-    cout << "Checking if order 1 is valid: ";
-    orders[1].validate();
+    //validate orders
+    cout << "Checking if order 1 is valid: " << endl;
+    if (orders[1]->validate()) {
+        cout << "The order is valid!" << endl;
+    }
 
-    // //execute orders
-    orders_list.getOrders()[1].execute();
+    //execute orders
+    orders_list.getOrders()[1]->execute();
 
     cout << orders_list << endl;
 }

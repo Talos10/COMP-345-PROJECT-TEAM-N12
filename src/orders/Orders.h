@@ -204,13 +204,13 @@ public:
 // This class implements an OrdersList which contains the orders created.
 class OrdersList {
 private:
-    vector<Order>* orders;
+    vector<Order*>* orders;
 public:
     //Default constructor
     OrdersList();
 
     //Parameterized constructor which accepts a vector of Order
-    OrdersList(vector<Order>& orders);
+    OrdersList(vector<Order*>& orders);
 
     //Copy constructor
     OrdersList(const OrdersList& o_list);
@@ -225,13 +225,13 @@ public:
     void remove(int orderPosition);
 
     //Getter for the vector of orders
-    vector<Order>& getOrders() const;
+    vector<Order*>& getOrders() const;
 
     //Add an order to the vector by providing an Order
-    void addOrder(const Order& order);
+    void addOrder(Order* order);
 
     //Add an order to the vector at a specific index by providing an Order and the desired index position
-    void addOrder(const Order& order, int index);
+    void addOrder(Order* order, int index);
 
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const OrdersList& ol);
@@ -240,7 +240,7 @@ public:
     OrdersList& operator=(const OrdersList& ordersList);
 
     //Defining the addition operator
-    void operator+(Order& order);
+    void operator+(Order* order);
 };
 
 // Free function in order to test the functionality of the Orders.cpp for assignment #1.
