@@ -48,7 +48,7 @@ void Card::setType(const Type& card_type) {
     this->type = new Type(card_type);
 }
 
-void Card::play(Deck& deck, Hand& hand) {
+void Card::play(Deck& deck, Hand& hand/*, Player& player*/) {
     // Create an order with this function
     cout << "Creating an order..." << endl;
     // Remove it from hand, put it in deck
@@ -61,6 +61,27 @@ void Card::play(Deck& deck, Hand& hand) {
 //    cout << (hand.getHandsCards())->back();
 //    cout << *this;
 
+    //vector<Card>::iterator = std::find(hand.getHandsCards()->begin(), hand.getHandsCards()->end(), *this;
+    //vector<Card>::iterator it;
+//    it = std::find(*hand.getHandsCards()->begin(), *hand.getHandsCards()->end(), *this);
+//    if(std::find(hand.getHandsCards()->begin(), hand.getHandsCards()->end(), this) != hand.getHandsCards()->end()){
+//        cout << "hey";
+//    }
+//    for(Card& card: *hand.getHandsCards()){
+//        cout << card;
+//    }
+    bool found (false);
+    for(int i (0); i < hand.getHandsCards()->size(); i++){
+        cout << "hand's car type is: " << *(hand.getHandsCards())->at(i).getType() << endl;
+        cout << "current card type is " << *this->type << endl;
+        if(*(hand.getHandsCards())->at(i).getType() == *this->type){
+            cout << "removed " << *this->type << "!! at " << i << endl;
+            *hand.getHandsCards()->erase(hand.getHandsCards()->begin() + i);
+            found = true;
+            break;
+        }
+    }
+
 //    int position (0);
 //    bool found (false);
 //    for (Card& card: *hand.getHandsCards()){
@@ -71,13 +92,14 @@ void Card::play(Deck& deck, Hand& hand) {
 //            cout << "found!" << endl;
 //            found = true;
 //            (hand.getHandsCards())->erase(hand.getHandsCards()->begin() + position);
+//            position++;
 //            break;
 //        }
 //        position++;
 //    }
 
-    //if(found)
-    deck.getWarzoneCards()->emplace_back(*this);
+    if(found)
+        deck.getWarzoneCards()->emplace_back(*this);
 
 //    hand.getHandsCards()->erase(
 //            std::remove(
@@ -141,7 +163,7 @@ void Deck::setWarzoneCards(const vector<Card> &cards) {
 }
 
 // This function allows a player to draw a card from the deck and to put it in their hand
-void Deck::draw(const Hand& hand) {
+Card& Deck::draw(const Hand& hand) {
     //int card_num = pickCard();
     //Card picked_card { this->warzoneCards->at(card_num) };
 
@@ -150,8 +172,9 @@ void Deck::draw(const Hand& hand) {
 
 //    this->warzoneCards->erase(warzoneCards->begin() + card_num);
 //    hand.getHandsCards()->emplace_back(picked_card);
-    hand.getHandsCards()->emplace_back(this->warzoneCards->back());
-    this->warzoneCards->pop_back();
+    this->warzoneCards->pop_back(); //remove last from deck
+    hand.getHandsCards()->emplace_back(this->warzoneCards->back()); // put last card from deck in hand;
+    return hand.getHandsCards()->back();
 }
 
 int Deck::pickCard() {
@@ -194,7 +217,7 @@ Hand::~Hand() {
 }
 
 // Getter for handsCards
-vector<Card> *Hand::getHandsCards() const {
+vector<Card>* Hand::getHandsCards() const {
     return handsCards;
 }
 
