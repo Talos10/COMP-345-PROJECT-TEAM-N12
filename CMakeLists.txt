@@ -3,9 +3,13 @@ project(COMP_345_PROJECT_TEAM_N12)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(SOURCES src/main_driver.cpp src/cards/cards.cpp src/game_engine/game_engine.cpp src/map/map.cpp src/orders_list/orders_list.cpp src/player/player.cpp)
+set(SOURCES src/main_driver.cpp src/cards/cards.cpp src/game_engine/game_engine.cpp src/map/map.cpp src/orders/Orders.cpp src/player/player.cpp)
 
+<<<<<<< HEAD
 set(HEADERS src/cards/cards.h src/game_engine/game_engine.h src/map/map.h src/orders_list/orders_list.h src/player/player.h src/cards/CardsDriver.cpp)
+=======
+set(HEADERS src/cards/cards.h src/game_engine/game_engine.h src/map/map.h src/orders/Orders.h src/player/player.h)
+>>>>>>> a1_part3_orders
 
 add_executable(RISK_APPLICATION
         ${SOURCES}

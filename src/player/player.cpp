@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <functional>
+#include "cards/cards.h"
+#include "orders/Orders.h"
 
 using namespace std;
 
@@ -13,15 +15,15 @@ Player::Player(){
     //Territories, hand and ordersList initialization.
 
     territories = new std::vector<pair <string, string>>{};
-    hand = new std::vector<string>{};
-    ordersList = new std::vector<string>{};
+    hand = new Hand();
+    ordersList = new std::vector<Order>{};
 };
 
 // Copy constructor.
 Player::Player(const Player &pl) {
     this->territories = new std::vector<pair <string, string>>(*pl.territories);
-    this->hand = new std::vector<string>(*pl.hand);
-    this->ordersList = new std::vector<string>(*pl.ordersList);
+    this->hand = new Hand(*pl.hand);
+    this->ordersList = new std::vector<Order>(*pl.ordersList);
 }
 
 // Swaps the member data between two Player objects.
@@ -49,23 +51,23 @@ void Player::setTerritories(const std::vector<pair <string, string>> &territorie
 }
 
 // Getter for the hand.
-std::vector<string> *Player::getHand() const {
+Hand *Player::getHand() const {
     return hand;
 }
 
 // Setter for the hand.
-void Player::setHand(const vector<string> &hand) {
-    this->hand = new vector<string>(hand);
+void Player::setHand(const Hand &hand) {
+    this->hand = new Hand(hand);
 }
 
 // Getter for the orders list.
-std::vector<string> *Player:: getOrders() const {
+std::vector<Order> *Player:: getOrders() const {
     return ordersList;
 }
 
 // Setter for the orders list.
-void Player::setOrders(const vector<string> &ordersList) {
-    this->ordersList = new vector<string>(ordersList);
+void Player::setOrders(const vector<Order> &ordersList) {
+    this->ordersList = new vector<Order>(ordersList);
 }
 
 //A function which will go through the collection of territories the player owns and

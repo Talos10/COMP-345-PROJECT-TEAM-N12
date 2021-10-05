@@ -5,6 +5,8 @@
 
 #include <string>
 #include <vector>
+#include "cards/cards.h"
+#include "orders/Orders.h"
 
 using namespace std;
 
@@ -18,10 +20,10 @@ private:
     std::vector<pair <string, string>> *territories;
 
     //Hand object (collection of Card objects) the Player has.
-    std::vector<string> *hand;
+    Hand *hand;
 
     //A list of Order objects the player has issued.
-    std::vector<string> *ordersList;
+    std::vector<Order> *ordersList;
 
 public:
     // Default constructor which initializes all the maps and the current game state.
@@ -52,16 +54,16 @@ public:
     void setTerritories(const std::vector<pair <string, string>> &territories);
 
     // Getter for the hand.
-    [[nodiscard]] vector<string> *getHand() const;
+    [[nodiscard]] Hand *getHand() const;
 
     // Setter for the hand.
-    void setHand(const vector<string> &hand);
+    void setHand(const Hand &hand);
 
     // Getter for the orders list.
-    [[nodiscard]] vector<string> *getOrders() const;
+    [[nodiscard]] vector<Order> *getOrders() const;
 
     // Setter for the orders list.
-    void setOrders(const vector<string> &hand);
+    void setOrders(const vector<Order> &hand);
 
     // A function used in the assignment operator definition which swaps the member data
     // between two Player objects.
