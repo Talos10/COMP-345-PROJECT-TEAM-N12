@@ -24,7 +24,7 @@ public:
     Card();
 
     //Constructor
-    Card(const Type& cardType);
+    explicit Card(const Type& cardType);
 
     // Copy constructor
     Card(const Card& card);
@@ -39,7 +39,7 @@ public:
     ~Card();
 
     // Getter for enum
-    Type* getType() const;
+    [[nodiscard]] Type* getType() const;
 
     // Setter for enum
     void setType(const Type& type);
@@ -58,7 +58,7 @@ public:
     Hand();
 
     // Constructor
-    Hand(vector<Card> cards);
+    explicit Hand(vector<Card> cards);
 
     // Copy constructor
     Hand(const Hand& hand);
@@ -73,7 +73,7 @@ public:
     ~Hand();
 
     // Getter for handsCards
-    vector<Card> *getHandsCards() const;
+    [[nodiscard]] vector<Card> *getHandsCards() const;
 
     // Setter for handsCards
     void setWarzoneCards(const vector<Card> &cards);
@@ -89,7 +89,7 @@ public:
     Deck();
 
     // Constructor
-    Deck(vector<Card> cards);
+    explicit Deck(vector<Card> cards);
 
     // Copy constructor
     Deck(const Deck& deck);
@@ -104,7 +104,7 @@ public:
     ~Deck();
 
     // Getter for warzone cards
-    vector<Card> *getWarzoneCards() const;
+    [[nodiscard]] vector<Card> *getWarzoneCards() const;
 
     // Setter for warzone cards
     void setWarzoneCards(const vector<Card> &cards);

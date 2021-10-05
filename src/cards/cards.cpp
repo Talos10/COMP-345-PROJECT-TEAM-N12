@@ -1,9 +1,7 @@
 #include "cards.h"
-#include <iostream>
-#include <vector>
-#include <string>
-#include <stdlib.h>
-
+#include <algorithm>
+#include <utility>
+using namespace std;
 
 // Implementation of the Cards, Hands and Deck classes
 
@@ -25,7 +23,7 @@ Card::Card(const Card &card) {
 
 // Assignment operator
 Card& Card::operator=(const Card& card) {
-    this->type = new Type(*card.type);
+    this->type = new Type(*(card.type));
     return *this;
 }
 
@@ -37,7 +35,7 @@ ostream& operator << (ostream& os, const Card &c){
 // Destructor
 Card::~Card() {
     delete type;
-    type = NULL;
+    type = nullptr;
 }
 
 // Getter for card type
@@ -46,20 +44,54 @@ Type* Card::getType() const {
 }
 
 // Setter for card type
-void Card::setType(const Type& type) {
-    this->type = new Type(type);
+void Card::setType(const Type& card_type) {
+    this->type = new Type(card_type);
 }
 
-void play(Deck& deck, Hand& hand) {
+void Card::play(Deck& deck, Hand& hand) {
     // Create an order with this function
     cout << "Creating an order..." << endl;
     // Remove it from hand, put it in deck
+//    Type& card_type = *this->getType();
+//    cout << card_type << endl;
+//    auto it = find_if(*(hand.getHandsCards())->begin(), *(hand.getHandsCards())->end(), [&card_type](const Card& card){cout << *card.getType() << endl; return *card.getType() == card_type;});
+    //Card it = std::find(*(hand.getHandsCards())->begin(), *(hand.getHandsCards())->end(), this);
+    //vector<Card>::iterator card = find(hand.getHandsCards()->begin(), hand.getHandsCards()->end(),const Card& this);
+//    cout << *(hand.getHandsCards())->begin();
+//    cout << (hand.getHandsCards())->back();
+//    cout << *this;
 
-    hand.getHandsCards()->erase(std::remove_if(
-            hand.getHandsCards()->begin(), hand.getHandsCards()->end(),
-            [](const Card &card) {
-                return card.getType() == this->
-            }), hand.getHandsCards()->end());
+//    int position (0);
+//    bool found (false);
+//    for (Card& card: *hand.getHandsCards()){
+//        cout << "this is the size " << hand.getHandsCards()->size() << endl;
+//        cout << "this is the " << position << " card - " << card << " and my card type is " << *this;
+//        cout << *card.getType() << " - " << *this->getType() << endl;
+//        if(*card.getType() == *this->getType()){
+//            cout << "found!" << endl;
+//            found = true;
+//            (hand.getHandsCards())->erase(hand.getHandsCards()->begin() + position);
+//            break;
+//        }
+//        position++;
+//    }
+
+    //if(found)
+    deck.getWarzoneCards()->emplace_back(*this);
+
+//    hand.getHandsCards()->erase(
+//            std::remove(
+//                    hand.getHandsCards()->begin(),
+//                    hand.getHandsCards()->end(),
+//                    *this),
+//                    hand.getHandsCards()->end());
+
+//    this->getType();
+//    hand.getHandsCards()->erase(std::remove_if(
+//            hand.getHandsCards()->begin(), hand.getHandsCards()->end(),
+//            [](const Card &card) {
+//                return card.getType() == this->getType()
+//            }), hand.getHandsCards()->end());
 }
 
 // Default constructor of the Deck class
@@ -69,7 +101,7 @@ Deck::Deck() {
 
 // Constructor
 Deck::Deck(vector<Card> cards) {
-    warzoneCards = new vector<Card>(cards);
+    warzoneCards = new vector<Card>(std::move(cards));
 }
 
 // Copy constructor
@@ -78,15 +110,15 @@ Deck::Deck(const Deck &deck) {
 }
 
 // Assignment operator
-Deck& Deck::operator=(const Deck &deck) {
-    warzoneCards = new vector<Card>(*(deck.warzoneCards));
+Deck& Deck::operator=(const Deck& deck) {
+    this->warzoneCards = new vector<Card>(*(deck.warzoneCards));
     return *this;
 }
 
 // Stream insertion operator for the Deck class
 ostream& operator << (ostream &os, const Deck& d){
     os << "The deck's warzone cards are the following: " << endl;
-    for(Card card : *d.warzoneCards){
+    for(Card& card : *d.warzoneCards){
         os << card;
     }
     return os;
@@ -95,7 +127,7 @@ ostream& operator << (ostream &os, const Deck& d){
 // Destructor for the Deck class
 Deck::~Deck() {
     delete warzoneCards;
-    warzoneCards = NULL;
+    warzoneCards = nullptr;
 }
 
 // Getter for the cards in the deck
@@ -110,19 +142,21 @@ void Deck::setWarzoneCards(const vector<Card> &cards) {
 
 // This function allows a player to draw a card from the deck and to put it in their hand
 void Deck::draw(const Hand& hand) {
-    int card_num = pickCard();
-    Card picked_card { this->warzoneCards->at(card_num) };
+    //int card_num = pickCard();
+    //Card picked_card { this->warzoneCards->at(card_num) };
 
-    cout << card_num << endl;
-    cout << picked_card << endl;
+    //cout << card_num << endl;
+    //cout << picked_card << endl;
 
-    this->warzoneCards->erase(warzoneCards->begin() + card_num);
-    hand.getHandsCards()->emplace_back(picked_card);
+//    this->warzoneCards->erase(warzoneCards->begin() + card_num);
+//    hand.getHandsCards()->emplace_back(picked_card);
+    hand.getHandsCards()->emplace_back(this->warzoneCards->back());
+    this->warzoneCards->pop_back();
 }
 
 int Deck::pickCard() {
     cout << "the size is: " << this->warzoneCards->size() << endl;
-    int randomIndex = rand() % this->warzoneCards->size();
+    int randomIndex = static_cast<int>(rand() % this->warzoneCards->size());
     return randomIndex;
 }
 
@@ -133,14 +167,14 @@ Hand::Hand() {
 
 // Constructor
 Hand::Hand(vector<Card> cards) {
-    handsCards = new vector<Card>(cards);
+    handsCards = new vector<Card>(move(cards));
 }
 
 Hand::Hand(const Hand &hand) {
     this->handsCards = new vector<Card>(*(hand.handsCards));
 }
 
-Hand& Hand::operator=(const Hand &hand) {
+Hand& Hand::operator=(const Hand& hand) {
     this->handsCards = new vector<Card>(*(hand.handsCards));
     return *this;
 }
@@ -148,7 +182,7 @@ Hand& Hand::operator=(const Hand &hand) {
 // Stream insertion operator for the Hand class
 ostream& operator << (ostream &os, const Hand& h) {
     os << "The hand's warzone cards are the following: " << endl;
-    for(Card card : *h.handsCards){
+    for(Card& card : *h.handsCards){
         os << card;
     }
     return os;

@@ -38,4 +38,24 @@ void main_card() {
 
     cout << deck << endl;
     cout << handObj << endl;
+
+//    c1.play(deck, handObj);
+//    c2.play(deck, handObj);
+//    c3.play(deck, handObj);
+//    c4.play(deck, handObj);
+//    c5.play(deck, handObj);
+//    c6.play(deck, handObj);
+//    c7.play(deck, handObj);
+//    c8.play(deck, handObj);
+//    c9.play(deck, handObj);
+//    c10.play(deck, handObj);
+
+for(Card& card: *handObj.getHandsCards()){
+    //cout << handObj.getHandsCards()->size() << endl;
+    card.play(deck, handObj);
+}
+
+    cout << deck << endl;
+    cout << handObj << endl;
+
 }
