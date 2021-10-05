@@ -23,7 +23,7 @@ private:
     Hand *hand;
 
     //A list of Order objects the player has issued.
-    std::vector<Order> *ordersList;
+    OrdersList *ordersList;
 
 public:
     // Default constructor which initializes all the maps and the current game state.
@@ -60,10 +60,10 @@ public:
     void setHand(const Hand &hand);
 
     // Getter for the orders list.
-    [[nodiscard]] vector<Order> *getOrders() const;
+    [[nodiscard]] OrdersList *getOrders() const;
 
     // Setter for the orders list.
-    void setOrders(const vector<Order> &hand);
+    void setOrders(const OrdersList &ordersList);
 
     // A function used in the assignment operator definition which swaps the member data
     // between two Player objects.

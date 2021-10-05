@@ -16,14 +16,14 @@ Player::Player(){
 
     territories = new std::vector<pair <string, string>>{};
     hand = new Hand();
-    ordersList = new std::vector<Order>{};
+    ordersList = new OrdersList();
 };
 
 // Copy constructor.
 Player::Player(const Player &pl) {
     this->territories = new std::vector<pair <string, string>>(*pl.territories);
     this->hand = new Hand(*pl.hand);
-    this->ordersList = new std::vector<Order>(*pl.ordersList);
+    this->ordersList = new OrdersList(*pl.ordersList);
 }
 
 // Swaps the member data between two Player objects.
@@ -61,13 +61,13 @@ void Player::setHand(const Hand &hand) {
 }
 
 // Getter for the orders list.
-std::vector<Order> *Player:: getOrders() const {
+OrdersList *Player:: getOrders() const {
     return ordersList;
 }
 
 // Setter for the orders list.
-void Player::setOrders(const vector<Order> &ordersList) {
-    this->ordersList = new vector<Order>(ordersList);
+void Player::setOrders(const OrdersList &ordersList) {
+    this->ordersList = new OrdersList(ordersList);
 }
 
 //A function which will go through the collection of territories the player owns and
