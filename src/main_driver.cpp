@@ -1,12 +1,14 @@
 #include <iostream>
 #include "game_engine/game_engine.h"
+#include "map/MapDriver.h"
 
 using namespace std;
 
 int main() {
-    cout << "Running main driver!" << endl;
+    cout << "Running map driver!" << endl;
 
-    game_engine_driver();
+    MapDriver mapDriver = MapDriver();
+    mapDriver.map_driver_run();
 
     return 0;
 }
