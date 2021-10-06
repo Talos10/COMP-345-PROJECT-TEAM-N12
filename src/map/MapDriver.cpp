@@ -10,8 +10,9 @@ using std::endl;
 
 void MapDriver::map_driver_run() {
     // Call Map Loader on file, retrieve map
-    MapLoader mapLoader = MapLoader();
     string filename = "demo-map.txt";
-    Map map = mapLoader.load(filename);
+    Map map = MapLoader::load(filename);
+    string mermaid = map.toMermaid();
+    cout << mermaid;
     // Call MAp validate
 }
