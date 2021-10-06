@@ -301,7 +301,7 @@ OrdersList::OrdersList() {
 }
 
 //Copy constructor
-OrdersList::OrdersList(const OrdersList& o_list) {
+OrdersList::OrdersList(const OrdersList& o_list): OrdersList() {
     for (int i = 0; i < o_list.getOrders().size(); i++) {
        Order* o = new Order(*(o_list.orders)->at(i));
        this->addOrder(o);
