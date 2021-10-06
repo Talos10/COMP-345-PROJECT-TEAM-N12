@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "orders/Orders.h"
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -23,7 +24,7 @@ public:
     // Default constructor
     Card();
 
-    //Constructor
+    // Constructor
     explicit Card(const Type& cardType);
 
     // Copy constructor
@@ -45,7 +46,10 @@ public:
     void setType(const Type& type);
 
     // A function which lets a player create orders. If a card has been played, remove it from the hands and put it back in the deck
-    void play(Deck& deck, Hand& hand);
+    void play(Deck& deck, Hand& hand, OrdersList& ordersList);
+
+    // A function that checks if two objects are the same
+    friend bool operator == (const Card &c1, const Card &c2);
 };
 
 // This class represents the set of cards that will be held by the players during the gme
@@ -58,7 +62,7 @@ public:
     Hand();
 
     // Constructor
-    explicit Hand(vector<Card> cards);
+    explicit Hand(const vector<Card>& cards);
 
     // Copy constructor
     Hand(const Hand& hand);
@@ -77,6 +81,9 @@ public:
 
     // Setter for handsCards
     void setWarzoneCards(const vector<Card> &cards);
+
+    // Returns the number of cards for a given type
+    int getNumOfCards(const Type& type) const;
 };
 
 // This class represents the set of warzone cards where all players draw from when it's their turn to play
@@ -89,7 +96,7 @@ public:
     Deck();
 
     // Constructor
-    explicit Deck(vector<Card> cards);
+    explicit Deck(const vector<Card>& cards);
 
     // Copy constructor
     Deck(const Deck& deck);
@@ -116,4 +123,4 @@ public:
     int pickCard();
 };
 
-void main_card();
+void card_driver();
