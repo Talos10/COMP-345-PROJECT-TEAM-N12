@@ -88,7 +88,10 @@ void Card::play(Deck& deck, Hand& hand, OrdersList& ordersList) {
             break;
     }
     // Create an order with a description and an effect chosen by the card type
-    Order order (description, effect);
+    Order *order = new Order();
+    order->setDescription(description);
+    order->setEffect(effect);
+
     // Put the created order in the list of orders
     ordersList.getOrders().push_back(order);
 

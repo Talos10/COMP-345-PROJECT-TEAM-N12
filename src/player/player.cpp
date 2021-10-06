@@ -106,7 +106,7 @@ vector<pair<string, string>> Player::toAttack() {
 
 //A function which creates an Order object and adds it to the list of Orders.
 void Player::issueOrder(const string &description, const string &effect){
-    ordersList->addOrder(*(new Order(description, effect)));
+    ordersList->addOrder(new Order(description, effect));
 }
 
 // Free function in order to test the functionality of the Player for assignment #1.
