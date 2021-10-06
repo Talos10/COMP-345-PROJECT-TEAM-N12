@@ -47,7 +47,7 @@ public:
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Order& order);
 
-    //Defining the equality operator
+    //Defining the assignment operator
     Order& operator=(const Order& order);
 };
 
@@ -72,7 +72,7 @@ public:
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Deploy& deploy);
 
-    //Defining the equality operator
+    //Defining the assignment operator
     Deploy& operator=(const Deploy& order);
 };
 
@@ -97,7 +97,7 @@ public:
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Advance& advance);
 
-    //Defining the equality operator
+    //Defining the assignment operator
     Advance& operator=(const Advance& order);
 };
 
@@ -122,7 +122,7 @@ public:
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Bomb& bomb);
 
-    //Defining the equality operator
+    //Defining the assignment operator
     Bomb& operator=(const Bomb& order);
 };
 
@@ -147,7 +147,7 @@ public:
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Blockade& blockade);
 
-    //Defining the equality operator
+    //Defining the assignment operator
     Blockade& operator=(const Blockade& order);
 };
 
@@ -172,7 +172,7 @@ public:
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Airlift& airlift);
 
-    //Defining the equality operator
+    //Defining the assignment operator
     Airlift& operator=(const Airlift& order);
 };
 
@@ -197,20 +197,17 @@ public:
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Negotiate& negotiate);
 
-    //Defining the equality operator
+    //Defining the assignment operator
     Negotiate& operator=(const Negotiate& order);
 };
 
 // This class implements an OrdersList which contains the orders created.
 class OrdersList {
 private:
-    vector<Order>* orders;
+    vector<Order*>* orders;
 public:
     //Default constructor
     OrdersList();
-
-    //Parameterized constructor which accepts a vector of Order
-    OrdersList(vector<Order>& orders);
 
     //Copy constructor
     OrdersList(const OrdersList& o_list);
@@ -225,22 +222,19 @@ public:
     void remove(int orderPosition);
 
     //Getter for the vector of orders
-    vector<Order>& getOrders() const;
+    vector<Order*>& getOrders() const;
 
     //Add an order to the vector by providing an Order
-    void addOrder(const Order& order);
-
-    //Add an order to the vector at a specific index by providing an Order and the desired index position
-    void addOrder(const Order& order, int index);
+    void addOrder(Order* order);
 
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const OrdersList& ol);
 
-    //Defining the equality operator
+    //Defining the assignment operator
     OrdersList& operator=(const OrdersList& ordersList);
 
     //Defining the addition operator
-    void operator+(Order& order);
+    void operator+(Order* order);
 };
 
 // Free function in order to test the functionality of the Orders.cpp for assignment #1.
