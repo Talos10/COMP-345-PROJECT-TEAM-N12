@@ -22,7 +22,7 @@ private:
     //Hand object (collection of Card objects) the Player has.
     Hand *hand;
 
-    //A list of Order objects the player has issued.
+    //An OrdersList object containing Order objects the player has issued.
     OrdersList *ordersList;
 
 public:
@@ -30,13 +30,19 @@ public:
     Player();
 
     // A copy constructor.
-    Player(const Player &pl);
+    Player(const Player& pl);
 
     // Defining the assignment operator.
     Player &operator=(Player pl);
 
     // Destructor.
     ~Player();
+
+    //Defining the output operator
+    friend ostream & operator<<(ostream& out, const Player& pl);
+
+    //Defining the equality operator
+    Player& operator=(const Player& pl);
 
     //A function that will return the territories to be defended.
     std::vector<pair<string, string>> toDefend();
@@ -45,13 +51,16 @@ public:
     std::vector<pair <string, string>> toAttack();
 
     //A function that will create an Order object and add it to the list of Orders.
-    void issueOrder(const string &description, const string &effect);
+    void issueOrder(Order* order);
 
     // Getter for the territories.
     [[nodiscard]] std::vector<pair <string, string>> *getTerritories() const;
 
     // Setter for the territories.
     void setTerritories(const std::vector<pair <string, string>> &territories);
+
+    //Defining the output operator
+    friend ostream & operator<<(ostream& out, const std::vector<pair <string, string>>& territories);
 
     // Getter for the hand.
     [[nodiscard]] Hand *getHand() const;
