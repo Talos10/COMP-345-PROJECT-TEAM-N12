@@ -8,7 +8,7 @@
 
 class MapDriver {
 public:
-    void map_driver_run();
+    static void map_driver_run();
 };
 
 

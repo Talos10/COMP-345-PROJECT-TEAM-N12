@@ -17,86 +17,67 @@ private:
     const string name;
     const string color;
     const int armyBonusNumber;
-
-    list<Territory> territories;
+    list<Territory*> territories;
+    bool isSubgraph();
 public:
-    const list<Territory> &getTerritories() const;
+    Continent(const string &name, const string &color, const int armyBonusNumber);
 
-public:
-    Continent(string name, string color, int armyBonusNumber);
-    int getArmyBonusNumber() const;
-    bool isCompletelyOwned() const;
-
-    bool isEmpty();
-
-    void addTerritory(const Territory& territory);
-
-public:
     const string &getName() const;
+    const int getArmyBonusNumber() const;
+    const list<Territory *> &getTerritories() const;
 
-private:
-    bool isSubgraph() const;
+    bool isCompletelyOwned() const;
+    bool isEmpty() const;
+    void addTerritory(Territory* territory);
 };
 
 class Territory {
-    private:
-       const int index;
-       const string name;
-       const int x;
-       const int y;
-       const Continent continent;
-        list<Territory> neighbours;
-public:
-    Territory(const int index, const string &name, const int x, const int y, const Continent &continent);
-
 private:
+    const int id;
+    const string name;
+    const int x;
+    const int y;
+    const Continent* continent;
+    list<Territory*> neighbours;
     int numberOfArmies;
-       // TODO: Change to Player type
-       string owner;
-
+    // TODO: Change to Player type
+    string owner;
 public:
+    Territory(const int id, const string &name, const int x, const int y, const Continent *continent);
     const string &getName() const;
-    const list<Territory> &getNeighbours() const;
-    const Continent &getContinent() const;
+    const Continent *getContinent() const;
+    const int getId() const;
+    list<Territory *> &getNeighbours();
     int getNumberOfArmies() const;
     const string &getOwner() const;
-//    public:
-//    void
-
-    void addNeighbour(const Territory& territory);
+    void addNeighbour(Territory* territory);
 };
 
 class Map {
 private:
     // Adjacency list of graph implemented using Vector
-    vector<Territory> territories;
-    vector<Continent> continents;
+    vector<Territory*> territories;
+    vector<Continent*> continents;
     const string name;
 public:
     // Graph functions go here
     void validate();
-
-    void addTerritory(const Territory& territory);
-
-    Territory getTerritoryByID(int i);
-
+    void addTerritory(Territory* territory);
+    Territory* getTerritoryByID(int i);
     void addEdge(int originID, int destID);
-
     unsigned int getSize();
-
+    
     string toMermaid();
-
-    void addContinent(const Continent& continent);
-
-    Continent &getContinentByID(int continentID);
-
+    void addContinent(Continent* continent);
+    Continent* getContinentByID(int continentID);
     unsigned int getContinentsSize();
+
+    Map(string name);
 };
 
 class MapLoader {
-
 public:
-    static Map load(const string& filename);
+    static Map* load(const string& filename);
 };
 
 #endif //COMP_345_PROJECT_TEAM_N12_MAP_H
