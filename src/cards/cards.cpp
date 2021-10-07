@@ -63,7 +63,7 @@ void Card::setType(const Type& card_type) {
 // This function creates an order of the current card and adds it to a list of orders which is a parameter passed by reference.
 // Then, it removes the card that was played from the hand which is a parameter passed by reference
 // Finally, it adds the same card to the deck
-void Card::play(Deck& deck, Hand& hand, OrdersList& ordersList) {
+void Card::play(Deck& deck, Player& player) {
     // Create an order, set the effect and the description, and push it in a list of orders
     string effect = "";
     string description = "This card has the type: ";
@@ -95,10 +95,10 @@ void Card::play(Deck& deck, Hand& hand, OrdersList& ordersList) {
     order->setEffect(effect);
 
     // Put the created order in the list of orders
-    ordersList.getOrders().push_back(order);
+    player.issueOrder(order);
 
     // Create references for the content of the hand cards and the content of the card being played
-    vector<Card> &hand_cards (*hand.getHandsCards());
+    vector<Card> &hand_cards (*(player.getHand())->getHandsCards());
     Card card (*this);
     bool found (false);
 
@@ -257,17 +257,18 @@ void card_driver() {
     deck.draw(handObj);
     deck.draw(handObj);
 
+    Player player;
+    player.setHand(handObj);
+
     cout << deck << endl;
-    cout << handObj << endl;
+    cout << player << endl;
 
-    OrdersList ordersList;
-
-    auto it = begin(*handObj.getHandsCards());
-    while (it != end(*handObj.getHandsCards())) {
-        handObj.getHandsCards()->at(0).play(deck, handObj, ordersList);
+    vector<Card>& hands_card (*(player.getHand())->getHandsCards());
+    auto it = begin(hands_card);
+    while (it != end(hands_card)) {
+        player.getHand()->getHandsCards()->at(0).play(deck, player);
     }
 
     cout << deck << endl;
-    cout << handObj << endl;
-    cout << ordersList << endl;
+    cout << player << endl;
 }
