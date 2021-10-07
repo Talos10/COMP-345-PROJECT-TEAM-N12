@@ -136,8 +136,8 @@ vector<pair<string, string>> Player::toAttack() {
 }
 
 //A function which creates an Order object and adds it to the list of Orders.
-void Player::issueOrder(const string &description, const string &effect){
-    ordersList->addOrder(*(new Order(description, effect)));
+void Player::issueOrder(Order* order){
+    ordersList->addOrder(order);
 }
 
 // Free function in order to test the functionality of the Player for assignment #1.
@@ -151,37 +151,48 @@ void player_driver() {
     //Set the territories with dummy data
     player1.setTerritories({{"t1", "attack"}, {"t2", "defend"}, {"t3", "defend"}, {"t4", "attack"}});
 
+    //Testing the hand (cards) functionality with the player object
+    Card c1, c2, c3;
+    vector<Card> cards;
+    cards.emplace_back(c1);
+    cards.emplace_back(c2);
+    cards.emplace_back(c3);
+    Hand hand {cards};
+    player1.setHand(hand);
+
     //Output territories to attack
     cout << "\nTerritories to attack:" << endl;
     for(pair<string, string> territory: player1.toAttack()){
-        cout << "\n" << territory.first << endl;
+        cout << "[" << territory.first << "] ";
     }
+    cout << endl;
 
     //Output territories to defend
     cout << "\nTerritories to defend:" << endl;
     for(pair<string, string> territory: player1.toDefend()){
-        cout << "\n" << territory.first << endl;
+        cout << "[" << territory.first << "] ";
     }
+    cout << endl;
 
     //Issue an order
-    player1.issueOrder("test description #1", "test effect #1");
+    player1.issueOrder(new Deploy());
 
     //Output the list of orders
-    cout << "Issued orders " << *player1.getOrders() << endl;
+    cout << "Issued orders:" << *player1.getOrders() << endl;
 
     //Issue an additional order
-    player1.issueOrder("test description #2", "test effect #2");
+    player1.issueOrder(new Advance());
 
     //Output the list of orders with the 2 orders
-    cout << "Issued orders " << *player1.getOrders() << endl;
+    cout << "Issued orders:" << *player1.getOrders() << endl;
 
     //Testing copy constructor
     Player player2 = {player1};
 
 
-    cout << "player1 object: \n" << player1 << endl;
+    cout << "player1 object: " << player1 << endl;
 
-    cout << "player2 object: \n" << player2 << endl;
+    cout << "player2 object: " << player2 << endl;
 
     cout << "player1 address: " << &player1 << "\tplayer2 address " << &player2 << endl;
 }

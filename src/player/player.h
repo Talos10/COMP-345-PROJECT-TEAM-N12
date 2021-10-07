@@ -30,7 +30,7 @@ public:
     Player();
 
     // A copy constructor.
-    Player(const Player &pl);
+    Player(const Player& pl);
 
     // Defining the assignment operator.
     Player &operator=(Player pl);
@@ -51,7 +51,7 @@ public:
     std::vector<pair <string, string>> toAttack();
 
     //A function that will create an Order object and add it to the list of Orders.
-    void issueOrder(const string &description, const string &effect);
+    void issueOrder(Order* order);
 
     // Getter for the territories.
     [[nodiscard]] std::vector<pair <string, string>> *getTerritories() const;
