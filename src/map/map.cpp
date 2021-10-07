@@ -25,13 +25,61 @@ section getSectionFromString(const string& str) {
 
 void Map::validate() {
     // Validation step: check no continents are empty
+    cout << "Validating map..." << endl;
     for (const auto &continent : continents) {
         if (continent->isEmpty()) {
             cerr << "Continent " << continent->getName() << " does not have a country" << endl;
             throw;
         }
     }
-//TODO validate() Definition
+    cout << "Success! No continents are empty!" << endl;
+
+    // Validation step: continents have a mutually exclusive list of territories
+    // Create array for territory existence
+    vector<int> territoriesTaken(territories.size(), 0);
+    for (const auto &continent : continents) {
+        for (const auto &territory : continent->getTerritories()) {
+            int &lookupValue = territoriesTaken.at(territory->getId() - 1);
+            lookupValue++;
+        }
+    }
+
+//    cout << "Territories Visited: [";
+//    for (const auto &item : territoriesTaken) {
+//        cout << " " << item << " ";
+//    }
+//    cout << "]" << endl;
+
+    // All territories must be exactly visited once
+    for (const auto &numberOfTimesVisited : territoriesTaken) {
+        if (numberOfTimesVisited != 1) {
+            cerr << "Territory must belong to one and only one continent, found " << numberOfTimesVisited;
+            throw;
+        }
+    }
+    cout << "Success! No continents share the same territory!" << endl;
+
+    // Test Map is connected graph
+    cout << "Checking for connectedness of whole map..." << endl;
+    if (!isConnected(territories)) {
+        cerr << "ERROR! Map is not connected!" << endl;
+        throw;
+    }
+    cout << "Success! The global map is connected!" << endl;
+
+    // Test each continent is connected subgraph of map
+    for (const auto &continent : continents) {
+        cout << "Checking for connectedness of continent "  << continent->getName() << "..." << endl;
+        if (!isConnected(continent->getTerritories())) {
+            cerr << "ERROR! Continent is not connected!" << endl;
+            throw;
+        } else {
+            cout << "Success! Subgraph " << continent->getName() << " is valid!" << endl;
+
+        }
+    }
+
+    cout << "Success! All subgraphs are valid!" << endl;
 }
 
 void Map::addTerritory(Territory* territory) {
@@ -94,6 +142,56 @@ unsigned int Map::getContinentsSize() {
 
 Map::Map(string name) : name(name) {}
 
+std::ostream &operator<<(std::ostream &out, Map* map) {
+    out << "Map of name " << map->name;
+    out << ", with countries :[";
+    for (const auto &territory : map->territories) {
+        out << territory << endl;
+    }
+    out << "] and continents: [" << endl;
+    for (const auto &continent : map->continents) {
+        out << continent << endl;
+    }
+    out << "]" << endl;
+
+    return out;
+}
+
+bool Map::isConnected(const vector<Territory *>& territories) {
+    // Build vector of territories visited
+    list<int> visitedTerritoryIDs;
+
+    // Do a DFS to visit all connected territories
+    dfs(territories.front(), territories, visitedTerritoryIDs);
+
+    // if all territories in the graph have been visited, then graph is connected
+    for (const auto &item : territories) {
+        auto isVisited = std::find(visitedTerritoryIDs.begin(), visitedTerritoryIDs.end(), item->getId());
+        if (isVisited == std::end(visitedTerritoryIDs)) {
+            cerr << "Territory " << item->getId() << " has not been visited!" << endl;
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void Map::dfs(Territory *const &currentTerritory, const vector<Territory *> &territories, list<int> &visitedTerritories) {
+    auto isAlreadyVisited = std::find(visitedTerritories.begin(), visitedTerritories.end(), currentTerritory->getId());
+    if (isAlreadyVisited != std::end(visitedTerritories)) {
+        // Already visited node, no point visiting its adjacent nodes
+        return;
+    }
+    visitedTerritories.emplace_back(currentTerritory->getId());
+
+    for (const auto &neighbour : currentTerritory->getNeighbours()) {
+        auto isInTerritories = std::find(territories.begin(), territories.end(), neighbour);
+        if (isInTerritories != std::end(territories)){
+            dfs(neighbour, territories, visitedTerritories);
+        }
+    }
+}
+
 bool Continent::isCompletelyOwned() const {
     if (territories.empty()) return false;
 
@@ -122,7 +220,7 @@ void Continent::addTerritory(Territory* territory) {
     territories.emplace_back(territory);
 }
 
-Continent::Continent(const string &name, const string &color, const int armyBonusNumber) : name(name), color(color),
+Continent::Continent(const string &name, const string &color, const int armyBonusNumber) : name(name), colour(color),
                                                                                            armyBonusNumber(
                                                                                                    armyBonusNumber) {}
 
@@ -134,8 +232,19 @@ const int Continent::getArmyBonusNumber() const {
     return armyBonusNumber;
 }
 
-const list<Territory *> &Continent::getTerritories() const {
+const vector<Territory *> &Continent::getTerritories() const {
     return territories;
+}
+
+std::ostream &operator<<(std::ostream &out, const Continent* continent) {
+    out <<  "Continent " << continent->getName();
+    out << " of bonus value " << continent->getArmyBonusNumber();
+    out << " and colour " << continent->getColour();
+    return out;
+}
+
+const string &Continent::getColour() const {
+    return colour;
 }
 
 /**
@@ -213,8 +322,9 @@ Map* MapLoader::load(const string& filename) {
                         string color;
                         ss >> name >> bonusNumber >> color;
 
-                        cout << "\tFound continent " << name << " of bonus value " << bonusNumber << " and colour " << color << endl;
+//                        cout << "\tFound continent " << name << " of bonus value " << bonusNumber << " and colour " << color << endl;
                         auto* continent = new Continent(name, color, bonusNumber);
+                        cout << continent << endl;
                         gameMap->addContinent(continent);
                     } else {
                         cout << "\tContinent line doesn't meet expected format" << endl;
@@ -247,8 +357,9 @@ Map* MapLoader::load(const string& filename) {
                             cout << "\tTerritory has an invalid continent id: " << continentID << endl;
                         }
 
-                        cout << "\tFound country " << countryName << " of continent id " << continentID << " and x,y of " << xCoordinate << "," << yCoordinate << endl;
+//                        cout << "\tFound country " << countryName << " of continent id " << continentID << " and x,y of " << xCoordinate << "," << yCoordinate << endl;
                         auto* territory = new Territory(countryID, countryName, xCoordinate, yCoordinate, gameMap->getContinentByID(continentID));
+                        cout << territory << endl;
 
                         // Assign continent to territory
                         gameMap->getContinentByID(continentID)->addTerritory(territory);
@@ -299,13 +410,15 @@ Map* MapLoader::load(const string& filename) {
                     break;
             }
         }
-
     }
+
+    cout << "Printout of Map:" << endl;
+    cout << gameMap << endl;
 
     cout << "Closing file" << endl;
     file.close();
 
-    cout << "Finished reading file into Map";
+    cout << "Finished reading file into Map" << endl;
     return gameMap;
 }
 
@@ -342,4 +455,19 @@ void Territory::addNeighbour(Territory *territory) {
 
 const int Territory::getId() const {
     return id;
+}
+
+std::ostream &operator<<(std::ostream &out, const Territory *territory) {
+    out << "Country " << territory->getId() << " of name " << territory->getName();
+    out << " of continent " << territory->getContinent()->getName();
+    out << " and x,y of " << territory->getX() << "," << territory->getY();
+    return out;
+}
+
+const int Territory::getX() const {
+    return x;
+}
+
+const int Territory::getY() const {
+    return y;
 }

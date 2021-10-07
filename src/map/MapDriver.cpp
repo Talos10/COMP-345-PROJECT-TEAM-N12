@@ -12,7 +12,12 @@ void MapDriver::map_driver_run() {
     // Call Map Loader on file, retrieve map
     string filename = "canada-map.txt";
     Map* map = MapLoader::load(filename);
+
+    cout << "**********Generating mermaid representation of map...****************" << endl;
     string mermaid = map->toMermaid();
     cout << mermaid;
+    cout << "**********DONE****************" << endl;
+
+    map->validate();
     // Call MAp validate
 }

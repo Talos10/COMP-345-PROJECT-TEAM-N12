@@ -6,6 +6,7 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <iostream>
 
 using std::list;
 using std::string;
@@ -15,20 +16,23 @@ class Territory;
 class Continent{
 private:
     const string name;
-    const string color;
+    const string colour;
     const int armyBonusNumber;
-    list<Territory*> territories;
-    bool isSubgraph();
+    vector<Territory*> territories;
 public:
     Continent(const string &name, const string &color, const int armyBonusNumber);
 
     const string &getName() const;
     const int getArmyBonusNumber() const;
-    const list<Territory *> &getTerritories() const;
+    const vector<Territory *> &getTerritories() const;
+
+    const string &getColour() const;
 
     bool isCompletelyOwned() const;
     bool isEmpty() const;
     void addTerritory(Territory* territory);
+
+    friend std::ostream & operator << (std::ostream &out, const Continent* continent);
 };
 
 class Territory {
@@ -51,6 +55,12 @@ public:
     int getNumberOfArmies() const;
     const string &getOwner() const;
     void addNeighbour(Territory* territory);
+
+    const int getX() const;
+
+    const int getY() const;
+
+    friend std::ostream & operator << (std::ostream &out, const Territory* territory);
 };
 
 class Map {
@@ -59,20 +69,25 @@ private:
     vector<Territory*> territories;
     vector<Continent*> continents;
     const string name;
+    static bool isConnected(const vector<Territory*>& territories);
+    static void dfs(Territory *const &currentTerritory, const vector<Territory *> &territories, list<int> &visitedTerritories);
 public:
     // Graph functions go here
     void validate();
     void addTerritory(Territory* territory);
     Territory* getTerritoryByID(int i);
     void addEdge(int originID, int destID);
+
     unsigned int getSize();
-    
     string toMermaid();
     void addContinent(Continent* continent);
     Continent* getContinentByID(int continentID);
+
     unsigned int getContinentsSize();
 
     Map(string name);
+
+    friend std::ostream &operator<<(std::ostream &out, Map* map);
 };
 
 class MapLoader {
