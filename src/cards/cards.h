@@ -1,5 +1,3 @@
-// Describe the use of the cards class.
-
 #pragma once
 
 #include "orders/Orders.h"
@@ -8,7 +6,13 @@
 using namespace std;
 
 // Enumeration for the type of cards
-enum Type {bomb, reinforcement, blockade, airlift, diplomacy};
+enum Type {
+    bomb,
+    reinforcement,
+    blockade,
+    airlift,
+    diplomacy
+};
 
 // Forward declarations
 class Deck;
@@ -81,9 +85,6 @@ public:
 
     // Setter for handsCards
     void setWarzoneCards(const vector<Card> &cards);
-
-    // Returns the number of cards for a given type
-    int getNumOfCards(const Type& type) const;
 };
 
 // This class represents the set of warzone cards where all players draw from when it's their turn to play

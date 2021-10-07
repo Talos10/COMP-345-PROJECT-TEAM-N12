@@ -25,8 +25,10 @@ Card::Card(const Card &card) {
 
 // Assignment operator
 Card& Card::operator=(const Card& card) {
-    delete this->type;
-    this->type = new Type(*(card.type));
+    if(this->type != card.type) {
+        delete this->type;
+        this->type = new Type(*(card.type));
+    }
     return *this;
 }
 
@@ -134,8 +136,10 @@ Deck::Deck(const Deck &deck) {
 
 // Assignment operator
 Deck& Deck::operator=(const Deck& deck) {
-    delete this->warzoneCards;
-    this->warzoneCards = new vector<Card>(*(deck.warzoneCards));
+    if(this->warzoneCards != deck.warzoneCards){
+        delete this->warzoneCards;
+        this->warzoneCards = new vector<Card>(*(deck.warzoneCards));
+    }
     return *this;
 }
 
@@ -166,21 +170,10 @@ void Deck::setWarzoneCards(const vector<Card> &cards) {
 
 // This function allows a player to draw a card from the deck and to put it in their hand
 Card& Deck::draw(const Hand& hand) {
-    //int card_num = pickCard();
-    //Card picked_card { this->warzoneCards->at(card_num) };
-
-//    this->warzoneCards->erase(warzoneCards->begin() + card_num);
-//    hand.getHandsCards()->emplace_back(picked_card);
     hand.getHandsCards()->emplace_back(this->warzoneCards->back());
     this->warzoneCards->pop_back(); //remove last from deck
     return hand.getHandsCards()->back();
 }
-
-//int Deck::pickCard() {
-//    cout << "the size is: " << this->warzoneCards->size() << endl;
-//    int randomIndex = static_cast<int>(rand() % this->warzoneCards->size());
-//    return randomIndex;
-//}
 
 //---Implementation of the Hand class---
 
@@ -189,20 +182,22 @@ Hand::Hand() {
     handsCards = new vector<Card>();
 }
 
-// Constructor that passes a vector of Card as the only parameter
+// Constructor that initializes an empty vector of Card
 Hand::Hand(const vector<Card>& cards) {
     handsCards = new vector<Card>(cards);
 }
 
-// Constructor
+// Constructor that passes a vector of Card as the only parameter
 Hand::Hand(const Hand &hand) {
     this->handsCards = new vector<Card>(*(hand.handsCards));
 }
 
 // Assignment operator
 Hand& Hand::operator=(const Hand& hand) {
-    delete this->handsCards;
-    this->handsCards = new vector<Card>(*(hand.handsCards));
+    if(this->handsCards != hand.handsCards){
+        delete this->handsCards;
+        this->handsCards = new vector<Card>(*(hand.handsCards));
+    }
     return *this;
 }
 
@@ -229,16 +224,6 @@ vector<Card>* Hand::getHandsCards() const {
 // Setter for handsCards
 void Hand::setWarzoneCards(const vector<Card> &cards) {
     this->handsCards = new vector<Card>(cards);
-}
-
-// Get the number of cards by a hand's player given a card type
-int Hand::getNumOfCards(const Type &card_type) const{
-    int counter (0);
-    for(Card& card: *this->getHandsCards()){
-        if(*card.getType() == card_type)
-            counter++;
-    }
-    return counter;
 }
 
 void card_driver() {
@@ -285,10 +270,4 @@ void card_driver() {
     cout << deck << endl;
     cout << handObj << endl;
     cout << ordersList << endl;
-
-    cout << handObj.getNumOfCards(Type::bomb) << endl;
-    cout << handObj.getNumOfCards(Type::diplomacy) << endl;
-    cout << handObj.getNumOfCards(Type::airlift) << endl;
-    cout << handObj.getNumOfCards(Type::reinforcement) << endl;
-    cout << handObj.getNumOfCards(Type::blockade) << endl;
 }
