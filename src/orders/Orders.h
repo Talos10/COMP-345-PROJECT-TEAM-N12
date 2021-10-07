@@ -33,10 +33,10 @@ public:
     virtual void execute();
 
     //Getter for the description of the order
-    string getDescription() const;
+    string* getDescription() const;
 
     //Getter for the effect of the order
-    string getEffect() const;
+    string* getEffect() const;
 
     //Setter for the description of the order
     void setDescription(const string& description);
@@ -222,7 +222,7 @@ public:
     void remove(int orderPosition);
 
     //Getter for the vector of orders
-    vector<Order*>& getOrders() const;
+    vector<Order*>* getOrders() const;
 
     //Add an order to the vector by providing an Order
     void addOrder(Order* order);

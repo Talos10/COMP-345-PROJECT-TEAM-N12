@@ -23,13 +23,13 @@ Order::~Order() {
 }
 
 //Getter to retrieve the description of an Order
-string Order::getDescription() const {
-    return *(this->description);
+string* Order::getDescription() const {
+    return this->description;
 }
 
 //Getter to retrieve the effect of an Order
-string Order::getEffect() const {
-    return *(this->effect);
+string* Order::getEffect() const {
+    return this->effect;
 }
 
 //Setter to set the description of an Order
@@ -44,7 +44,7 @@ void Order::setEffect(const string& effect) {
 
 //Defining the assignment operator
 Order& Order::operator=(const Order& order) {
-    if (this == &order) {
+    if (this != &order) {
         delete this->description;
         delete this->effect;
         this->description = new string(*(order.description));
@@ -59,7 +59,7 @@ ostream& operator<<(ostream& out, const Order& order) {
 	return out;
 }
 
-////Checks if an order is valid
+//Checks if an order is valid
 bool Order::validate() {
     return true;
 }
@@ -77,8 +77,7 @@ Deploy::Deploy(): Order("Deploy Order", "Deploy effect") {}
 Deploy::Deploy(const Deploy& deploy_order): Order(deploy_order) {}
 
 //Destructor
-//RESEARCH: ***destructor to Order***
-Deploy::~Deploy() {};
+Deploy::~Deploy() {}
 
 //Checks if a Deploy order is valid
 bool Deploy::validate() {
@@ -90,7 +89,7 @@ bool Deploy::validate() {
 void Deploy::execute() {
     if (this->validate()) {
         cout << "Executing Deploy Order" << endl;
-        cout << this->getEffect() << endl;
+        cout << *this->getEffect() << endl;
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -98,7 +97,6 @@ void Deploy::execute() {
 }
 
 //Defining the assignment operator
-///////TESTTTTTTTTT
 Deploy& Deploy::operator=(const Deploy& deploy_order) {
     Order::operator=(deploy_order);
     return *this;
@@ -106,7 +104,7 @@ Deploy& Deploy::operator=(const Deploy& deploy_order) {
 
 //Defining the output operator
 ostream& operator<<(ostream& out, const Deploy& deploy) {
-	out << deploy.getDescription();
+	out << *deploy.getDescription();
 	return out;
 }
 
@@ -130,7 +128,7 @@ bool Advance::validate() {
 void Advance::execute() {
     if (this->validate()) {
         cout << "Executing Advance Order" << endl;
-        cout << this->getEffect() << endl;
+        cout << *this->getEffect() << endl;
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -145,7 +143,7 @@ Advance& Advance::operator=(const Advance& adv_order) {
 
 //Defining the output operator
 ostream& operator<<(ostream& out, const Advance& advance) {
-	out << advance.getDescription();
+	out << *advance.getDescription();
 	return out;
 }
 
@@ -169,7 +167,7 @@ bool Bomb::validate() {
 void Bomb::execute() {
     if (this->validate()) {
         cout << "Executing Bomb Order" << endl;
-        cout << this->getEffect() << endl;
+        cout << *this->getEffect() << endl;
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -184,7 +182,7 @@ Bomb& Bomb::operator=(const Bomb& bomb_order) {
 
 //Defining the output operator
 ostream& operator<<(ostream& out, const Bomb& bomb) {
-	out << bomb.getDescription();
+	out << *bomb.getDescription();
 	return out;
 }
 
@@ -208,7 +206,7 @@ bool Blockade::validate() {
 void Blockade::execute() {
     if (this->validate()) {
         cout << "Executing Blockcade Order" << endl;
-        cout << this->getEffect() << endl;
+        cout << *this->getEffect() << endl;
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -224,7 +222,7 @@ Blockade& Blockade::operator=(const Blockade& blockade_order) {
 
 //Defining the output operator
 ostream& operator<<(ostream& out, const Blockade& blockade) {
-	out << blockade.getDescription();
+	out << *blockade.getDescription();
 	return out;
 }
 
@@ -248,7 +246,7 @@ bool Airlift::validate() {
 void Airlift::execute() {
     if (this->validate()) {
         cout << "Executing Airlift Order" << endl;
-        cout << this->getEffect() << endl;
+        cout << *this->getEffect() << endl;
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -263,7 +261,7 @@ Airlift& Airlift::operator=(const Airlift& airlift_order) {
 
 //Defining the output operator
 ostream& operator<<(ostream& out, const Airlift& airlift) {
-	out << airlift.getDescription();
+	out << *airlift.getDescription();
 	return out;
 }
 
@@ -296,7 +294,7 @@ Negotiate& Negotiate::operator=(const Negotiate& negotiate_order) {
 
 //Defining the output operator
 ostream& operator<<(ostream& out, const Negotiate& negotiate) {
-	out << negotiate.getDescription();
+	out << *negotiate.getDescription();
 	return out;
 }
 
@@ -308,7 +306,7 @@ OrdersList::OrdersList() {
 
 //Copy constructor
 OrdersList::OrdersList(const OrdersList& o_list): OrdersList() {
-    for (int i = 0; i < o_list.getOrders().size(); i++) {
+    for (int i = 0; i < o_list.getOrders()->size(); i++) {
        Order* o = new Order(*(o_list.orders)->at(i));
        this->addOrder(o);
     }
@@ -320,7 +318,6 @@ OrdersList::~OrdersList() {
     for (Order* order : *this->orders) {
         delete order;
     }
-    cout << this->orders->size() << endl;
     this->orders->clear();  //delete all Order pointers in vector
     delete this->orders;    //delete orders pointer
     this->orders = nullptr;
@@ -357,13 +354,12 @@ void OrdersList::remove(const int orderIndex) {
 }
 
 //Getter for the vector of orders
-vector<Order*>& OrdersList::getOrders() const {
-    return *(this->orders);
+vector<Order*>* OrdersList::getOrders() const {
+    return this->orders;
 }
 
 //Add an order to the vector by providing an Order
 void OrdersList::addOrder(Order* order) {
-    //delete order but you dont reasign pointer to nullptr************************
     if (order == nullptr) {
         cout << "null pointer! Order cannot be added!" << endl;
     }
@@ -380,7 +376,7 @@ OrdersList& OrdersList::operator=(const OrdersList& o_list) {
             this->remove(index);
         }
         //add all orders from right hand side OrdersList into left hand side
-        for (int i = 0; i < o_list.getOrders().size(); i++) {
+        for (int i = 0; i < o_list.getOrders()->size(); i++) {
             Order* o = new Order(*(o_list.orders)->at(i));
             this->addOrder(o);
         }
@@ -439,24 +435,13 @@ void orders_driver() {
 
     //validate orders
     cout << "#####Checking if order at index 1 is valid#####" << endl;
-    bool isOrderValid = orders_list.getOrders().at(1)->validate();
+    bool isOrderValid = orders_list.getOrders()->at(1)->validate();
     if (isOrderValid) {
         cout << "The order is valid!" << endl << endl;
     }
 
     //execute orders
     cout << "#####Executing order at index 2#####" << endl;
-    orders_list.getOrders()[2]->execute();
-
-    //TEST AND DELETE
-    //Copy constructor
-    // cout << "#####Checking OrderList copy Constructor#####" << endl;
-    // OrdersList orders_list_copy = (orders_list);
-    // cout << "Orders List " << endl;
-    // cout << orders_list << endl;
-    // cout << &orders_list.getOrders() << endl;
-    // cout << "Copied Orders List: " << endl; 
-    // cout << orders_list_copy << endl;
-    // cout << &orders_list_copy.getOrders() << endl;
+    orders_list.getOrders()->at(2)->execute();
 }
 
