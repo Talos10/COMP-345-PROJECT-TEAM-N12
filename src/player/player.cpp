@@ -1,9 +1,6 @@
 #include "player.h"
-#include <iostream>
-#include <vector>
-#include <functional>
-#include "cards/cards.h"
-#include "orders/Orders.h"
+
+
 
 using namespace std;
 
@@ -39,25 +36,19 @@ Player::~Player() {
     delete ordersList;
 }
 
+//Implementing the output operator
 ostream& operator<<(ostream& os, const Player& pl)
 {
     os << "\nTerritories: \n" << pl.getTerritories() << "\nHand: \n" << *pl.getHand() << "\nOrdersList: \n" << *pl.getOrders();
     return os;
 }
 
-//Defining the equality operator
-Player& Player::operator=(const Player& pl) {
-    this->territories = new std::vector<pair <string, string>>(*pl.territories);
-    this->hand = new Hand(*pl.hand);
-    this->ordersList = new OrdersList(*pl.ordersList);
-    return *this;
-}
 
 // The way this method works is that it first creates a local temporary copy of the given object (called pl)
 // and method calls the swap function on the caller object (which is a Player obj that was created
 // with the default constructor) and on the locally created object. The swap method will effectively swap
 // the member data between those two objects and so the caller object will now have the properties of the
-// given object.
+// given object. [Assignment operator]
 Player &Player::operator=(Player pl) {
     swap(*this, pl);
     return *this;
@@ -157,7 +148,7 @@ void player_driver() {
     cards.emplace_back(c1);
     cards.emplace_back(c2);
     cards.emplace_back(c3);
-    Hand hand {cards};
+    Hand hand (cards);
     player1.setHand(hand);
 
     //Output territories to attack
@@ -165,13 +156,17 @@ void player_driver() {
     for(pair<string, string> territory: player1.toAttack()){
         cout << "[" << territory.first << "] ";
     }
+
+
     cout << endl;
 
     //Output territories to defend
     cout << "\nTerritories to defend:" << endl;
+
     for(pair<string, string> territory: player1.toDefend()){
         cout << "[" << territory.first << "] ";
     }
+
     cout << endl;
 
     //Issue an order

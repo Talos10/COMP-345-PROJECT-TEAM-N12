@@ -5,8 +5,11 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <functional>
 #include "cards/cards.h"
 #include "orders/Orders.h"
+
 
 using namespace std;
 
@@ -33,16 +36,13 @@ public:
     Player(const Player& pl);
 
     // Defining the assignment operator.
-    Player &operator=(Player pl);
+    Player& operator=(Player pl);
 
     // Destructor.
     ~Player();
 
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Player& pl);
-
-    //Defining the equality operator
-    Player& operator=(const Player& pl);
 
     //A function that will return the territories to be defended.
     std::vector<pair<string, string>> toDefend();
@@ -58,9 +58,6 @@ public:
 
     // Setter for the territories.
     void setTerritories(const std::vector<pair <string, string>> &territories);
-
-    //Defining the output operator
-    friend ostream & operator<<(ostream& out, const std::vector<pair <string, string>>& territories);
 
     // Getter for the hand.
     [[nodiscard]] Hand *getHand() const;
