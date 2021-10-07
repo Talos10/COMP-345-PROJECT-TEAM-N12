@@ -44,8 +44,12 @@ void Order::setEffect(const string& effect) {
 
 //Defining the assignment operator
 Order& Order::operator=(const Order& order) {
-    this->description = new string(*(order.description));
-    this->effect = new string(*(order.effect));
+    if (this == &order) {
+        delete this->description;
+        delete this->effect;
+        this->description = new string(*(order.description));
+        this->effect = new string(*(order.effect));
+    }
     return *this;
 }
 
@@ -73,6 +77,7 @@ Deploy::Deploy(): Order("Deploy Order", "Deploy effect") {}
 Deploy::Deploy(const Deploy& deploy_order): Order(deploy_order) {}
 
 //Destructor
+//RESEARCH: ***destructor to Order***
 Deploy::~Deploy() {};
 
 //Checks if a Deploy order is valid
@@ -93,6 +98,7 @@ void Deploy::execute() {
 }
 
 //Defining the assignment operator
+///////TESTTTTTTTTT
 Deploy& Deploy::operator=(const Deploy& deploy_order) {
     Order::operator=(deploy_order);
     return *this;
@@ -314,6 +320,7 @@ OrdersList::~OrdersList() {
     for (Order* order : *this->orders) {
         delete order;
     }
+    cout << this->orders->size() << endl;
     this->orders->clear();  //delete all Order pointers in vector
     delete this->orders;    //delete orders pointer
     this->orders = nullptr;
@@ -323,7 +330,7 @@ OrdersList::~OrdersList() {
 void OrdersList::move(int currentIndex, int newIndex) {
     int order_list_size = this->orders->size();
     if (order_list_size == 0) {
-        cout << "Cannot move an order because rhere are no orders in the OrdersList!" << endl;
+        cout << "Cannot move an order because there are no orders in the OrdersList!" << endl;
     }
     else if (currentIndex < order_list_size && newIndex < order_list_size && currentIndex >= 0 && newIndex >= 0) {
         Order* orderToMove = this->orders->at(currentIndex);
@@ -356,6 +363,7 @@ vector<Order*>& OrdersList::getOrders() const {
 
 //Add an order to the vector by providing an Order
 void OrdersList::addOrder(Order* order) {
+    //delete order but you dont reasign pointer to nullptr************************
     if (order == nullptr) {
         cout << "null pointer! Order cannot be added!" << endl;
     }
@@ -366,14 +374,16 @@ void OrdersList::addOrder(Order* order) {
 
 //Defining the assignment operator
 OrdersList& OrdersList::operator=(const OrdersList& o_list) {
-    //delete all orders in left hand side OrdersList
-    for (int index = 0; index < this->orders->size(); index++) {
-        this->remove(index);
-    }
-    //add all orders from right hand side OrdersList into left hand side
-    for (int i = 0; i < o_list.getOrders().size(); i++) {
-        Order* o = new Order(*(o_list.orders)->at(i));
-        this->addOrder(o);
+    if (this != &o_list) {
+        //delete all orders in left hand side OrdersList
+        for (int index = 0; index < this->orders->size(); index++) {
+            this->remove(index);
+        }
+        //add all orders from right hand side OrdersList into left hand side
+        for (int i = 0; i < o_list.getOrders().size(); i++) {
+            Order* o = new Order(*(o_list.orders)->at(i));
+            this->addOrder(o);
+        }
     }
     return *this;
 }
@@ -438,6 +448,7 @@ void orders_driver() {
     cout << "#####Executing order at index 2#####" << endl;
     orders_list.getOrders()[2]->execute();
 
+    //TEST AND DELETE
     //Copy constructor
     // cout << "#####Checking OrderList copy Constructor#####" << endl;
     // OrdersList orders_list_copy = (orders_list);
