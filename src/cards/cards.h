@@ -121,9 +121,6 @@ public:
 
     // A function which lets a player draw a card from the deck and places it in their hand
     Card& draw(const Hand& hand);
-
-    // Get a random card from the deck
-    int pickCard();
 };
 
 void card_driver();
