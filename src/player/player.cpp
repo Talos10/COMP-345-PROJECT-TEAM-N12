@@ -139,6 +139,7 @@ void Player::issueOrder(Order* order){
 // Free function in order to test the functionality of the Player for assignment #1.
 void player_driver() {
 
+    //Load the map
     string filename = "canada-map.txt";
     Map* map = MapLoader::load(filename);
 
@@ -199,9 +200,10 @@ void player_driver() {
     Player player2 = {player1};
 
 
+    //Proof that the copy constructor does a deep copy
     cout << "Printing player1 object... \n" << player1 << endl;
-
     cout << "Printing player2 object... \n" << player2 << endl;
 
+    //Players have different addresses
     cout << "player1 address: " << &player1 << "\tplayer2 address " << &player2 << endl;
 }
