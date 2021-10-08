@@ -5,19 +5,26 @@
 #include "MapDriver.h"
 #include "map.h"
 #include <iostream>
-using std::cout;
+using std::cout; using std::cerr;
 using std::endl;
 
 void MapDriver::map_driver_run() {
-    // Call Map Loader on file, retrieve map
     string filename = "canada-map.txt";
-    Map* map = MapLoader::load(filename);
 
-    cout << "**********Generating mermaid representation of map...****************" << endl;
-    string mermaid = map->toMermaid();
-    cout << mermaid;
-    cout << "**********DONE****************" << endl;
+    try {
+        // Call Map Loader on file, retrieve map
+        Map* map = MapLoader::load(filename);
 
-    map->validate();
-    // Call MAp validate
+        // Print out representation of the map, even if unvalid
+        cout << "**********Generating mermaid representation of map...****************" << endl;
+        string mermaid = map->toMermaid();
+        cout << mermaid;
+        cout << "**********DONE****************" << endl;
+
+        // Run validation
+        map->validate();
+    } catch (std::runtime_error &exp) {
+        // Catch all exceptions defined as runtime errors
+        cerr << exp.what() << endl;
+    }
 }
