@@ -20,10 +20,10 @@ private:
     const int armyBonusNumber;
     vector<Territory*> territories;
 public:
-    Continent(const string &name, const string &color, const int armyBonusNumber);
+    Continent(const string &name, const string &color, int armyBonusNumber);
 
     const string &getName() const;
-    const int getArmyBonusNumber() const;
+    int getArmyBonusNumber() const;
     const vector<Territory *> &getTerritories() const;
 
     const string &getColour() const;
@@ -32,7 +32,11 @@ public:
     bool isEmpty() const;
     void addTerritory(Territory* territory);
 
+    Continent(const Continent& continent);
+
+    // Stream insertion operator
     friend std::ostream & operator << (std::ostream &out, const Continent* continent);
+
 };
 
 class Territory {
@@ -47,18 +51,20 @@ private:
     // TODO: Change to Player type
     string owner;
 public:
-    Territory(const int id, const string &name, const int x, const int y, const Continent *continent);
+    Territory(int id, const string &name, int x, int y, const Continent *continent);
     const string &getName() const;
     const Continent *getContinent() const;
-    const int getId() const;
+    int getId() const;
     list<Territory *> &getNeighbours();
     int getNumberOfArmies() const;
     const string &getOwner() const;
     void addNeighbour(Territory* territory);
 
-    const int getX() const;
+    int getX() const;
 
-    const int getY() const;
+    int getY() const;
+
+    Territory(const Territory& territory);
 
     friend std::ostream & operator << (std::ostream &out, const Territory* territory);
 };
@@ -71,6 +77,7 @@ private:
     const string name;
     static bool isConnected(const vector<Territory*>& territories);
     static void dfs(Territory *const &currentTerritory, const vector<Territory *> &territories, list<int> &visitedTerritories);
+
 public:
     // Graph functions go here
     void validate();
@@ -87,6 +94,7 @@ public:
 
     Map(string name);
 
+    Map(const Map& map);
     friend std::ostream &operator<<(std::ostream &out, Map* map);
 };
 
