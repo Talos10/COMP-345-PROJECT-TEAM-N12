@@ -10,7 +10,7 @@
 using namespace std;
 
 int main() {
-    cout << "Running map driver!" << endl;
+    cout << "Running main driver!" << endl;
 
     //game_engine_driver();
     player_driver();
