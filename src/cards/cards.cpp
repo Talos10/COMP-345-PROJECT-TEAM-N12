@@ -9,7 +9,6 @@ using namespace std;
 
 // Default constructor of the Card class which initializes a card type
 Card::Card() {
-    // Type initialization
     type = new Type(static_cast<Type>(rand() % 5));
 }
 
@@ -103,8 +102,7 @@ void Card::play(Deck& deck, Player& player) {
     bool found (false);
 
     // Create an iterator that will point to the same card in the hand as the current card being played
-    vector<Card>::iterator it;
-    it = std::find(hand_cards.begin(), hand_cards.end(), card);
+    vector<Card>::iterator it = std::find(hand_cards.begin(), hand_cards.end(), card);
 
     // If the card is found, delete it
     if(it != hand_cards.end()){
@@ -170,8 +168,8 @@ void Deck::setWarzoneCards(const vector<Card> &cards) {
 
 // This function allows a player to draw a card from the deck and to put it in their hand
 Card& Deck::draw(const Hand& hand) {
-    hand.getHandsCards()->emplace_back(this->warzoneCards->back());
-    this->warzoneCards->pop_back(); //remove last from deck
+    hand.getHandsCards()->emplace_back(this->warzoneCards->back()); // put deck card in hand
+    this->warzoneCards->pop_back(); // remove last card from deck (the one we put in the hand)
     return hand.getHandsCards()->back();
 }
 
@@ -264,8 +262,8 @@ void card_driver() {
     cout << player << endl;
 
     vector<Card>& hands_card (*(player.getHand())->getHandsCards());
-    auto it = begin(hands_card);
-    while (it != end(hands_card)) {
+
+    while (begin(hands_card) != end(hands_card)) {
         player.getHand()->getHandsCards()->at(0).play(deck, player);
     }
 
