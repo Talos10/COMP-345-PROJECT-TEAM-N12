@@ -152,8 +152,11 @@ void player_driver() {
     player1.setTerritories({{"t1", "attack"}, {"t2", "defend"}, {"t3", "defend"}, {"t4", "attack"}});
 
     //Testing the hand (cards) functionality with the player object
-    Card c1, c2, c3;
-    vector<Card> cards;
+    Card *c1 = new Card();
+    Card *c2 = new Card();
+    Card *c3 = new Card();
+
+    vector<Card*> cards;
     cards.emplace_back(c1);
     cards.emplace_back(c2);
     cards.emplace_back(c3);
