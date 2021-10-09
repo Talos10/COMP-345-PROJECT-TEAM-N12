@@ -5,7 +5,7 @@
 Order::Order() : Order("generic order", "no effect") {}
 
 //Parameterized constructor which initializes an Order with the provided description and effect
-Order::Order(string description, string effect) {
+Order::Order(const string& description, const string& effect) {
     this->description = new string(description);
     this->effect = new string(effect);
 }
@@ -34,12 +34,14 @@ string* Order::getEffect() const {
 
 //Setter to set the description of an Order
 void Order::setDescription(const string& description) {
-    *(this->description) = description;
+    delete this->description;
+    this->description = new string(description);
 }
 
 //Setter to set the effect of an Order
 void Order::setEffect(const string& effect) {
-    *(this->effect) = effect;
+    delete this->effect;
+    this->effect = new string(effect);
 }
 
 //Defining the assignment operator
