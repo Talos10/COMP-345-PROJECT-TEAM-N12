@@ -18,9 +18,9 @@ class Player;
 
 class Continent{
 private:
-    const string name;
-    const string colour;
-    const int armyBonusNumber;
+    string name;
+    string colour;
+    int armyBonusNumber;
     vector<Territory*> territories;
 public:
     Continent(const string &name, const string &color, int armyBonusNumber);
@@ -35,27 +35,31 @@ public:
     bool isEmpty() const;
     void addTerritory(Territory* territory);
 
+    // Copy constructor
     Continent(const Continent& continent);
 
     // Stream insertion operator
     friend std::ostream & operator << (std::ostream &out, const Continent* continent);
 
+    // Assignment operator
+    Continent& operator=(Continent other);
 };
 
 class Territory {
 private:
-    const int id;
-    const string name;
-    const int x;
-    const int y;
-    const Continent* continent;
+    int id;
+    string name;
+    int x;
+    int y;
+    int continentId;
+//    const Continent* continent;
     list<Territory*> neighbours;
     int numberOfArmies;
     Player* owner;
 public:
-    Territory(int id, const string &name, int x, int y, const Continent *continent);
+    Territory(int id, const string &name, int x, int y, int continentId);
     const string &getName() const;
-    const Continent *getContinent() const;
+    int getContinentId() const;
     int getId() const;
     list<Territory *> &getNeighbours();
     int getNumberOfArmies() const;
@@ -66,9 +70,14 @@ public:
 
     int getY() const;
 
+    // Copy constructor
     Territory(const Territory& territory);
 
+    // Stream insertion operator
     friend std::ostream & operator << (std::ostream &out, const Territory* territory);
+
+    // Assignment operator
+    Territory& operator=(Territory other);
 };
 
 class Map {
@@ -76,7 +85,7 @@ private:
     // Adjacency list of graph implemented using Vector
     vector<Territory*> territories;
     vector<Continent*> continents;
-    const string name;
+    string name;
     static bool isConnected(const vector<Territory*>& territories);
     static void dfs(Territory *const &currentTerritory, const vector<Territory *> &territories, list<int> &visitedTerritories);
 
@@ -96,8 +105,14 @@ public:
 
     Map(string name);
 
+    // Copy constructor
     Map(const Map& map);
+
+    // Stream insertion operator
     friend std::ostream &operator<<(std::ostream &out, Map* map);
+
+    // Assignment operator
+    Map& operator=(Map other);
 };
 
 class MapLoader {
