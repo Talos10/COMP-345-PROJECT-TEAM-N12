@@ -13,11 +13,13 @@ int main() {
     cout << "Running main driver!" << endl;
 
     //game_engine_driver();
-    player_driver();
+    //player_driver();
     //orders_driver();
+    //card_driver();
 
-    //MapDriver mapDriver = MapDriver();
-    //mapDriver.map_driver_run();
+
+    MapDriver mapDriver = MapDriver();
+    mapDriver.map_driver_run();
 
 
     return 0;

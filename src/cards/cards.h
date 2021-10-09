@@ -1,18 +1,25 @@
-// Describe the use of the cards class.
-
 #pragma once
 
+#include "orders/Orders.h"
+#include "player/player.h"
 #include <iostream>
 #include <vector>
 using namespace std;
 
 // Enumeration for the type of cards
-enum Type {bomb, reinforcement, blockade, airlift, diplomacy};
+enum Type {
+    bomb,
+    reinforcement,
+    blockade,
+    airlift,
+    diplomacy
+};
 
 // Forward declarations
 class Deck;
 class Hand;
 class Card;
+class Player;
 
 // This class represents the cards that will be played during the game, they can each have one of the 5 types
 class Card {
@@ -23,7 +30,7 @@ public:
     // Default constructor
     Card();
 
-    //Constructor
+    // Constructor
     explicit Card(const Type& cardType);
 
     // Copy constructor
@@ -45,20 +52,23 @@ public:
     void setType(const Type& type);
 
     // A function which lets a player create orders. If a card has been played, remove it from the hands and put it back in the deck
-    void play(Deck& deck, Hand& hand);
+    void play(Deck& deck, Player& player);
+
+    // A function that checks if two objects are the same
+    friend bool operator == (const Card &c1, const Card &c2);
 };
 
 // This class represents the set of cards that will be held by the players during the gme
 class Hand {
 private:
     // Each player contains a finite amount of cards in their hand.
-    vector<Card> *handsCards;
+    vector<Card*>* handsCards;
 public:
     // Default constructor
     Hand();
 
     // Constructor
-    explicit Hand(vector<Card> cards);
+    explicit Hand(const vector<Card*> &cards);
 
     // Copy constructor
     Hand(const Hand& hand);
@@ -73,29 +83,29 @@ public:
     ~Hand();
 
     // Getter for handsCards
-    [[nodiscard]] vector<Card> *getHandsCards() const;
+    [[nodiscard]] vector<Card*>* getHandsCards() const;
 
     // Setter for handsCards
-    void setWarzoneCards(const vector<Card> &cards);
+    void setHandCards(const vector<Card*> &cards);
 };
 
 // This class represents the set of warzone cards where all players draw from when it's their turn to play
 class Deck {
 private:
     // The deck contains a finite amount of cards
-    vector<Card> *warzoneCards;
+    vector<Card*>* warzoneCards;
 public:
     // Default constructor
     Deck();
 
     // Constructor
-    explicit Deck(vector<Card> cards);
+    explicit Deck(const vector<Card*>& cards);
 
     // Copy constructor
     Deck(const Deck& deck);
 
     // Assignment operator
-    Deck &operator=(const Deck& deck);
+    Deck& operator=(const Deck& deck);
 
     // Insertion operator
     friend ostream& operator << (ostream& os, const Deck& d);
@@ -104,16 +114,13 @@ public:
     ~Deck();
 
     // Getter for warzone cards
-    [[nodiscard]] vector<Card> *getWarzoneCards() const;
+    [[nodiscard]] vector<Card*>* getWarzoneCards() const;
 
     // Setter for warzone cards
-    void setWarzoneCards(const vector<Card> &cards);
+    void setDeckCards(const vector<Card*> &cards);
 
     // A function which lets a player draw a card from the deck and places it in their hand
     void draw(const Hand& hand);
-
-    // Get a random card from the deck
-    int pickCard();
 };
 
-void main_card();
+void card_driver();

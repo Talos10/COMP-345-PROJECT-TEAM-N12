@@ -67,6 +67,7 @@ std::vector<Territory*>* Player::getTerritories() const {
 
 // Setter for the territories.
 void Player::setTerritories(const std::vector<Territory*> &territories) {
+    delete this->territories;
     this->territories = new std::vector(territories);
 }
 
@@ -86,6 +87,7 @@ Hand* Player::getHand() const {
 
 // Setter for the hand.
 void Player::setHand(const Hand &hand) {
+    delete this->hand;
     this->hand = new Hand(hand);
 }
 
@@ -96,6 +98,7 @@ OrdersList* Player:: getOrders() const {
 
 // Setter for the orders list.
 void Player::setOrders(const OrdersList &ordersList) {
+    delete this->ordersList;
     this->ordersList = new OrdersList(ordersList);
 }
 
@@ -146,64 +149,70 @@ void player_driver() {
     cout << "\n***************************Player driver function***************************" << endl;
 
     //Create player1 object
-    Player player1;
+    Player* player1 = new Player();
 
-    //Set the territories with dummy data
-    player1.setTerritories({map->getTerritoryByID(1),map->getTerritoryByID(2), map->getTerritoryByID(3), map->getTerritoryByID(4)});
+    //Set the territories with sample data from the Map
+    player1->setTerritories({map->getTerritoryByID(1),map->getTerritoryByID(2), map->getTerritoryByID(3), map->getTerritoryByID(4)});
 
     //Output the list of territories
     cout << "\nList of Territories:" << endl;
-    for(auto i = 0; i < player1.getTerritories()->size(); i++){
-        cout << "\n" << player1.getTerritories()->at(i);
+    for(auto i = 0; i < player1->getTerritories()->size(); i++){
+        cout << "\n" << player1->getTerritories()->at(i);
     }
     cout << endl;
 
     //Testing the hand (cards) functionality with the player object
-    Card c1, c2, c3;
-    vector<Card> cards;
-    cards.emplace_back(c1);
-    cards.emplace_back(c2);
-    cards.emplace_back(c3);
-    Hand hand (cards);
-    player1.setHand(hand);
+    Card *c1 = new Card();
+    Card *c2 = new Card();
+    Card *c3 = new Card();
+
+    vector<Card*>* cards = new vector<Card*>();
+    cards->emplace_back(c1);
+    cards->emplace_back(c2);
+    cards->emplace_back(c3);
+    Hand* hand = new Hand(*cards);
+    player1->setHand(*hand);
 
 
     //Output territories to attack
     cout << "\nTerritories to attack:" << endl;
-    for(auto i = 0; i < player1.toAttack().size(); i++){
-        cout << "\n" << player1.toAttack().at(i);
+    for(auto i = 0; i < player1->toAttack().size(); i++){
+        cout << "\n" << player1->toAttack().at(i);
     }
-
     cout << endl;
 
     //Output territories to defend
     cout << "\nTerritories to defend:" << endl;
-    for(auto i = 0; i < player1.toDefend().size(); i++){
-        cout << "\n" << player1.toDefend().at(i);
+    for(auto i = 0; i < player1->toDefend().size(); i++){
+        cout << "\n" << player1->toDefend().at(i);
     }
-
     cout << "\n" << endl;
 
     //Issue an order
-    player1.issueOrder(new Deploy());
+    player1->issueOrder(new Deploy());
 
     //Output the list of orders
-    cout << "Issued orders: \n" << *player1.getOrders() << endl;
+    cout << "Issued orders: \n" << *player1->getOrders() << endl;
 
     //Issue an additional order
-    player1.issueOrder(new Advance());
+    player1->issueOrder(new Advance());
 
     //Output the list of orders with the 2 orders
-    cout << "Issued orders after adding a 2nd order: \n" << *player1.getOrders() << endl;
+    cout << "Issued orders after adding a 2nd order: \n" << *player1->getOrders() << endl;
 
     //Testing copy constructor
-    Player player2 = {player1};
+    Player* player2 = new Player(*player1);
 
 
     //Proof that the copy constructor does a deep copy
-    cout << "Printing player1 object... \n" << player1 << endl;
-    cout << "Printing player2 object... \n" << player2 << endl;
+    cout << "Printing player1 object... \n" << *player1 << endl;
+    cout << "Printing player2 object... \n" << *player2 << endl;
 
     //Players have different addresses
     cout << "player1 address: " << &player1 << "\tplayer2 address " << &player2 << endl;
+
+    //Delete the objects on the heap
+    delete player1;
+    delete player2;
+
 }

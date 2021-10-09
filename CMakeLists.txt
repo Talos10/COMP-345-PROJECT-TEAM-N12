@@ -3,9 +3,8 @@ project(COMP_345_PROJECT_TEAM_N12)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(SOURCES src/main_driver.cpp src/cards/cards.cpp src/game_engine/game_engine.cpp src/map/map.cpp src/orders/Orders.cpp src/player/player.cpp src/map/MapDriver.cpp src/cards/CardsDriver.cpp)
-
 set(HEADERS src/cards/cards.h src/game_engine/game_engine.h src/map/map.h src/orders/Orders.h src/player/player.h src/map/MapDriver.h)
+set(SOURCES src/main_driver.cpp src/cards/cards.cpp src/game_engine/game_engine.cpp src/map/map.cpp src/orders/Orders.cpp src/player/player.cpp src/map/MapDriver.cpp)
 
 add_executable(RISK_APPLICATION
         ${SOURCES}

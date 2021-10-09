@@ -72,16 +72,15 @@ bool Continent::isCompletelyOwned() const {
     // Empty case: a continent with no territories has no owner
     if (territories.empty()) return false;
 
-    // TODO: Use Player Class
-    string owner;
+    Player* owner;
 
     for (const auto &territory : territories) {
-        const string& nextOwner = territory->getOwner();
+        Player* nextOwner = territory->getOwner();
 
         // In first iteration of loop, owner is not set
-        if (owner.empty()) {
+        if (owner == nullptr) {
             // If the first owner is not set, continent is not completely owned
-            if (nextOwner.empty()) {
+            if (nextOwner == nullptr) {
                 return false;
             } else {
                 // Set the first owner as the owner to be compared against
@@ -188,7 +187,7 @@ int Territory::getNumberOfArmies() const {
 /**
  * @return the current Owner of the territory
  */
-const string &Territory::getOwner() const {
+Player* Territory::getOwner() const {
     return owner;
 }
 

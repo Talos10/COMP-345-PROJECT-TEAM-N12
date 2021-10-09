@@ -14,6 +14,10 @@
 
 using namespace std;
 
+//Forward declaration
+class Hand;
+class Territory;
+
 // This class implements the player of the game (who will carry certain information about the territories,
 // the hand with cards and the list of orders).
 class Player {

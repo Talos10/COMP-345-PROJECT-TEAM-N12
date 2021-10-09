@@ -7,12 +7,15 @@
 #include <list>
 #include <vector>
 #include <iostream>
+#include "player/player.h"
 
 using std::list;
 using std::string;
 using std::vector;
 
 class Territory;
+class Player;
+
 class Continent{
 private:
     const string name;
@@ -48,8 +51,7 @@ private:
     const Continent* continent;
     list<Territory*> neighbours;
     int numberOfArmies;
-    // TODO: Change to Player type
-    string owner;
+    Player* owner;
 public:
     Territory(int id, const string &name, int x, int y, const Continent *continent);
     const string &getName() const;
@@ -57,7 +59,7 @@ public:
     int getId() const;
     list<Territory *> &getNeighbours();
     int getNumberOfArmies() const;
-    const string &getOwner() const;
+    Player* getOwner() const;
     void addNeighbour(Territory* territory);
 
     int getX() const;
