@@ -31,11 +31,9 @@
 *.out
 *.app
 
-#vscode settings
-.vscode/
-
 # Jetbrains
 .idea/*
-
 # Binary Files
 cmake-build-debug/*
+#vscode settings
+.vscode/
