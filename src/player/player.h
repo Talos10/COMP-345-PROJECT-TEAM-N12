@@ -5,13 +5,18 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <functional>
 #include "cards/cards.h"
-#include "orders/Orders.h"
+#include "orders/orders.h"
+#include "map/map.h"
+
 
 using namespace std;
 
 //Forward declaration
 class Hand;
+class Territory;
 
 // This class implements the player of the game (who will carry certain information about the territories,
 // the hand with cards and the list of orders).
@@ -20,13 +25,13 @@ class Player {
 private:
 
     //A collection of territories the Player owns.
-    std::vector<pair <string, string>> *territories;
+    std::vector<Territory*>* territories;
 
     //Hand object (collection of Card objects) the Player has.
-    Hand *hand;
+    Hand* hand;
 
     //An OrdersList object containing Order objects the player has issued.
-    OrdersList *ordersList;
+    OrdersList* ordersList;
 
 public:
     // Default constructor which initializes all the maps and the current game state.
@@ -36,43 +41,37 @@ public:
     Player(const Player& pl);
 
     // Defining the assignment operator.
-    Player &operator=(Player pl);
+    Player& operator=(Player pl);
 
     // Destructor.
     ~Player();
 
-    //Defining the output operator
-    friend ostream & operator<<(ostream& out, const Player& pl);
-
-    //Defining the equality operator
-    Player& operator=(const Player& pl);
+    //Defining the output operator for the player
+    friend ostream& operator<<(ostream& out, const Player& pl);
 
     //A function that will return the territories to be defended.
-    std::vector<pair<string, string>> toDefend();
+    std::vector<Territory*> toDefend();
 
     //A function that will return the territories to be attacked.
-    std::vector<pair <string, string>> toAttack();
+    std::vector<Territory*> toAttack();
 
     //A function that will create an Order object and add it to the list of Orders.
     void issueOrder(Order* order);
 
     // Getter for the territories.
-    [[nodiscard]] std::vector<pair <string, string>> *getTerritories() const;
+    [[nodiscard]] std::vector<Territory*>* getTerritories() const;
 
     // Setter for the territories.
-    void setTerritories(const std::vector<pair <string, string>> &territories);
-
-    //Defining the output operator
-    friend ostream & operator<<(ostream& out, const std::vector<pair <string, string>>& territories);
+    void setTerritories(const std::vector<Territory*> &territories);
 
     // Getter for the hand.
-    [[nodiscard]] Hand *getHand() const;
+    [[nodiscard]] Hand* getHand() const;
 
     // Setter for the hand.
     void setHand(const Hand &hand);
 
     // Getter for the orders list.
-    [[nodiscard]] OrdersList *getOrders() const;
+    [[nodiscard]] OrdersList* getOrders() const;
 
     // Setter for the orders list.
     void setOrders(const OrdersList &ordersList);

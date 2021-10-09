@@ -199,7 +199,7 @@ Hand::Hand(const vector<Card*>& cards) {
 }
 
 // Copy constructor
-Hand::Hand(const Hand &hand) {
+Hand::Hand(const Hand &hand):Hand() {
     for(int i = 0; i < hand.getHandsCards()->size(); i++) {
         Card* c = new Card(*(hand.handsCards->at(i)));
         this->handsCards->emplace_back(c);

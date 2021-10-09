@@ -1,23 +1,31 @@
 #include <iostream>
 #include "game_engine/game_engine.h"
-#include "map/MapDriver.h"
 #include "player/player.h"
-#include "cards/cards.h"
-#include <time.h>
-#include "orders/Orders.h"
 
 using namespace std;
 
 int main() {
-    cout << "Running map driver!" << endl;
+    cout << "Running main driver!" << endl;
 
-    MapDriver mapDriver = MapDriver();
-    mapDriver.map_driver_run();
+    int classDemo = 0;
 
-    //game_engine_driver();
-    //player_driver();
-    //orders_driver();
-    //card_driver();
+    switch(classDemo) {
+        case 0:
+            map_driver();
+            break;
+        case 1:
+            card_driver();
+            break;
+        case 2:
+            orders_driver();
+            break;
+        case 3:
+            player_driver();
+            break;
+        case 4:
+            game_engine_driver();
+            break;
+    }
 
     return 0;
 }
