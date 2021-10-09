@@ -405,52 +405,48 @@ void orders_driver() {
     cout << "\n##############################################################" << endl;
     cout << "################### Running Orders driver! ###################" << endl;
     cout << "##############################################################" << endl;
-    OrdersList orders_list;
+    OrdersList* orders_list = new OrdersList();
     Deploy* deploy = new Deploy();
     Advance* advance = new Advance();
     Bomb* bomb = new Bomb();
     Blockade* blockade = new Blockade();
     Airlift* airlift = new Airlift();
     Negotiate* negotiate = new Negotiate();
-    Bomb copyBomb(*bomb);
+    Bomb* copyBomb = new Bomb(*bomb);
 
     //add orders
     cout << "Adding orders to the OrdersList..." << endl;
-    orders_list.addOrder(deploy);
-    orders_list.addOrder(advance);
-    orders_list.addOrder(bomb);
-    orders_list + blockade;
-    orders_list + airlift;
-    orders_list + negotiate;
-    orders_list.addOrder(&copyBomb);
+    orders_list->addOrder(deploy);
+    orders_list->addOrder(advance);
+    orders_list->addOrder(bomb);
+    *orders_list + blockade;
+    *orders_list + airlift;
+    *orders_list + negotiate;
+    orders_list->addOrder(copyBomb);
     cout << orders_list << endl;
 
     //move orders
-    orders_list.move(1, 4);
+    orders_list->move(1, 4);
     cout << "#####Moved order at index 1 to position 4!#####" << endl; 
     cout << orders_list << endl;
 
     //remove orders
-    orders_list.remove(3);
+    orders_list->remove(3);
     cout << "#####Removed order at index 3!#####" << endl; 
     cout << orders_list << endl;
 
     //validate orders
     cout << "#####Checking if order at index 1 is valid#####" << endl;
-    bool isOrderValid = orders_list.getOrders()->at(1)->validate();
+    bool isOrderValid = orders_list->getOrders()->at(1)->validate();
     if (isOrderValid) {
         cout << "The order is valid!" << endl << endl;
     }
 
     //execute orders
     cout << "#####Executing order at index 2#####" << endl;
-    orders_list.getOrders()->at(2)->execute();
+    orders_list->getOrders()->at(2)->execute();
 
-    delete deploy;
-    delete advance;
-    delete bomb;
-    delete blockade;
-    delete airlift;
-    delete negotiate;
+    //Delete the orders list from the heap
+    delete orders_list;
 }
 
