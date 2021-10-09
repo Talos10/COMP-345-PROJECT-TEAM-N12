@@ -337,8 +337,7 @@ void Map::validate() {
     cout << "Validating map..." << endl;
     for (const auto &continent : continents) {
         if (continent->isEmpty()) {
-            cerr << "Continent " << continent->getName() << " does not have a country" << endl;
-            throw;
+            throw std::runtime_error( "Continent " + continent->getName() + " does not have a country");
         }
     }
     cout << "Success! No continents are empty!" << endl;
@@ -359,8 +358,7 @@ void Map::validate() {
     // All territories must be exactly visited once -- i.e. the territoriesTaken vector must have all 1's
     for (const auto &numberOfTimesVisited : territoriesTaken) {
         if (numberOfTimesVisited != 1) {
-            cerr << "Territory must belong to one and only one continent, found " << numberOfTimesVisited;
-            throw;
+            throw std::runtime_error("Territory must belong to one and only one continent, found " + to_string(numberOfTimesVisited) + " visits");
         }
     }
     cout << "Success! No continents share the same territory!" << endl;
@@ -369,8 +367,7 @@ void Map::validate() {
     // Test Map is connected graph
     cout << "Checking for connectedness of whole map..." << endl;
     if (!isConnected(territories)) {
-        cerr << "ERROR! Map is not connected!" << endl;
-        throw;
+        throw std::runtime_error("Error: Map is not a connected graph!");
     }
     cout << "Success! The global map is connected!" << endl;
 
@@ -379,8 +376,7 @@ void Map::validate() {
     for (const auto &continent : continents) {
         cout << "Checking for connectedness of continent "  << continent->getName() << "..." << endl;
         if (!isConnected(continent->getTerritories())) {
-            cerr << "ERROR! Continent is not connected!" << endl;
-            throw;
+            throw std::runtime_error("ERROR! Continent is not connected!");
         } else {
             cout << "Success! Subgraph " << continent->getName() << " is valid!" << endl;
         }
