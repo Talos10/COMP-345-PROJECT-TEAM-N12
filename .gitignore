@@ -33,6 +33,7 @@
 
 # Jetbrains
 .idea/*
-
 # Binary Files
 cmake-build-debug/*
+#vscode settings
+.vscode/
