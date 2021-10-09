@@ -445,5 +445,12 @@ void orders_driver() {
     //execute orders
     cout << "#####Executing order at index 2#####" << endl;
     orders_list.getOrders()->at(2)->execute();
+
+    delete deploy;
+    delete advance;
+    delete bomb;
+    delete blockade;
+    delete airlift;
+    delete negotiate;
 }
 
