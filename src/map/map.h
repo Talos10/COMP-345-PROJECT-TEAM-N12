@@ -105,4 +105,7 @@ public:
     static Map* load(const string& filename);
 };
 
+// Free function in order to test the functionality of the Map for assignment #1.
+void map_driver();
+
 #endif //COMP_345_PROJECT_TEAM_N12_MAP_H

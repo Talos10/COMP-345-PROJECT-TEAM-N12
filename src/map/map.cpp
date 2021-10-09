@@ -692,3 +692,25 @@ Map* MapLoader::load(const string& filename) {
     cout << "Finished reading file into Map" << endl;
     return gameMap;
 }
+
+// Free function in order to test the functionality of the Map for assignment #1.
+void map_driver() {
+    string filename = "canada-map.txt";
+
+    try {
+        // Call Map Loader on file, retrieve map
+        Map* map = MapLoader::load(filename);
+
+        // Print out representation of the map, even if unvalid
+        cout << "**********Generating mermaid representation of map...****************" << endl;
+        string mermaid = map->toMermaid();
+        cout << mermaid;
+        cout << "**********DONE****************" << endl;
+
+        // Run validation
+        map->validate();
+    } catch (std::runtime_error &exp) {
+        // Catch all exceptions defined as runtime errors
+        cerr << exp.what() << endl;
+    }
+}
