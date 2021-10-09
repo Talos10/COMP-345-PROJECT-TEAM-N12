@@ -10,6 +10,8 @@ int main() {
     int classDemo = 0;
     string filename1 = "canada-map.txt";
     string filename2 = "demo-map.txt";
+    string filename3 = "canada-map-not-connected.txt";
+
 
     switch (classDemo) {
         case 0:

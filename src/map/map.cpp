@@ -132,6 +132,18 @@ std::ostream &operator<<(std::ostream &out, const Continent* continent) {
     return out;
 }
 
+Continent &Continent::operator=(Continent other) {
+    if (this != &other) {
+        name = other.name;
+        colour = other.colour;
+        armyBonusNumber = other.armyBonusNumber;
+
+        swap(territories, other.territories);
+    }
+
+    return *this;
+}
+
 ///********************************///
 /// Territory Class Implementation ///
 ///********************************///
@@ -144,8 +156,8 @@ std::ostream &operator<<(std::ostream &out, const Continent* continent) {
  * @param y the y-coordinate (fourth column)
  * @param continent a pointer to the continent belonging to the territory
  */
-Territory::Territory(const int id, const string &name, const int x, const int y, const Continent *continent)
-        : id(id), name(name), x(x), y(y), continent(continent) {
+Territory::Territory(const int id, const string &name, const int x, const int y, int continentId)
+        : id(id), name(name), x(x), y(y), continentId(continentId) {
     numberOfArmies = 0;
 }
 
@@ -159,8 +171,8 @@ const string &Territory::getName() const {
 /**
  * @return a pointer to the continent of the territory
  */
-const Continent *Territory::getContinent() const {
-    return continent;
+int Territory::getContinentId() const {
+    return continentId;
 }
 
 /**
@@ -219,7 +231,7 @@ int Territory::getY() const {
 Territory::Territory(const Territory& territory) : id(territory.id), name(territory.name), x(territory.x), y(territory.y), owner(territory.owner) {
     numberOfArmies = 0;
 
-    continent = territory.continent;
+    continentId = territory.continentId;
     neighbours = territory.neighbours;
 }
 
@@ -228,9 +240,24 @@ Territory::Territory(const Territory& territory) : id(territory.id), name(territ
  */
 std::ostream &operator<<(std::ostream &out, const Territory *territory) {
     out << "Country " << territory->getId() << " of name " << territory->getName();
-    out << " of continent " << territory->getContinent()->getName();
+    out << " of continent " << territory->getContinentId();
     out << " and x,y of " << territory->getX() << "," << territory->getY();
     return out;
+}
+
+Territory &Territory::operator=(Territory other) {
+    if (this != &other) {
+        id = other.id;
+        name = other.name;
+        x = other.x;
+        y = other.y;
+        continentId = other.continentId;
+        numberOfArmies = other.numberOfArmies;
+        swap(owner, other.owner);
+        swap(neighbours, other.neighbours);
+    }
+
+    return *this;
 }
 
 ///**************************///
@@ -310,8 +337,7 @@ void Map::validate() {
     cout << "Validating map..." << endl;
     for (const auto &continent : continents) {
         if (continent->isEmpty()) {
-            cerr << "Continent " << continent->getName() << " does not have a country" << endl;
-            throw;
+            throw std::runtime_error( "Continent " + continent->getName() + " does not have a country");
         }
     }
     cout << "Success! No continents are empty!" << endl;
@@ -332,8 +358,7 @@ void Map::validate() {
     // All territories must be exactly visited once -- i.e. the territoriesTaken vector must have all 1's
     for (const auto &numberOfTimesVisited : territoriesTaken) {
         if (numberOfTimesVisited != 1) {
-            cerr << "Territory must belong to one and only one continent, found " << numberOfTimesVisited;
-            throw;
+            throw std::runtime_error("Territory must belong to one and only one continent, found " + to_string(numberOfTimesVisited) + " visits");
         }
     }
     cout << "Success! No continents share the same territory!" << endl;
@@ -342,8 +367,7 @@ void Map::validate() {
     // Test Map is connected graph
     cout << "Checking for connectedness of whole map..." << endl;
     if (!isConnected(territories)) {
-        cerr << "ERROR! Map is not connected!" << endl;
-        throw;
+        throw std::runtime_error("Error: Map is not a connected graph!");
     }
     cout << "Success! The global map is connected!" << endl;
 
@@ -352,8 +376,7 @@ void Map::validate() {
     for (const auto &continent : continents) {
         cout << "Checking for connectedness of continent "  << continent->getName() << "..." << endl;
         if (!isConnected(continent->getTerritories())) {
-            cerr << "ERROR! Continent is not connected!" << endl;
-            throw;
+            throw std::runtime_error("ERROR! Continent is not connected!");
         } else {
             cout << "Success! Subgraph " << continent->getName() << " is valid!" << endl;
         }
@@ -497,6 +520,17 @@ std::ostream &operator<<(std::ostream &out, Map* map) {
     return out;
 }
 
+Map &Map::operator=(Map other) {
+    if (this != &other) {
+        swap(territories, other.territories);
+        swap(continents, other.continents);
+
+        name = other.name;
+    }
+
+    return *this;
+}
+
 /**
  * Load a map from a given file, while making sure file is valid (i.e. can be fully parsed)
  * @param string the filename
@@ -624,7 +658,7 @@ Map* MapLoader::load(const string& filename) {
                         }
 
                         // All parsing and validation complete, create territory from mapped data
-                        auto* territory = new Territory(countryID, countryName, xCoordinate, yCoordinate, gameMap->getContinentByID(continentID));
+                        auto* territory = new Territory(countryID, countryName, xCoordinate, yCoordinate, continentID);
 
                         // Assign territory to the continent
                         gameMap->getContinentByID(continentID)->addTerritory(territory);
