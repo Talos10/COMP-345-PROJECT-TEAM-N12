@@ -151,32 +151,32 @@ void Game_Engine::setCurrentState(const string &state) {
 }
 
 // Getter for the stateMap.
-map<string, vector<string>> *Game_Engine::getStateMap() const {
+std::map<string, vector<string>> *Game_Engine::getStateMap() const {
     return stateMap;
 }
 
 // Setter for the stateMap.
-void Game_Engine::setStateMap(const map<string, vector<string>> &mapOfStates) {
+void Game_Engine::setStateMap(const std::map<string, vector<string>> &mapOfStates) {
     this->stateMap = new std::map(mapOfStates);
 }
 
 // Getter for the descriptionMap.
-map<string, pair<string, string>> *Game_Engine::getDescriptionMap() const {
+std::map<string, pair<string, string>> *Game_Engine::getDescriptionMap() const {
     return descriptionMap;
 }
 
 // Setter for the descriptionMap.
-void Game_Engine::setDescriptionMap(const map<string, pair<string, string>> &mapOfDescriptions) {
+void Game_Engine::setDescriptionMap(const std::map<string, pair<string, string>> &mapOfDescriptions) {
     this->descriptionMap = new std::map(mapOfDescriptions);
 }
 
 // Getter for the functionMap.
-map<string, Game_Engine::Game_Engine_Mem_Fn> *Game_Engine::getFunctionMap() const {
+std::map<string, Game_Engine::Game_Engine_Mem_Fn> *Game_Engine::getFunctionMap() const {
     return functionMap;
 }
 
 // Setter for the functionMap.
-void Game_Engine::setFunctionMap(const map<string, Game_Engine::Game_Engine_Mem_Fn> &mapOfFunctions) {
+void Game_Engine::setFunctionMap(const std::map<string, Game_Engine::Game_Engine_Mem_Fn> &mapOfFunctions) {
     this->functionMap = new std::map(mapOfFunctions);
 }
 
