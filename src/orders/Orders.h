@@ -18,7 +18,7 @@ public:
     Order();
 
     //A parameterized constructor which initializes an order with the provided description and effect.
-    Order(string description, string effect);
+    Order(const string& description, const string& effect);
 
     //Copy constructor
     Order(const Order& order);
