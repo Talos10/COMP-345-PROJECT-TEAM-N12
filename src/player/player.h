@@ -84,6 +84,6 @@ public:
 };
 
 // Free function in order to test the functionality of the Player for assignment #1.
-void player_driver();
+void player_driver(const string &filename);
 
 #endif //COMP_345_PROJECT_TEAM_N12_PLAYER_H

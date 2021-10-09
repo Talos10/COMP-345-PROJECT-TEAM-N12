@@ -531,11 +531,9 @@ Map* MapLoader::load(const string& filename) {
     // Iterate through the map file one line at a time
     string line;
     while (std::getline(file, line)) {
-//        cout << line << endl;
 
         // skip lines starting with ';' as well as empty lines
         if (line.empty() || line.front() == ';') {
-//            cout << "\tSkip!" << endl;
             continue;
         }
 
@@ -547,7 +545,6 @@ Map* MapLoader::load(const string& filename) {
 
             // Make sure the section name is among the known section names
             if (find(sections.begin(), sections.end(), sectionName) != sections.end()) {
-//                cout << "\tFound new section: " << sectionName << "!" << endl;
 
                 // Set newly encountered section as the current section
                 currentSection = sectionName;
@@ -588,7 +585,6 @@ Map* MapLoader::load(const string& filename) {
 
                         // Create new continent from mapped data
                         auto* continent = new Continent(name, color, bonusNumber);
-//                        cout << continent << endl;
 
                         // Add continent to the map
                         gameMap->addContinent(continent);
@@ -627,11 +623,8 @@ Map* MapLoader::load(const string& filename) {
                             throw std::runtime_error("Country has an invalid continent id: " + std::to_string(continentID));
                         }
 
-//                        cout << "\tFound country " << countryName << " of continent id " << continentID << " and x,y of " << xCoordinate << "," << yCoordinate << endl;
-
                         // All parsing and validation complete, create territory from mapped data
                         auto* territory = new Territory(countryID, countryName, xCoordinate, yCoordinate, gameMap->getContinentByID(continentID));
-//                        cout << territory << endl;
 
                         // Assign territory to the continent
                         gameMap->getContinentByID(continentID)->addTerritory(territory);
@@ -671,7 +664,6 @@ Map* MapLoader::load(const string& filename) {
 
                             // Neighbour exists, add edge between the territories
                             gameMap->addEdge(originCountryID, currentNeighbourID);
-//                                cout << "\tAdded edge between countries " << originCountryID << " and " << currentNeighbourID << endl;
                         }
                     } else {
                         throw std::runtime_error("Border line doesn't meet expected format : \"" + line + "\"");
@@ -694,12 +686,10 @@ Map* MapLoader::load(const string& filename) {
 }
 
 // Free function in order to test the functionality of the Map for assignment #1.
-void map_driver() {
-    string filename = "canada-map.txt";
-
+void map_driver(const string &filename) {
     try {
         // Call Map Loader on file, retrieve map
-        Map* map = MapLoader::load(filename);
+        Map *map = MapLoader::load(filename);
 
         // Print out representation of the map, even if unvalid
         cout << "**********Generating mermaid representation of map...****************" << endl;

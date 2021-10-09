@@ -140,16 +140,15 @@ void Player::issueOrder(Order* order){
 }
 
 // Free function in order to test the functionality of the Player for assignment #1.
-void player_driver() {
+void player_driver(const string &filename) {
 
     //Load the map
-    string filename = "canada-map.txt";
-    Map* map = MapLoader::load(filename);
+    Map *map = MapLoader::load(filename);
 
     cout << "\n***************************Player driver function***************************" << endl;
 
     //Create player1 object
-    Player* player1 = new Player();
+    Player *player1 = new Player();
 
     //Set the territories with sample data from the Map
     player1->setTerritories({map->getTerritoryByID(1),map->getTerritoryByID(2), map->getTerritoryByID(3), map->getTerritoryByID(4)});

@@ -106,6 +106,6 @@ public:
 };
 
 // Free function in order to test the functionality of the Map for assignment #1.
-void map_driver();
+void map_driver(const string &filename);
 
 #endif //COMP_345_PROJECT_TEAM_N12_MAP_H

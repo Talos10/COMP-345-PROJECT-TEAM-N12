@@ -8,10 +8,12 @@ int main() {
     cout << "Running main driver!" << endl;
 
     int classDemo = 0;
+    string filename1 = "canada-map.txt";
+    string filename2 = "demo-map.txt";
 
-    switch(classDemo) {
+    switch (classDemo) {
         case 0:
-            map_driver();
+            map_driver(filename1);
             break;
         case 1:
             card_driver();
@@ -20,7 +22,7 @@ int main() {
             orders_driver();
             break;
         case 3:
-            player_driver();
+            player_driver(filename1);
             break;
         case 4:
             game_engine_driver();

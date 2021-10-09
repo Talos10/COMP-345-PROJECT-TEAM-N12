@@ -7,8 +7,8 @@ set(SOURCES src/main_driver.cpp src/cards/cards.cpp src/game_engine/game_engine.
 
 set(HEADERS src/cards/cards.h src/game_engine/game_engine.h src/map/map.h src/orders/orders.h src/player/player.h)
 
-add_executable(RISK_APPLICATION
+add_executable(WARZONE_APPLICATION
         ${SOURCES}
         ${HEADERS})
 
-target_include_directories(RISK_APPLICATION PRIVATE src)
+target_include_directories(WARZONE_APPLICATION PRIVATE src)
