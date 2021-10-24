@@ -334,6 +334,14 @@ ostream& operator<<(ostream& out, const Blockade& blockade) {
 //Default constructor
 Airlift::Airlift(): Order("Airlift Order", "Airlift effect", *this->getIssuingPlayer()) {}
 
+//Parameterized Constructor
+Airlift::Airlift(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies) {
+    setIssuingPlayer(issuingPlayer);
+    this->sourceTerritory = &sourceTerritory;
+    this->targetTerritory = &targetTerritory;
+    this->numArmies = numArmies;
+}
+
 //Copy constructor
 Airlift::Airlift(const Airlift& airlift_order): Order(airlift_order) {}
 
@@ -342,18 +350,25 @@ Airlift::~Airlift() {};
 
 //Checks if an Airlift order is valid
 bool Airlift::validate() {
-    cout << "Validating Airlift Order" << endl;
+    cout << "Validating Airlift Order..." << endl;
+    if (this->sourceTerritory->getOwner() != this->getIssuingPlayer()) {
+        cout << "INVALID: Source territory does not belong to the issuing player!" << endl;
+        return false;
+    }
+    else if (this->targetTerritory->getOwner() != this->getIssuingPlayer()) {
+        cout << "INVALID: Target territory does not belong to the issuing player!" << endl;
+        return false;
+    }
     return true;
 }
 
 //Executes an Airlift order
 void Airlift::execute() {
     if (this->validate()) {
-        cout << "Executing Airlift Order" << endl;
+        cout << "Executing Airlift Order..." << endl;
+//        this->sourceTerritory.removeArmies(numArmies);
+//        this->targetTerritory.addArmies(numArmies);
         cout << *this->getEffect() << endl;
-    }
-    else {
-        cout << "Invalid order cannot be executed";
     }
 }
 
@@ -425,7 +440,7 @@ OrdersList::~OrdersList() {
     this->orders->clear();  //delete all Order pointers in vector
     delete this->orders;    //delete orders pointer
     this->orders = nullptr;
-} 
+}
 
 //Move an Order in the vector to a new index by providing its current index and the index it should be moved to
 void OrdersList::move(int currentIndex, int newIndex) {
@@ -529,12 +544,12 @@ void orders_driver() {
 
     //move orders
     orders_list->move(1, 4);
-    cout << "#####Moved order at index 1 to position 4!#####" << endl; 
+    cout << "#####Moved order at index 1 to position 4!#####" << endl;
     cout << orders_list << endl;
 
     //remove orders
     orders_list->remove(3);
-    cout << "#####Removed order at index 3!#####" << endl; 
+    cout << "#####Removed order at index 3!#####" << endl;
     cout << orders_list << endl;
 
     //validate orders

@@ -190,9 +190,16 @@ public:
 
 // This class implements an Airlift order.
 class Airlift : public Order {
+private:
+    Territory* sourceTerritory;
+    Territory* targetTerritory;
+    int numArmies;
 public:
     //Default constructor
     Airlift();
+
+    //Parameterized Constructor
+    Airlift(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies);
 
     //Copy constructor
     Airlift(const Airlift& order);
