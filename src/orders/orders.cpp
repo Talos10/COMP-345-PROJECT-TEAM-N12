@@ -2,24 +2,27 @@
 
 ////////////////////////////Order CLASS////////////////////////////////////
 //Default constructor
-Order::Order() : Order("generic order", "no effect") {}
+Order::Order() {}
 
-//Parameterized constructor which initializes an Order with the provided description and effect
-Order::Order(const string& description, const string& effect) {
+//Parameterized constructor which initializes an Order with the provided description, effect and issuingPlayer
+Order::Order(const string& description, const string& effect, Player& issuingPlayer) {
     this->description = new string(description);
     this->effect = new string(effect);
+    this->issuingPlayer = &issuingPlayer;    //shallow copy because want to refer to same player???
 }
 
 //Copy constructor
 Order::Order(const Order& order) {
     this->description = new string(*(order.description));
     this->effect = new string(*(order.effect));
+    this->issuingPlayer = order.issuingPlayer;    //shallow copy because want to refer to same player???
 }
 
 //Destructor
 Order::~Order() {
     delete description;
     delete effect;
+    delete issuingPlayer; //should I call this or let the Player destructor handle it?
 }
 
 //Getter to retrieve the description of an Order
@@ -32,6 +35,11 @@ string* Order::getEffect() const {
     return this->effect;
 }
 
+//Getter for the issuing player of the order
+Player* Order::getIssuingPlayer() const {
+    return this->issuingPlayer;
+}
+
 //Setter to set the description of an Order
 void Order::setDescription(const string& description) {
     delete this->description;
@@ -42,6 +50,10 @@ void Order::setDescription(const string& description) {
 void Order::setEffect(const string& effect) {
     delete this->effect;
     this->effect = new string(effect);
+}
+
+void Order::setIssuingPlayer(Player& issuingPlayer) {
+    this->issuingPlayer = &issuingPlayer;
 }
 
 //Defining the assignment operator
@@ -73,7 +85,15 @@ void Order::execute() {
 
 ////////////////////////////Deploy CLASS////////////////////////////////////
 //Default constructor
-Deploy::Deploy(): Order("Deploy Order", "Deploy effect") {}
+Deploy::Deploy(): Order("A deploy order tells a certain number of armies taken from the reinforcement pool to deploy to a \n"
+                        "target territory owned by the player issuing this order.", "Armies moved from reinforcement pool to target territory.", *this->getIssuingPlayer()) {}
+
+//Parameterized Constructor
+Deploy::Deploy(Player& issuingPlayer, Territory& targetTerritory, int numArmies) {
+    setIssuingPlayer(issuingPlayer);
+    this->targetTerritory = &targetTerritory;
+    this->numArmies = numArmies;
+}
 
 //Copy constructor
 Deploy::Deploy(const Deploy& deploy_order): Order(deploy_order) {}
@@ -83,19 +103,23 @@ Deploy::~Deploy() {}
 
 //Checks if a Deploy order is valid
 bool Deploy::validate() {
-    cout << "Validating Deploy Order" << endl;
+    cout << "Validating Deploy Order..." << endl;
+    if (this->targetTerritory->getOwner() != this->getIssuingPlayer()) {
+        cout << "Invalid: target territory does not belong to player issuing the order!" << endl;
+        return false;
+    }
     return true;
 }
 
 //Executes a Deploy order
 void Deploy::execute() {
     if (this->validate()) {
-        cout << "Executing Deploy Order" << endl;
+        cout << "Executing Deploy Order..." << endl;
+        //this->targetTerritory->addArmies(this->numArmies);
+        //this->issuingPlayer->setArmies(this->issuingPlayer->getArmies() - this->numArmies);
         cout << *this->getEffect() << endl;
     }
-    else {
-        cout << "Invalid order cannot be executed";
-    }
+
 }
 
 //Defining the assignment operator
@@ -112,7 +136,7 @@ ostream& operator<<(ostream& out, const Deploy& deploy) {
 
 ////////////////////////////Advance CLASS////////////////////////////////////
 //Default constructor
-Advance::Advance(): Order("Advance Order", "Advance effect") {}
+Advance::Advance(): Order("Advance Order", "Advance effect", *this->getIssuingPlayer()) {}
 
 //Copy constructor
 Advance::Advance(const Advance& adv_order): Order(adv_order) {}
@@ -151,7 +175,7 @@ ostream& operator<<(ostream& out, const Advance& advance) {
 
 ////////////////////////////Bomb CLASS////////////////////////////////////
 //Default constructor
-Bomb::Bomb(): Order("Bomb Order", "Bomb effect") {}
+Bomb::Bomb(): Order("Bomb Order", "Bomb effect", *this->getIssuingPlayer()) {}
 
 //Copy constructor
 Bomb::Bomb(const Bomb& bomb_order): Order(bomb_order) {}
@@ -190,7 +214,7 @@ ostream& operator<<(ostream& out, const Bomb& bomb) {
 
 ////////////////////////////Blockade CLASS////////////////////////////////////
 //Default constructor
-Blockade::Blockade(): Order("Blockade Order", "Blockade effect") {}
+Blockade::Blockade(): Order("Blockade Order", "Blockade effect", *this->getIssuingPlayer()) {}
 
 //Copy constructor
 Blockade::Blockade(const Blockade& blockade_order): Order(blockade_order) {}
@@ -230,7 +254,7 @@ ostream& operator<<(ostream& out, const Blockade& blockade) {
 
 ////////////////////////////Airlift CLASS////////////////////////////////////
 //Default constructor
-Airlift::Airlift(): Order("Airlift Order", "Airlift effect") {}
+Airlift::Airlift(): Order("Airlift Order", "Airlift effect", *this->getIssuingPlayer()) {}
 
 //Copy constructor
 Airlift::Airlift(const Airlift& airlift_order): Order(airlift_order) {}
@@ -269,7 +293,7 @@ ostream& operator<<(ostream& out, const Airlift& airlift) {
 
 ////////////////////////////Negotiate CLASS////////////////////////////////////
 //Default constructor
-Negotiate::Negotiate(): Order("Negotiate Order", "Negotiate effect") {}
+Negotiate::Negotiate(): Order("Negotiate Order", "Negotiate effect", *this->getIssuingPlayer()) {}
 
 //Copy constructor
 Negotiate::Negotiate(const Negotiate& negotiate_order): Order(negotiate_order) {}

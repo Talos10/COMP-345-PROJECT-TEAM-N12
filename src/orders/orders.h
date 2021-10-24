@@ -2,7 +2,12 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include "map/map.h"
 using namespace std;
+
+//Forward declaration
+class Player;
+class Territory;
 
 // This class implements a generic order.
 class Order {
@@ -13,12 +18,15 @@ private:
     //A string which contains the effect of the order.
     string *effect;
 
+    //Player that issues the order
+    Player* issuingPlayer;
+
 public:
     //Default constructor which initializes a generic order.
     Order();
 
-    //A parameterized constructor which initializes an order with the provided description and effect.
-    Order(const string& description, const string& effect);
+    //A parameterized constructor which initializes an order with the provided description, effect and issuing player
+    Order(const string& description, const string& effect, Player& issuingPlayer);
 
     //Copy constructor
     Order(const Order& order);
@@ -38,11 +46,17 @@ public:
     //Getter for the effect of the order
     string* getEffect() const;
 
+    //Getter for the issuing player of the order
+    Player* getIssuingPlayer() const;
+
     //Setter for the description of the order
     void setDescription(const string& description);
 
     //Setter for the effect of the order
     void setEffect(const string& effect);
+
+    //Setter for the issuing player of the order
+    void setIssuingPlayer(Player& issuingPlayer);
 
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Order& order);
@@ -53,9 +67,15 @@ public:
 
 // This class implements a Deploy order.
 class Deploy : public Order {
+private:
+    Territory* targetTerritory;
+    int numArmies;
 public:
     //Default constructor
     Deploy();
+
+    //Parameterized Constructor
+    Deploy(Player& issuingPlayer, Territory& targetTerritory, int numArmies);
 
     //Copy constructor
     Deploy(const Deploy& order);
