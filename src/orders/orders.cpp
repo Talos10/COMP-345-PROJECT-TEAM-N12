@@ -388,6 +388,12 @@ ostream& operator<<(ostream& out, const Airlift& airlift) {
 //Default constructor
 Negotiate::Negotiate(): Order("Negotiate Order", "Negotiate effect", *this->getIssuingPlayer()) {}
 
+//Parameterized Constructor
+Negotiate::Negotiate(Player& issuingPlayer, Player& enemyPlayer) {
+    setIssuingPlayer(issuingPlayer);
+    this->enemyPlayer = &enemyPlayer;
+}
+
 //Copy constructor
 Negotiate::Negotiate(const Negotiate& negotiate_order): Order(negotiate_order) {}
 
@@ -396,13 +402,20 @@ Negotiate::~Negotiate() {};
 
 //Checks if a Negotiate order is valid
 bool Negotiate::validate() {
-    cout << "Validating Negotiate Order" << endl;
+    cout << "Validating Negotiate Order..." << endl;
+    if (this->enemyPlayer == this->getIssuingPlayer() || this->enemyPlayer == nullptr) {
+        cout << "INVALID: Issuing player and enemy player are the same!" << endl;
+        return false;
+    }
     return true;
 }
 
 //Executes a Negotiate order
 void Negotiate::execute() {
-    cout << "Executing Negotiate Order" << endl;
+    if (this->validate()) {
+        cout << "Executing Negotiate Order..." << endl;
+        cout << *this->getEffect() << endl;
+    }
 }
 
 //Defining the assignment operator

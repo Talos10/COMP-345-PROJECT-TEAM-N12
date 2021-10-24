@@ -222,9 +222,14 @@ public:
 
 // This class implements a Negotiate order.
 class Negotiate : public Order {
+private:
+    Player* enemyPlayer;
 public:
     //Default constructor
     Negotiate();
+
+    //Parameterized Constructor
+    Negotiate(Player& issuingPlayer, Player& enemyPlayer);
 
     //Copy constructor
     Negotiate(const Negotiate& order);
