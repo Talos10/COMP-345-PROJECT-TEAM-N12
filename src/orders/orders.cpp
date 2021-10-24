@@ -1,4 +1,5 @@
 #include "orders.h"
+#include <stdlib.h>
 
 ////////////////////////////Order CLASS////////////////////////////////////
 //Default constructor
@@ -22,7 +23,7 @@ Order::Order(const Order& order) {
 Order::~Order() {
     delete description;
     delete effect;
-    delete issuingPlayer; //should I call this or let the Player destructor handle it?
+    //delete issuingPlayer; //should I call this or let the Player destructor handle it?
 }
 
 //Getter to retrieve the description of an Order
@@ -138,6 +139,14 @@ ostream& operator<<(ostream& out, const Deploy& deploy) {
 //Default constructor
 Advance::Advance(): Order("Advance Order", "Advance effect", *this->getIssuingPlayer()) {}
 
+//Parameterized Constructor
+Advance::Advance(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies) {
+    setIssuingPlayer(issuingPlayer);
+    this->sourceTerritory = &sourceTerritory;
+    this->targetTerritory = &targetTerritory;
+    this->numArmies = numArmies;
+}
+
 //Copy constructor
 Advance::Advance(const Advance& adv_order): Order(adv_order) {}
 
@@ -146,18 +155,63 @@ Advance::~Advance() {};
 
 //Checks if an Advance order is valid
 bool Advance::validate() {
-    cout << "Validating Advance Order" << endl;
+    cout << "Validating Advance Order..." << endl;
+    if (this->sourceTerritory->getOwner() != this->getIssuingPlayer()) {
+        cout << "INVALID: source territory does not belong to player issuing the order!" << endl;
+        return false;
+    }
+    else if (find(sourceTerritory->getNeighbours().begin(), sourceTerritory->getNeighbours().end(), targetTerritory) != sourceTerritory->getNeighbours().end()) {
+        cout << "INVALID: target territory is not adjacent to the source territory!" << endl;
+        return false;
+    }
     return true;
 }
 
 //Executes an Advance order
 void Advance::execute() {
     if (this->validate()) {
-        cout << "Executing Advance Order" << endl;
-        cout << *this->getEffect() << endl;
-    }
-    else {
-        cout << "Invalid order cannot be executed";
+        cout << "Executing Advance Order..." << endl;
+        bool bothTerritoriesBelongToTheIssuingPlayer = this->sourceTerritory->getOwner() == this->getIssuingPlayer() && this->targetTerritory->getOwner() == this->getIssuingPlayer();
+        if (bothTerritoriesBelongToTheIssuingPlayer) {
+            //this->targetTerritory.addArmies(numArmies)
+//            this->sourceTerritory.setArmies(this->sourceTerritory->getNumberOfArmies()-numArmies)
+            this->setEffect("army units are moved from the source to the target territory.");
+        }
+        else {
+            int attackingArmies = this->numArmies;
+            int defendingArmies = targetTerritory->getNumberOfArmies();
+//            this->sourceTerritory.removeArmies(attackingArmies);
+
+            for (int i = 0; i < attackingArmies; i++) {
+                int chanceOfAttack = rand() % 100 + 1;
+                if (chanceOfAttack <= 60) {
+                    if (defendingArmies == 0) {
+                        break;
+                    }
+                    defendingArmies--;
+                }
+            }
+
+            for (int i = 0; i < defendingArmies; i++) {
+                int chanceOfDefence = rand() % 100 + 1;
+                if (chanceOfDefence <= 70) {
+                    attackingArmies--;
+                }
+            }
+
+            //All enemies dead and you still have attacking armies
+            if (attackingArmies > 0 && !defendingArmies) {
+//                targetTerritory.setOwner(this->getIssuingPlayer());
+//                targetTerritory.setArmies(attackingArmies);
+//                this->getIssuingPlayer().draw();
+                this->setEffect("Target territory successfully captured!");
+            }
+            else {
+//                targetTerritory.setArmies(defendingArmies);
+                this->setEffect("The defending armies won the battle. You did not conquer the target territory!");
+            }
+            cout << *this->getEffect() << endl;
+        }
     }
 }
 
@@ -177,6 +231,12 @@ ostream& operator<<(ostream& out, const Advance& advance) {
 //Default constructor
 Bomb::Bomb(): Order("Bomb Order", "Bomb effect", *this->getIssuingPlayer()) {}
 
+//Parameterized Constructor
+Bomb::Bomb(Player& issuingPlayer, Territory& targetTerritory) {
+    setIssuingPlayer(issuingPlayer);
+    this->targetTerritory = &targetTerritory;
+}
+
 //Copy constructor
 Bomb::Bomb(const Bomb& bomb_order): Order(bomb_order) {}
 
@@ -185,18 +245,26 @@ Bomb::~Bomb() {};
 
 //Checks if a Bomb order is valid
 bool Bomb::validate() {
-    cout << "Validating Bomb Order" << endl;
-    return true;
+    cout << "Validating Bomb Order..." << endl;
+    if (this->targetTerritory->getOwner() == this->getIssuingPlayer()) {
+        cout << "INVALID: target territory belongs to the player that issued the order!" << endl;
+    }
+    list<Territory*> neighbourTerritories = this->targetTerritory->getNeighbours();
+    for (Territory* neighbour : neighbourTerritories) {
+        if (neighbour->getOwner() == this->getIssuingPlayer()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 //Executes a Bomb order
 void Bomb::execute() {
     if (this->validate()) {
-        cout << "Executing Bomb Order" << endl;
+        cout << "Executing Bomb Order..." << endl;
+//        this->targetTerritory.removeArmies(0.5*this->targetTerritory->getNumberOfArmies());
+        this->setEffect("removed half of the armies from the target territory!");
         cout << *this->getEffect() << endl;
-    }
-    else {
-        cout << "Invalid order cannot be executed";
     }
 }
 
@@ -216,6 +284,12 @@ ostream& operator<<(ostream& out, const Bomb& bomb) {
 //Default constructor
 Blockade::Blockade(): Order("Blockade Order", "Blockade effect", *this->getIssuingPlayer()) {}
 
+//Parameterized Constructor
+Blockade::Blockade(Player& issuingPlayer, Territory& targetTerritory) {
+    setIssuingPlayer(issuingPlayer);
+    this->targetTerritory = &targetTerritory;
+}
+
 //Copy constructor
 Blockade::Blockade(const Blockade& blockade_order): Order(blockade_order) {}
 
@@ -224,20 +298,24 @@ Blockade::~Blockade() {};
 
 //Checks if a Blockade order is valid
 bool Blockade::validate() {
-    cout << "Validating Blockade Order" << endl;
+    cout << "Validating Blockade Order..." << endl;
+    if (this->targetTerritory->getOwner() != this->getIssuingPlayer()) {
+        return false;
+    }
     return true;
 }
 
 //Executes a Blockade order
 void Blockade::execute() {
     if (this->validate()) {
-        cout << "Executing Blockcade Order" << endl;
-        cout << *this->getEffect() << endl;
+        cout << "Executing Blockcade Order..." << endl;
+//        this->targetTerritory.addArmies(this->targetTerritory->getNumberOfArmies());
+//this->getIssuingPlayer().removeTerritory(this->targetTerritory);
+
+//Neutral player owner
+//this->targetTerritory.setOwner(nullptr);
+        this->getEffect();
     }
-    else {
-        cout << "Invalid order cannot be executed";
-    }
-    
 }
 
 //Defining the assignment operator

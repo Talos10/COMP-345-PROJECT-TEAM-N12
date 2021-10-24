@@ -98,9 +98,16 @@ public:
 
 // This class implements an Advance order.
 class Advance : public Order {
+private:
+    Territory* sourceTerritory;
+    Territory* targetTerritory;
+    int numArmies;
 public:
     //Default constructor
     Advance();
+
+    //Parameterized Constructor
+    Advance(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies);
 
     //Copy constructor
     Advance(const Advance& order);
@@ -123,9 +130,14 @@ public:
 
 // This class implements a Bomb order.
 class Bomb : public Order {
+private:
+    Territory* targetTerritory;
 public:
     //Default constructor
     Bomb();
+
+    //Parameterized Constructor
+    Bomb(Player& issuingPlayer, Territory& targetTerritory);
 
     //Copy constructor
     Bomb(const Bomb& order);
@@ -148,9 +160,14 @@ public:
 
 // This class implements a Blockade order.
 class Blockade : public Order {
+private:
+    Territory* targetTerritory;
 public:
     //Default constructor
     Blockade();
+
+    //Parameterized Constructor
+    Blockade(Player& issuingPlayer, Territory& targetTerritory);
 
     //Copy constructor
     Blockade(const Blockade& order);
