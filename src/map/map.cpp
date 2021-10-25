@@ -197,6 +197,14 @@ int Territory::getNumberOfArmies() const {
 }
 
 /**
+ * Sets the number of armies in the territory
+ * @param numArmies armies in the territory
+ */
+void Territory::setNumberOfArmies(const int numArmies) {
+    this->numberOfArmies = numArmies;
+}
+
+/**
  * @return the current Owner of the territory
  */
 Player* Territory::getOwner() const {

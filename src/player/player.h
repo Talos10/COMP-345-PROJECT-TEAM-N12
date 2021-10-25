@@ -66,6 +66,9 @@ public:
     // Setter for the territories.
     void setTerritories(const std::vector<Territory*> &territories);
 
+    // Removes a territory from the Player's collection of territories
+    void removeTerritory(const Territory& territory);
+
     // Getter for the hand.
     [[nodiscard]] Hand* getHand() const;
 

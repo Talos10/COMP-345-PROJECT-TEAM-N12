@@ -71,6 +71,17 @@ void Player::setTerritories(const std::vector<Territory*> &territories) {
     this->territories = new std::vector(territories);
 }
 
+// Removes a territory from the Player's collection of territories
+void Player::removeTerritory(const Territory& territory) {
+    // Create an iterator that will point to the same territory owned by the player as the territory to be removed
+    vector<Territory*>::iterator it = std::find(this->territories->begin(), this->territories->end(), &territory);
+
+    // If the territory is found, delete the reference to the territory in the collection of the player
+    if(it != this->territories->end()){
+        this->territories->erase(it);       //deleting pointer causing memory leak???? I dont think so cuz the passed territory still holds the reference
+    }
+}
+
 //Defining the output operator
 ostream& operator<<(ostream& out, const std::vector<Territory*> &territories) {
     out << "The territories collection contains " << territories.size() << " territories:" << endl;

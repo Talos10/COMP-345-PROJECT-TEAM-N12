@@ -202,12 +202,14 @@ void Advance::execute() {
             //All enemies dead and you still have attacking armies
             if (attackingArmies > 0 && !defendingArmies) {
                 targetTerritory->setOwner(this->getIssuingPlayer());
-//                targetTerritory.setArmies(attackingArmies);
+                targetTerritory->setNumberOfArmies(attackingArmies);
+                //seems like I need a DECK to draw??? Maybe we should make the deck a global variable???
 //                this->getIssuingPlayer().draw();
+//                deck.draw(this->getIssuingPlayer()->getHand());
                 this->setEffect("Target territory successfully captured!");
             }
             else {
-//                targetTerritory.setArmies(defendingArmies);
+                targetTerritory->setNumberOfArmies(defendingArmies);
                 this->setEffect("The defending armies won the battle. You did not conquer the target territory!");
             }
             cout << *this->getEffect() << endl;
@@ -311,7 +313,7 @@ void Blockade::execute() {
     if (this->validate()) {
         cout << "Executing Blockcade Order..." << endl;
         this->targetTerritory->addArmies(this->targetTerritory->getNumberOfArmies());
-//  this->getIssuingPlayer().removeTerritory(this->targetTerritory);
+        this->getIssuingPlayer()->removeTerritory(*this->targetTerritory);
 
         //Neutral player owner
         this->targetTerritory->setOwner(nullptr);

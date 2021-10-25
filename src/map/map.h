@@ -65,6 +65,7 @@ public:
     int getNumberOfArmies() const;
     Player* getOwner() const;
     void setOwner(Player* player);
+    void setNumberOfArmies(const int numArmies);
     void addNeighbour(Territory* territory);
     void addArmies(const int numArmies);
     void removeArmies(const int numArmies);
