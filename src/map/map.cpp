@@ -204,11 +204,35 @@ Player* Territory::getOwner() const {
 }
 
 /**
+ * Sets the owner of the territory
+ * @param player pointer to a player which is the owner of the territory
+ */
+void Territory::setOwner(Player* player) {
+     this->owner = player;
+}
+
+/**
  * Adds a Territory to the object Territory's neighbours
  * @param territory a pointer to the territory to be added
  */
 void Territory::addNeighbour(Territory *territory) {
     neighbours.emplace_back(territory);
+}
+
+/**
+ * Increments the number of armies of the territory
+ * @param numArmies number of armies to be incremented to the territory
+ */
+void Territory::addArmies(const int numArmies) {
+    numberOfArmies += numArmies;
+}
+
+/**
+ * Decrements the number of armies of the territory
+ * @param numArmies number of armies to be decremented from the territory
+ */
+void Territory::removeArmies(const int numArmies) {
+    numberOfArmies -= numArmies;
 }
 
 /**

@@ -173,14 +173,14 @@ void Advance::execute() {
         cout << "Executing Advance Order..." << endl;
         bool bothTerritoriesBelongToTheIssuingPlayer = this->sourceTerritory->getOwner() == this->getIssuingPlayer() && this->targetTerritory->getOwner() == this->getIssuingPlayer();
         if (bothTerritoriesBelongToTheIssuingPlayer) {
-            //this->targetTerritory.addArmies(numArmies)
-//            this->sourceTerritory.setArmies(this->sourceTerritory->getNumberOfArmies()-numArmies)
+            this->targetTerritory->addArmies(this->numArmies);
+            this->sourceTerritory->removeArmies(this->numArmies);
             this->setEffect("army units are moved from the source to the target territory.");
         }
         else {
             int attackingArmies = this->numArmies;
             int defendingArmies = targetTerritory->getNumberOfArmies();
-//            this->sourceTerritory.removeArmies(attackingArmies);
+            this->sourceTerritory->removeArmies(attackingArmies);
 
             for (int i = 0; i < attackingArmies; i++) {
                 int chanceOfAttack = rand() % 100 + 1;
@@ -201,7 +201,7 @@ void Advance::execute() {
 
             //All enemies dead and you still have attacking armies
             if (attackingArmies > 0 && !defendingArmies) {
-//                targetTerritory.setOwner(this->getIssuingPlayer());
+                targetTerritory->setOwner(this->getIssuingPlayer());
 //                targetTerritory.setArmies(attackingArmies);
 //                this->getIssuingPlayer().draw();
                 this->setEffect("Target territory successfully captured!");
@@ -262,7 +262,8 @@ bool Bomb::validate() {
 void Bomb::execute() {
     if (this->validate()) {
         cout << "Executing Bomb Order..." << endl;
-//        this->targetTerritory.removeArmies(0.5*this->targetTerritory->getNumberOfArmies());
+        //SHOULD I ROUND DOWN?????????
+        this->targetTerritory->removeArmies(0.5*this->targetTerritory->getNumberOfArmies());
         this->setEffect("removed half of the armies from the target territory!");
         cout << *this->getEffect() << endl;
     }
@@ -309,11 +310,11 @@ bool Blockade::validate() {
 void Blockade::execute() {
     if (this->validate()) {
         cout << "Executing Blockcade Order..." << endl;
-//        this->targetTerritory.addArmies(this->targetTerritory->getNumberOfArmies());
-//this->getIssuingPlayer().removeTerritory(this->targetTerritory);
+        this->targetTerritory->addArmies(this->targetTerritory->getNumberOfArmies());
+//  this->getIssuingPlayer().removeTerritory(this->targetTerritory);
 
-//Neutral player owner
-//this->targetTerritory.setOwner(nullptr);
+        //Neutral player owner
+        this->targetTerritory->setOwner(nullptr);
         this->getEffect();
     }
 }
@@ -366,8 +367,8 @@ bool Airlift::validate() {
 void Airlift::execute() {
     if (this->validate()) {
         cout << "Executing Airlift Order..." << endl;
-//        this->sourceTerritory.removeArmies(numArmies);
-//        this->targetTerritory.addArmies(numArmies);
+        this->sourceTerritory->removeArmies(numArmies);
+        this->targetTerritory->addArmies(numArmies);
         cout << *this->getEffect() << endl;
     }
 }

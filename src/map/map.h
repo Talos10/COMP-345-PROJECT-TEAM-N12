@@ -64,7 +64,10 @@ public:
     list<Territory *> &getNeighbours();
     int getNumberOfArmies() const;
     Player* getOwner() const;
+    void setOwner(Player* player);
     void addNeighbour(Territory* territory);
+    void addArmies(const int numArmies);
+    void removeArmies(const int numArmies);
 
     int getX() const;
 
