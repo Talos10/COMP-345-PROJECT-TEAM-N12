@@ -5,6 +5,12 @@
 //Default constructor
 Order::Order() {}
 
+//Parameterized constructor which initializes an Order with the provided description and effect
+Order::Order(const string& description, const string& effect) {
+    this->description = new string(description);
+    this->effect = new string(effect);
+}
+
 //Parameterized constructor which initializes an Order with the provided description, effect and issuingPlayer
 Order::Order(const string& description, const string& effect, Player& issuingPlayer) {
     this->description = new string(description);
@@ -87,10 +93,10 @@ void Order::execute() {
 ////////////////////////////Deploy CLASS////////////////////////////////////
 //Default constructor
 Deploy::Deploy(): Order("A deploy order tells a certain number of armies taken from the reinforcement pool to deploy to a \n"
-                        "target territory owned by the player issuing this order.", "Armies moved from reinforcement pool to target territory.", *this->getIssuingPlayer()) {}
+                        "target territory owned by the player issuing this order.", "Armies moved from reinforcement pool to target territory.") {}
 
 //Parameterized Constructor
-Deploy::Deploy(Player& issuingPlayer, Territory& targetTerritory, int numArmies) {
+Deploy::Deploy(Player& issuingPlayer, Territory& targetTerritory, int numArmies): Deploy() {
     setIssuingPlayer(issuingPlayer);
     this->targetTerritory = &targetTerritory;
     this->numArmies = numArmies;
@@ -116,8 +122,7 @@ bool Deploy::validate() {
 void Deploy::execute() {
     if (this->validate()) {
         cout << "Executing Deploy Order..." << endl;
-        //this->targetTerritory->addArmies(this->numArmies);
-        //this->issuingPlayer->setArmies(this->issuingPlayer->getArmies() - this->numArmies);
+        this->targetTerritory->addArmies(this->numArmies);
         cout << *this->getEffect() << endl;
     }
 
@@ -137,10 +142,10 @@ ostream& operator<<(ostream& out, const Deploy& deploy) {
 
 ////////////////////////////Advance CLASS////////////////////////////////////
 //Default constructor
-Advance::Advance(): Order("Advance Order", "Advance effect", *this->getIssuingPlayer()) {}
+Advance::Advance(): Order("An advance order tells a certain number of army units to move from a source territory to a target adjacent territory.", "Moved a number of armies from source territory to adjacent target territory.") {}
 
 //Parameterized Constructor
-Advance::Advance(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies) {
+Advance::Advance(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies): Advance() {
     setIssuingPlayer(issuingPlayer);
     this->sourceTerritory = &sourceTerritory;
     this->targetTerritory = &targetTerritory;
@@ -231,10 +236,10 @@ ostream& operator<<(ostream& out, const Advance& advance) {
 
 ////////////////////////////Bomb CLASS////////////////////////////////////
 //Default constructor
-Bomb::Bomb(): Order("Bomb Order", "Bomb effect", *this->getIssuingPlayer()) {}
+Bomb::Bomb(): Order("A bomb order targets a territory owned by another player than the one issuing the order. Its result is to remove half of the armies from this territory.", "Half of the armies removed from target territory.") {}
 
 //Parameterized Constructor
-Bomb::Bomb(Player& issuingPlayer, Territory& targetTerritory) {
+Bomb::Bomb(Player& issuingPlayer, Territory& targetTerritory): Bomb() {
     setIssuingPlayer(issuingPlayer);
     this->targetTerritory = &targetTerritory;
 }
@@ -285,10 +290,10 @@ ostream& operator<<(ostream& out, const Bomb& bomb) {
 
 ////////////////////////////Blockade CLASS////////////////////////////////////
 //Default constructor
-Blockade::Blockade(): Order("Blockade Order", "Blockade effect", *this->getIssuingPlayer()) {}
+Blockade::Blockade(): Order("A blockade order targets a territory that belongs to the player issuing the order", "double  the  number of  armies on the territory  and to  transfer the ownership  of  the  territory to the Neutral player.") {}
 
 //Parameterized Constructor
-Blockade::Blockade(Player& issuingPlayer, Territory& targetTerritory) {
+Blockade::Blockade(Player& issuingPlayer, Territory& targetTerritory): Blockade() {
     setIssuingPlayer(issuingPlayer);
     this->targetTerritory = &targetTerritory;
 }
@@ -335,10 +340,10 @@ ostream& operator<<(ostream& out, const Blockade& blockade) {
 
 ////////////////////////////Airlift CLASS////////////////////////////////////
 //Default constructor
-Airlift::Airlift(): Order("Airlift Order", "Airlift effect", *this->getIssuingPlayer()) {}
+Airlift::Airlift(): Order("An airlift order tells a certain number of armies taken from a source territory to be moved to a target territory, the source and the target territory being owned by the player issuing the order.", "Armies moved from source territory to target territory") {}
 
 //Parameterized Constructor
-Airlift::Airlift(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies) {
+Airlift::Airlift(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies): Airlift() {
     setIssuingPlayer(issuingPlayer);
     this->sourceTerritory = &sourceTerritory;
     this->targetTerritory = &targetTerritory;
@@ -389,10 +394,10 @@ ostream& operator<<(ostream& out, const Airlift& airlift) {
 
 ////////////////////////////Negotiate CLASS////////////////////////////////////
 //Default constructor
-Negotiate::Negotiate(): Order("Negotiate Order", "Negotiate effect", *this->getIssuingPlayer()) {}
+Negotiate::Negotiate(): Order("A negotiate order targets an enemy player. It results in the target player and the player issuing the order to not be able to successfully attack each others’ territories for the remainder of the turn.", "Players cannot attack eachother for remainder of the turn.") {}
 
 //Parameterized Constructor
-Negotiate::Negotiate(Player& issuingPlayer, Player& enemyPlayer) {
+Negotiate::Negotiate(Player& issuingPlayer, Player& enemyPlayer): Negotiate() {
     setIssuingPlayer(issuingPlayer);
     this->enemyPlayer = &enemyPlayer;
 }

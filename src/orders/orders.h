@@ -25,6 +25,9 @@ public:
     //Default constructor which initializes a generic order.
     Order();
 
+    //A parameterized constructor which initializes an order with the provided description and effect
+    Order(const string& description, const string& effect);
+
     //A parameterized constructor which initializes an order with the provided description, effect and issuing player
     Order(const string& description, const string& effect, Player& issuingPlayer);
 
