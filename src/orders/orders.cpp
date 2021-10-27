@@ -79,7 +79,7 @@ Deploy::Deploy(): Order("Deploy Order", "Deploy effect") {}
 Deploy::Deploy(const Deploy& deploy_order): Order(deploy_order) {}
 
 //Destructor
-Deploy::~Deploy() {}
+Deploy::~Deploy() = default;
 
 //Checks if a Deploy order is valid
 bool Deploy::validate() {
@@ -107,18 +107,18 @@ Deploy& Deploy::operator=(const Deploy& deploy_order) {
 //Defining the output operator
 ostream& operator<<(ostream& out, const Deploy& deploy) {
 	out << *deploy.getDescription();
-	return out;
+    return out;
 }
 
 ////////////////////////////Advance CLASS////////////////////////////////////
 //Default constructor
-Advance::Advance(): Order("Advance Order", "Advance effect") {}
+Advance::Advance() : Order("Advance Order", "Advance effect") {}
 
 //Copy constructor
-Advance::Advance(const Advance& adv_order): Order(adv_order) {}
+Advance::Advance(const Advance &adv_order) : Order(adv_order) {}
 
-//Desctructor
-Advance::~Advance() {};
+//Destructor
+Advance::~Advance() = default;;
 
 //Checks if an Advance order is valid
 bool Advance::validate() {
@@ -157,7 +157,7 @@ Bomb::Bomb(): Order("Bomb Order", "Bomb effect") {}
 Bomb::Bomb(const Bomb& bomb_order): Order(bomb_order) {}
 
 //Destructor
-Bomb::~Bomb() {};
+Bomb::~Bomb() = default;
 
 //Checks if a Bomb order is valid
 bool Bomb::validate() {
@@ -196,7 +196,7 @@ Blockade::Blockade(): Order("Blockade Order", "Blockade effect") {}
 Blockade::Blockade(const Blockade& blockade_order): Order(blockade_order) {}
 
 //Destructor
-Blockade::~Blockade() {};
+Blockade::~Blockade() = default;
 
 //Checks if a Blockade order is valid
 bool Blockade::validate() {
@@ -236,7 +236,7 @@ Airlift::Airlift(): Order("Airlift Order", "Airlift effect") {}
 Airlift::Airlift(const Airlift& airlift_order): Order(airlift_order) {}
 
 //Destructor
-Airlift::~Airlift() {};
+Airlift::~Airlift() = default;
 
 //Checks if an Airlift order is valid
 bool Airlift::validate() {
@@ -275,7 +275,7 @@ Negotiate::Negotiate(): Order("Negotiate Order", "Negotiate effect") {}
 Negotiate::Negotiate(const Negotiate& negotiate_order): Order(negotiate_order) {}
 
 //Destructor
-Negotiate::~Negotiate() {};
+Negotiate::~Negotiate() = default;
 
 //Checks if a Negotiate order is valid
 bool Negotiate::validate() {
@@ -343,14 +343,12 @@ void OrdersList::move(int currentIndex, int newIndex) {
 
 //Remove an order in the vector by specifying its respective index
 void OrdersList::remove(const int orderIndex) {
-    if (this->orders->size() == 0) {
+    if (this->orders->empty()) {
         cout << "Cannot remove an order because there are no orders in the OrdersList!" << endl;
-    }
-    else if (orderIndex >= 0 && orderIndex < this->orders->size()) {
+    } else if (orderIndex >= 0 && orderIndex < this->orders->size()) {
         delete this->orders->at(orderIndex);    //free memory
         this->orders->erase(this->orders->begin() + orderIndex);    //deletes pointer from vector
-    }
-    else {
+    } else {
         cout << "Invalid order position" << endl;
     }
 }
