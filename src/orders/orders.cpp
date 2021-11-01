@@ -141,6 +141,11 @@ ostream& operator<<(ostream& out, const Deploy& deploy) {
 	return out;
 }
 
+//clone a Deploy order
+Order* Deploy::clone() const {
+    return new Deploy(*this);
+}
+
 ////////////////////////////Advance CLASS////////////////////////////////////
 //Default constructor
 Advance::Advance(): Order("An advance order tells a certain number of army units to move from a source territory to a target adjacent territory.", "Moved a number of armies from source territory to adjacent target territory.") {}
@@ -239,6 +244,11 @@ ostream& operator<<(ostream& out, const Advance& advance) {
 	return out;
 }
 
+//clone an Advance order
+Order* Advance::clone() const {
+    return new Advance(*this);
+}
+
 ////////////////////////////Bomb CLASS////////////////////////////////////
 //Default constructor
 Bomb::Bomb(): Order("A bomb order targets a territory owned by another player than the one issuing the order. Its result is to remove half of the armies from this territory.", "Half of the armies removed from target territory.") {}
@@ -298,6 +308,11 @@ ostream& operator<<(ostream& out, const Bomb& bomb) {
 	return out;
 }
 
+//clone a Bomb order
+Order* Bomb::clone() const {
+    return new Bomb(*this);
+}
+
 ////////////////////////////Blockade CLASS////////////////////////////////////
 //Default constructor
 Blockade::Blockade(): Order("A blockade order targets a territory that belongs to the player issuing the order", "double  the  number of  armies on the territory  and to  transfer the ownership  of  the  territory to the Neutral player.") {}
@@ -346,6 +361,11 @@ Blockade& Blockade::operator=(const Blockade& blockade_order) {
 ostream& operator<<(ostream& out, const Blockade& blockade) {
 	out << *blockade.getDescription();
 	return out;
+}
+
+//clone a Blockade order
+Order* Blockade::clone() const {
+    return new Blockade(*this);
 }
 
 ////////////////////////////Airlift CLASS////////////////////////////////////
@@ -402,6 +422,11 @@ ostream& operator<<(ostream& out, const Airlift& airlift) {
 	return out;
 }
 
+//clone an Airlift order
+Order* Airlift::clone() const {
+    return new Airlift(*this);
+}
+
 ////////////////////////////Negotiate CLASS////////////////////////////////////
 //Default constructor
 Negotiate::Negotiate(): Order("A negotiate order targets an enemy player. It results in the target player and the player issuing the order to not be able to successfully attack each others’ territories for the remainder of the turn.", "Players cannot attack eachother for remainder of the turn.") {}
@@ -450,6 +475,11 @@ ostream& operator<<(ostream& out, const Negotiate& negotiate) {
 	return out;
 }
 
+//clone a Negotiate order
+Order* Negotiate::clone() const {
+    return new Negotiate(*this);
+}
+
 ////////////////////////////OrdersList CLASS////////////////////////////////////
 //Default constructor
 OrdersList::OrdersList() {
@@ -459,7 +489,7 @@ OrdersList::OrdersList() {
 //Copy constructor
 OrdersList::OrdersList(const OrdersList& o_list): OrdersList() {
     for (int i = 0; i < o_list.getOrders()->size(); i++) {
-       Order* o = new Order(*(o_list.orders)->at(i));
+       Order* o = o_list.orders->at(i)->clone();
        this->addOrder(o);
     }
 }
@@ -529,7 +559,7 @@ OrdersList& OrdersList::operator=(const OrdersList& o_list) {
         }
         //add all orders from right hand side OrdersList into left hand side
         for (int i = 0; i < o_list.getOrders()->size(); i++) {
-            Order* o = new Order(*(o_list.orders)->at(i));
+            Order* o = o_list.orders->at(i)->clone();
             this->addOrder(o);
         }
     }

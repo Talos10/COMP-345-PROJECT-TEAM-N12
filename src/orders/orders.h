@@ -38,10 +38,13 @@ public:
     ~Order();
 
     //Checks if an order is valid.
-    virtual bool validate();
+    virtual bool validate() = 0;
 
     //Executes an order if it is valid.
-    virtual void execute();
+    virtual void execute() = 0;
+
+    //clones an Order instance
+    virtual Order* clone() const = 0;
 
     //Getter for the description of the order
     string* getDescription() const;
@@ -73,6 +76,7 @@ class Deploy : public Order {
 private:
     Territory* targetTerritory;
     int numArmies;
+    Order* clone() const override;
 public:
     //Default constructor
     Deploy();
@@ -105,6 +109,7 @@ private:
     Territory* sourceTerritory;
     Territory* targetTerritory;
     int numArmies;
+    Order* clone() const override;
 public:
     //Default constructor
     Advance();
@@ -135,6 +140,7 @@ public:
 class Bomb : public Order {
 private:
     Territory* targetTerritory;
+    Order* clone() const override;
 public:
     //Default constructor
     Bomb();
@@ -165,6 +171,7 @@ public:
 class Blockade : public Order {
 private:
     Territory* targetTerritory;
+    Order* clone() const override;
 public:
     //Default constructor
     Blockade();
@@ -197,6 +204,7 @@ private:
     Territory* sourceTerritory;
     Territory* targetTerritory;
     int numArmies;
+    Order* clone() const override;
 public:
     //Default constructor
     Airlift();
@@ -227,6 +235,7 @@ public:
 class Negotiate : public Order {
 private:
     Player* enemyPlayer;
+    Order* clone() const override;
 public:
     //Default constructor
     Negotiate();
