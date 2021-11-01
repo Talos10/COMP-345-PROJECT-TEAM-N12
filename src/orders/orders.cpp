@@ -70,6 +70,7 @@ Order& Order::operator=(const Order& order) {
         delete this->effect;
         this->description = new string(*(order.description));
         this->effect = new string(*(order.effect));
+        this->issuingPlayer = order.getIssuingPlayer(); //shallow copy but I think its correct because you dont want to just copy a PLayer (the players should remain the same)??????
     }
     return *this;
 }
@@ -183,6 +184,10 @@ void Advance::execute() {
             this->setEffect("army units are moved from the source to the target territory.");
         }
         else {
+            if (this->getIssuingPlayer()->isPlayerFriend(this->sourceTerritory->getOwner())) {
+                cout << "You cannot attack this player!" << endl;
+                return;
+            }
             int attackingArmies = this->numArmies;
             int defendingArmies = targetTerritory->getNumberOfArmies();
             this->sourceTerritory->removeArmies(attackingArmies);
@@ -256,10 +261,15 @@ bool Bomb::validate() {
     if (this->targetTerritory->getOwner() == this->getIssuingPlayer()) {
         cout << "INVALID: target territory belongs to the player that issued the order!" << endl;
     }
-    list<Territory*> neighbourTerritories = this->targetTerritory->getNeighbours();
-    for (Territory* neighbour : neighbourTerritories) {
-        if (neighbour->getOwner() == this->getIssuingPlayer()) {
-            return true;
+    else if (this->getIssuingPlayer()->isPlayerFriend(this->targetTerritory->getOwner())) {
+        cout << "INVALID: You cannot attack this player!" << endl;
+    }
+    else {
+        list<Territory*> neighbourTerritories = this->targetTerritory->getNeighbours();
+        for (Territory* neighbour : neighbourTerritories) {
+            if (neighbour->getOwner() == this->getIssuingPlayer()) {
+                return true;
+            }
         }
     }
     return false;
@@ -422,6 +432,8 @@ bool Negotiate::validate() {
 void Negotiate::execute() {
     if (this->validate()) {
         cout << "Executing Negotiate Order..." << endl;
+        this->getIssuingPlayer()->addFriendPlayer(this->enemyPlayer);
+        this->enemyPlayer->addFriendPlayer(this->getIssuingPlayer());
         cout << *this->getEffect() << endl;
     }
 }

@@ -13,6 +13,7 @@ Player::Player(){
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
+    this->friendPlayers = vector<Player*>();
 };
 
 // Copy constructor.
@@ -20,6 +21,9 @@ Player::Player(const Player &pl) {
     this->territories = new std::vector<Territory*>(*pl.territories);
     this->hand = new Hand(*pl.hand);
     this->ordersList = new OrdersList(*pl.ordersList);
+    for (Player* player : pl.friendPlayers) {
+        this->friendPlayers.push_back(new Player(*player));
+    }
 }
 
 // Swaps the member data between two Player objects.
@@ -34,6 +38,9 @@ Player::~Player() {
     delete territories;
     delete hand;
     delete ordersList;
+    for (Player* player : this->friendPlayers) {
+        delete player;
+    }
 }
 
 //Implementing the output operator
@@ -148,6 +155,27 @@ vector<Territory*> Player::toDefend() {
 //A function which creates an Order object and adds it to the list of Orders.
 void Player::issueOrder(Order* order){
     ordersList->addOrder(order);
+}
+
+//Adds a friend player that cannot be attacked.
+void Player::addFriendPlayer(Player* player){
+    this->friendPlayers.push_back(player);
+}
+
+//Check if player is a friend
+bool Player::isPlayerFriend(Player* player){
+    //Can I just check the address?????????? what if copy constructor is used????????
+    if (find(this->friendPlayers.begin(), this->friendPlayers.end(), player) != this->friendPlayers.end()) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+//Removes all players from the friends player vector
+void Player::clearPlayerFriends() {
+    this->friendPlayers.clear();
 }
 
 // Free function in order to test the functionality of the Player for assignment #1.

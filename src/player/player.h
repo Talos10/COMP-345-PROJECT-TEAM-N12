@@ -35,6 +35,9 @@ private:
     //An OrdersList object containing Order objects the player has issued.
     OrdersList* ordersList;
 
+    //A collection of players for which this Player cannot attack for the remainder of the turn
+    vector<Player*> friendPlayers;
+
 public:
     // Default constructor which initializes all the maps and the current game state.
     Player();
@@ -85,7 +88,14 @@ public:
     // between two Player objects.
     void swap(Player &first, Player &second);
 
+    //Adds a friend player that cannot be attacked.
+    void addFriendPlayer(Player* player);
 
+    //Check if player is a friend
+    bool isPlayerFriend(Player* player);
+
+    //Removes all players from the friends player vector
+    void clearPlayerFriends();
 };
 
 // Free function in order to test the functionality of the Player for assignment #1.
