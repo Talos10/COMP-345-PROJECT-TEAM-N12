@@ -3,12 +3,13 @@
 
 ////////////////////////////Order CLASS////////////////////////////////////
 //Default constructor
-Order::Order() {}
+Order::Order(): issuingPlayer(nullptr) {}
 
 //Parameterized constructor which initializes an Order with the provided description and effect
 Order::Order(const string& description, const string& effect) {
     this->description = new string(description);
     this->effect = new string(effect);
+    this->issuingPlayer = nullptr;
 }
 
 //Parameterized constructor which initializes an Order with the provided description, effect and issuingPlayer
@@ -29,7 +30,8 @@ Order::Order(const Order& order) {
 Order::~Order() {
     delete description;
     delete effect;
-    //delete issuingPlayer; //should I call this or let the Player destructor handle it?
+    //delete issuingPlayer; //should I call this or let the Player destructor handle it??????
+    //set issuingPlayer = nullptr????
 }
 
 //Getter to retrieve the description of an Order
