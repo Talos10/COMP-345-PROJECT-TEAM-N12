@@ -70,6 +70,8 @@ public:
 
     int getY() const;
 
+    void setNumberOfArmies(const int &numOfArmies);
+
     // Copy constructor
     Territory(const Territory& territory);
 

@@ -13,13 +13,24 @@ Player::Player(){
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
+    pname = new string("Default Player Name");
 };
+
+// Parameterized constructor to create a player with a name
+Player::Player(const string& pname){
+    territories = new std::vector<Territory*>{};
+    hand = new Hand();
+    ordersList = new OrdersList();
+
+    this->pname = new string(pname);
+}
 
 // Copy constructor.
 Player::Player(const Player &pl) {
     this->territories = new std::vector<Territory*>(*pl.territories);
     this->hand = new Hand(*pl.hand);
     this->ordersList = new OrdersList(*pl.ordersList);
+    this->pname = new string(*pl.pname);
 }
 
 // Swaps the member data between two Player objects.
@@ -27,6 +38,7 @@ void Player::swap(Player &first, Player &second) {
     std::swap(first.territories, second.territories);
     std::swap(first.hand, second.hand);
     std::swap(first.ordersList, second.ordersList);
+    std::swap(first.pname, second.pname);
 }
 
 // Destructor.
@@ -34,6 +46,7 @@ Player::~Player() {
     delete territories;
     delete hand;
     delete ordersList;
+    delete pname;
 }
 
 //Implementing the output operator
@@ -100,6 +113,17 @@ OrdersList* Player:: getOrders() const {
 void Player::setOrders(const OrdersList &ordersList) {
     delete this->ordersList;
     this->ordersList = new OrdersList(ordersList);
+}
+
+// Getter for the player name.
+string* Player::getPName() const {
+    return pname;
+}
+
+// Setter for the player name.
+void Player::setPName(const string &pname) {
+    delete this->pname;
+    this->pname = new string(pname);
 }
 
 //A function which will go through the collection of territories the player owns and

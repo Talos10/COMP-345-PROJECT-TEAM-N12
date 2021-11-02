@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <math.h>
 
 using namespace std;
 
@@ -17,6 +18,8 @@ GameEngine::GameEngine(const string &readMode) {
     descriptionMap = new std::map<string, tuple<string, int, string>>{};
     functionMap = new std::map<string, pair<Game_Engine_Mem_Fn, string>>{};
     commandReadMode = new string(readMode);
+    players = new std::vector<Player*>{};
+    gameMap = new Map("gameMap");
 
     if (*commandReadMode == "-console") {
         cout << "Taking commands from console!" << endl;
@@ -226,6 +229,28 @@ void GameEngine::setCommandReadMode(const string &cmdReadMode) {
     this->commandReadMode = new string(cmdReadMode);
 }
 
+// Getter for the players.
+std::vector<Player*>* GameEngine::getPlayers() const {
+    return players;
+}
+
+// Setter for the players.
+void GameEngine::setPlayers(const std::vector<Player*> &players) {
+    delete this->players;
+    this->players = new std::vector(players);
+}
+
+// Getter for the Map.
+Map *GameEngine::getMap() const {
+    return gameMap;
+}
+
+// Setter for the Map.
+void GameEngine::setMap(const string &filename) {
+    delete this->gameMap;
+    this->gameMap = MapLoader::load(filename);
+}
+
 // TODO Change the description of the start method once A2 is finished.
 // Contains the main while loop of the game which creates the game flow. Based on the current state,
 // a list of actions are fetched from the stateMap, then for each action fetched, a description and
@@ -294,9 +319,9 @@ void GameEngine::printActionsIfNeeded() {
 void GameEngine::loadMap(const string &transitionState, const vector<string *> &commandArgs) {
     cout << "\n****************************************\n" << endl;
     cout << "Inside the load map function! You are loading a map from the file: " << *commandArgs.at(1) << endl;
-
     cout << "\nThis is the state before the action: " << *currentState << endl;
     setCurrentState(transitionState);
+    //setMap("canada-map.txt");
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -331,6 +356,8 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
     cout << "\nThis is the state before the action: " << *currentState << endl;
     setCurrentState(transitionState);
     cout << "\nThis is the state after the action: " << *currentState << endl;
+
+    mainGameLoop();
 }
 
 // A function which will allow the issuing of an order using the orders_list class.
@@ -419,5 +446,75 @@ void game_engine_driver(const string &cmdArg) {
 
     cout << "\nRunning game engine driver!" << endl;
 
+
+
     gameEngine.start();
+}
+
+void GameEngine::mainGameLoop(){
+    //TODO remove this part once Donya finishes part 2
+    gameMap = MapLoader::load("canada-map.txt");
+    bool gameOver = false;
+    auto* players = new std::vector<Player*>{new Player("obama"), new Player("talos")};
+    cout << "\nAssigning an arbitrary territory to the players:\n" << endl;
+    players->at(0)->setTerritories({gameMap->getTerritoryByID(1)}); //Continent 1 Territory 1
+    players->at(1)->setTerritories({gameMap->getTerritoryByID(12)});//Continent 3 Territory 12
+    //players->at(0)->getTerritories()->at(0)->setNumberOfArmies(5);
+    //cout << gameMap->getTerritoryByID(1) << " with a numArmies of " << gameMap->getTerritoryByID(1)->getNumberOfArmies() << endl;
+    //end TODO
+
+
+    //Check if a player owns at least 1 territory, remove this player if the player does not own any territory
+    for(auto i = 0; i < players->size(); i++){
+        if(players->at(i)->getTerritories()->empty()){
+            cout << "Player "<< *players->at(i)->getPName() << " has no territories left. Player is therefore eliminated." << endl;
+            players->erase(players->begin() + i);
+        }
+    }
+
+    while(!gameOver){
+
+        reinforcementPhase();
+
+        for(auto i = 0; i < players->size(); i++){
+            //players->at(i)->issueOrder()
+        }
+
+        executeOrdersPhase();
+
+        gameOver = checkForWin();
+
+    }
+
+}
+
+void GameEngine::reinforcementPhase(){
+
+    //cout << "Assigning Reinforcement..." << endl;
+
+    for(auto i = 0; i < players->size(); i++){
+
+        for(auto j = 0; i < players->at(i)->getTerritories()->size(); j++){
+
+            players->at(i)->getTerritories()->at(j)->setNumberOfArmies(static_cast<int>(floor(static_cast<float>(players->at(i)->getTerritories()->size())/3.0)));
+
+        }
+    }
+
+}
+
+void GameEngine::executeOrdersPhase(){
+
+    //cout << "Executing Orders..." << endl;
+
+}
+
+bool GameEngine:: checkForWin(){
+    for(auto i = 0; i < players->size(); i++){
+        if(players->at(i)->getTerritories()->size() == gameMap->getSize()){
+            cout << "Player "<< *players->at(i)->getPName() << " has captured all territories and won!" << endl;
+            return true;
+        }
+    }
+    return false;
 }

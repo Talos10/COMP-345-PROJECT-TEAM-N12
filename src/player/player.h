@@ -33,9 +33,15 @@ private:
     //An OrdersList object containing Order objects the player has issued.
     OrdersList* ordersList;
 
+    //Name of the player
+    string* pname;
+
 public:
     // Default constructor which initializes all the maps and the current game state.
     Player();
+
+    // Parameterized constructor to create a player with a name
+    Player(const string& pname);
 
     // A copy constructor.
     Player(const Player& pl);
@@ -80,6 +86,11 @@ public:
     // between two Player objects.
     void swap(Player &first, Player &second);
 
+    // Getter for the player name.
+    [[nodiscard]] string* getPName() const;
+
+    // Setter for the player name.
+    void setPName(const string &pname);
 
 };
 
