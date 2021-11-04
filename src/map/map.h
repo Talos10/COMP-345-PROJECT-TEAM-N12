@@ -70,7 +70,8 @@ public:
 
     int getY() const;
 
-    void setNumberOfArmies(const int &numOfArmies);
+    void addNumberArmy(int numOfArmies);
+    void setOwner(Player *owner);
 
     // Copy constructor
     Territory(const Territory& territory);

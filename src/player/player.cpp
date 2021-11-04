@@ -93,6 +93,11 @@ ostream& operator<<(ostream& out, const std::vector<Territory*> &territories) {
     return out;
 }
 
+void Player::acquireTerritory(Territory* territory){
+    territory->setOwner(this);
+    territories->push_back(territory);
+}
+
 // Getter for the hand.
 Hand* Player::getHand() const {
     return hand;

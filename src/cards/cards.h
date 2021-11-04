@@ -101,6 +101,9 @@ public:
     // Constructor
     explicit Deck(const vector<Card*>& cards);
 
+    // Parameterized Constructor
+    explicit Deck(const int numOfCards);
+
     // Copy constructor
     Deck(const Deck& deck);
 

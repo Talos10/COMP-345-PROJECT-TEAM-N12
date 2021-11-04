@@ -123,6 +123,14 @@ Deck::Deck(const vector<Card*> &cards) {
     this->warzoneCards = new vector<Card*>(cards);
 }
 
+// Constructor with the number of cards as the only parameter
+Deck::Deck(const int numOfCards) {
+    this->warzoneCards = new vector<Card*>();
+    for(auto i = 0; i < numOfCards; i ++){
+        this->warzoneCards->emplace_back(new Card());
+    }
+}
+
 // Copy constructor
 Deck::Deck(const Deck &deck) {
     for(int i = 0; i < deck.getWarzoneCards()->size(); i++) {

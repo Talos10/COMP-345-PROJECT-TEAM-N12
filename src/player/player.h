@@ -61,6 +61,8 @@ public:
     //A function that will return the territories to be attacked.
     std::vector<Territory*> toAttack();
 
+    void acquireTerritory(Territory* territory);
+
     //A function that will create an Order object and add it to the list of Orders.
     void issueOrder(Order* order);
 

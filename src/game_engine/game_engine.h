@@ -37,6 +37,15 @@ private:
     // A string which indicates whether the commands to start the game will be taken in via the console or from a file.
     string *commandReadMode;
 
+    //A collection of players present in the game.
+    std::vector<Player*>* players;
+
+    //The map the players will fight on.
+    Map* gameMap;
+
+    //The deck from which the players will draw cards
+    Deck* deck;
+
     // Defining the output operator for the GameEngine object.
     friend std::ostream &operator<<(std::ostream &stream, const GameEngine &ge);
 
@@ -91,12 +100,6 @@ private:
     void quit(const string &transitionState, const vector<string *> &commandArgs);
 
 public:
-
-    //A collection of players present in the game.
-    std::vector<Player*>* players;
-
-    //The map the players will fight on.
-    Map* gameMap;
 
     // One param constructor which initializes all the maps, the current game state, and the mode in which the game
     // start-up commands will be read (from console or file).

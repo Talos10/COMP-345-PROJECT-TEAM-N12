@@ -20,6 +20,7 @@ GameEngine::GameEngine(const string &readMode) {
     commandReadMode = new string(readMode);
     players = new std::vector<Player*>{};
     gameMap = new Map("gameMap");
+    deck = new Deck(20);
 
     if (*commandReadMode == "-console") {
         cout << "Taking commands from console!" << endl;
@@ -455,11 +456,11 @@ void GameEngine::mainGameLoop(){
     //TODO remove this part once Donya finishes part 2
     gameMap = MapLoader::load("canada-map.txt");
     bool gameOver = false;
-    auto* players = new std::vector<Player*>{new Player("obama"), new Player("talos")};
+    players->emplace_back(new Player("obama"));
+    players->emplace_back(new Player("talos"));
     cout << "\nAssigning an arbitrary territory to the players:\n" << endl;
-    players->at(0)->setTerritories({gameMap->getTerritoryByID(1)}); //Continent 1 Territory 1
-    players->at(1)->setTerritories({gameMap->getTerritoryByID(12)});//Continent 3 Territory 12
-    //players->at(0)->getTerritories()->at(0)->setNumberOfArmies(5);
+    players->at(0)->acquireTerritory(gameMap->getTerritoryByID(1)); //Continent 1 Territory 1
+    players->at(1)->acquireTerritory(gameMap->getTerritoryByID(8));//Continent 3 Territory 12
     //cout << gameMap->getTerritoryByID(1) << " with a numArmies of " << gameMap->getTerritoryByID(1)->getNumberOfArmies() << endl;
     //end TODO
 
@@ -476,13 +477,36 @@ void GameEngine::mainGameLoop(){
 
         reinforcementPhase();
 
-        for(auto i = 0; i < players->size(); i++){
-            //players->at(i)->issueOrder()
+        //This big for-loop will take the different decision considering the neighbors of a player's
+        //territories
+        for(auto & player : *players){ //for each player
+
+            for(auto & territory : *player->getTerritories()){ //for each territory of a player
+
+                for(auto i = 0; i < territory->getNeighbours().size(); i++) { //for each neighbor of a territory
+
+                    //players->at(i)->issueOrder()
+                    auto neighbor = territory->getNeighbours().begin();
+                    std::advance(neighbor,i);
+                    if(static_cast<Territory*>(*neighbor)->getOwner() == nullptr)
+                        cout << *neighbor << " is the neighbor of " << territory <<
+                        " and has no owner " << endl;
+                    else
+                        cout << *neighbor << " is the neighbor of " << territory <<
+                        " and has owner " << *static_cast<Territory*>(*neighbor)->getOwner()->getPName() << endl;
+
+                }
+            }
+
         }
 
         executeOrdersPhase();
 
+        cout << "Deck: " << *deck << endl;
+
         gameOver = checkForWin();
+
+        break;
 
     }
 
@@ -490,13 +514,13 @@ void GameEngine::mainGameLoop(){
 
 void GameEngine::reinforcementPhase(){
 
-    //cout << "Assigning Reinforcement..." << endl;
+    cout << "\nAssigning Reinforcement Phase ...\n" << endl;
 
-    for(auto i = 0; i < players->size(); i++){
+    for(auto & player : *players){
 
-        for(auto j = 0; i < players->at(i)->getTerritories()->size(); j++){
+        for(auto j = 0; j < player->getTerritories()->size(); j++){
 
-            players->at(i)->getTerritories()->at(j)->setNumberOfArmies(static_cast<int>(floor(static_cast<float>(players->at(i)->getTerritories()->size())/3.0)));
+            player->getTerritories()->at(j)->addNumberArmy(static_cast<int>(floor(static_cast<float>(player->getTerritories()->size())/3.0)));
 
         }
     }
@@ -505,10 +529,17 @@ void GameEngine::reinforcementPhase(){
 
 void GameEngine::executeOrdersPhase(){
 
-    //cout << "Executing Orders..." << endl;
+    cout << "\nExecuting Orders Phase ...\n" << endl;
+
+    for(auto & player : *players){
+
+        //TODO execute the orders from the ordersList for each player
+
+    }
 
 }
 
+//Checks if the player owns all the territories of the game map
 bool GameEngine:: checkForWin(){
     for(auto i = 0; i < players->size(); i++){
         if(players->at(i)->getTerritories()->size() == gameMap->getSize()){
