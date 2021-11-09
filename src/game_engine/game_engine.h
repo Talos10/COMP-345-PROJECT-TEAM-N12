@@ -14,7 +14,7 @@ using namespace std;
 // This class implements the flow of the game (i.e. the different phases of the game like
 // reinforcement deployment or order execution) so that it can be played.
 
-class GameEngine {
+class GameEngine : public Subject, public ILoggable {
 // Defining a type of pointer to any void and two params (the transition state and the arguments of the command to be executed).
     typedef void (GameEngine::*Game_Engine_Mem_Fn)(const string &transitionState, const vector<string *> &commandArgs);
 
