@@ -1,11 +1,13 @@
 #pragma once
+#include "observer/logging_observer.h"
+#include "gameLog/log_observer.h"
 #include <vector>
 #include <iostream>
 #include <string>
 using namespace std;
 
 // This class implements a generic order.
-class Order {
+class Order : public Subject, public ILoggable {
 private:
     //A string which describes the order.
     string *description;
@@ -49,6 +51,9 @@ public:
 
     //Defining the assignment operator
     Order& operator=(const Order& order);
+
+    // Override class from ILoggable
+    virtual string stringToLog() const override;
 };
 
 // This class implements a Deploy order.
@@ -74,6 +79,9 @@ public:
 
     //Defining the assignment operator
     Deploy& operator=(const Deploy& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements an Advance order.
@@ -99,6 +107,9 @@ public:
 
     //Defining the assignment operator
     Advance& operator=(const Advance& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements a Bomb order.
@@ -124,6 +135,9 @@ public:
 
     //Defining the assignment operator
     Bomb& operator=(const Bomb& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements a Blockade order.
@@ -149,6 +163,9 @@ public:
 
     //Defining the assignment operator
     Blockade& operator=(const Blockade& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements an Airlift order.
@@ -174,6 +191,9 @@ public:
 
     //Defining the assignment operator
     Airlift& operator=(const Airlift& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements a Negotiate order.
@@ -199,10 +219,13 @@ public:
 
     //Defining the assignment operator
     Negotiate& operator=(const Negotiate& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements an OrdersList which contains the orders created.
-class OrdersList {
+class OrdersList : public Subject, public ILoggable {
 private:
     vector<Order*>* orders;
 public:
@@ -235,6 +258,9 @@ public:
 
     //Defining the addition operator
     void operator+(Order* order);
+
+    // Override pure virtual method from IlLoggable
+    string stringToLog() const override;
 };
 
 // Free function in order to test the functionality of the Orders.cpp for assignment #1.

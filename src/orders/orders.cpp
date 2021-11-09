@@ -69,6 +69,12 @@ bool Order::validate() {
 //Executes an order if it is valid.
 void Order::execute() {
     cout << "executing" << endl;
+    Notify(*this);
+}
+
+string Order::stringToLog() const {
+    string message = "this is from order";
+    return message;
 }
 
 ////////////////////////////Deploy CLASS////////////////////////////////////
@@ -92,6 +98,7 @@ void Deploy::execute() {
     if (this->validate()) {
         cout << "Executing Deploy Order" << endl;
         cout << *this->getEffect() << endl;
+        Notify(*this);
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -108,6 +115,11 @@ Deploy& Deploy::operator=(const Deploy& deploy_order) {
 ostream& operator<<(ostream& out, const Deploy& deploy) {
 	out << *deploy.getDescription();
     return out;
+}
+
+string Deploy::stringToLog() const {
+    string message = "This is from deploy";
+    return message;
 }
 
 ////////////////////////////Advance CLASS////////////////////////////////////
@@ -131,6 +143,7 @@ void Advance::execute() {
     if (this->validate()) {
         cout << "Executing Advance Order" << endl;
         cout << *this->getEffect() << endl;
+        Notify(*this);
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -147,6 +160,11 @@ Advance& Advance::operator=(const Advance& adv_order) {
 ostream& operator<<(ostream& out, const Advance& advance) {
 	out << *advance.getDescription();
 	return out;
+}
+
+string Advance::stringToLog() const {
+    string message = "this is from the advance";
+    return message;
 }
 
 ////////////////////////////Bomb CLASS////////////////////////////////////
@@ -170,6 +188,7 @@ void Bomb::execute() {
     if (this->validate()) {
         cout << "Executing Bomb Order" << endl;
         cout << *this->getEffect() << endl;
+        Notify(*this);
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -186,6 +205,11 @@ Bomb& Bomb::operator=(const Bomb& bomb_order) {
 ostream& operator<<(ostream& out, const Bomb& bomb) {
 	out << *bomb.getDescription();
 	return out;
+}
+
+string Bomb::stringToLog() const {
+    string message = "this is from bomb";
+    return message;
 }
 
 ////////////////////////////Blockade CLASS////////////////////////////////////
@@ -209,6 +233,7 @@ void Blockade::execute() {
     if (this->validate()) {
         cout << "Executing Blockcade Order" << endl;
         cout << *this->getEffect() << endl;
+        Notify(*this);
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -226,6 +251,11 @@ Blockade& Blockade::operator=(const Blockade& blockade_order) {
 ostream& operator<<(ostream& out, const Blockade& blockade) {
 	out << *blockade.getDescription();
 	return out;
+}
+
+string Blockade::stringToLog() const {
+    string message = "this is from blockade";
+    return message;
 }
 
 ////////////////////////////Airlift CLASS////////////////////////////////////
@@ -249,6 +279,7 @@ void Airlift::execute() {
     if (this->validate()) {
         cout << "Executing Airlift Order" << endl;
         cout << *this->getEffect() << endl;
+        Notify(*this);
     }
     else {
         cout << "Invalid order cannot be executed";
@@ -265,6 +296,11 @@ Airlift& Airlift::operator=(const Airlift& airlift_order) {
 ostream& operator<<(ostream& out, const Airlift& airlift) {
 	out << *airlift.getDescription();
 	return out;
+}
+
+string Airlift::stringToLog() const {
+    string message = "this is from airlift";
+    return message;
 }
 
 ////////////////////////////Negotiate CLASS////////////////////////////////////
@@ -298,6 +334,11 @@ Negotiate& Negotiate::operator=(const Negotiate& negotiate_order) {
 ostream& operator<<(ostream& out, const Negotiate& negotiate) {
 	out << *negotiate.getDescription();
 	return out;
+}
+
+string Negotiate::stringToLog() const {
+    string message = "this is from negotiate";
+    return message;
 }
 
 ////////////////////////////OrdersList CLASS////////////////////////////////////
@@ -366,6 +407,7 @@ void OrdersList::addOrder(Order* order) {
     else {
         this->orders->push_back(order);
     }
+    Notify(*this);
 }
 
 //Defining the assignment operator
@@ -387,6 +429,12 @@ OrdersList& OrdersList::operator=(const OrdersList& o_list) {
 //Defining the addition operator
 void OrdersList::operator+(Order* order) {
     this->addOrder(order);
+}
+
+// Override virtual pure function from ILoggable
+string OrdersList::stringToLog() const {
+    string effect = "this is the orders list";
+    return effect;
 }
 
 //Defining the output operator

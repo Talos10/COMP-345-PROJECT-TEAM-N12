@@ -7,6 +7,7 @@
 #include <chrono>
 #include <algorithm>
 #include <random>
+#include <string>
 
 using namespace std;
 
@@ -179,8 +180,9 @@ string *GameEngine::getCurrentState() const {
 }
 
 // Setter for the currentState.
-void GameEngine::setCurrentState(const string &state) {
+void GameEngine::transition(const string &state) {
     this->currentState = new string(state);
+    Notify(*this);
 }
 
 // Getter for the stateMap.
@@ -324,6 +326,7 @@ void GameEngine::loadMap(const string &transitionState, const vector<string *> &
     cout << "\n****************************************\n" << endl;
     cout << "Inside the load map function! You are loading a map from the file: " << *commandArgs.at(1) << endl;
     cout << "\nThis is the state before the action: " << *currentState << endl;
+
     string filename = *commandArgs.at(1);
 
     // Check that file exists
@@ -336,7 +339,7 @@ void GameEngine::loadMap(const string &transitionState, const vector<string *> &
         // File exists, read the map
         try {
             setMap(filename);
-            setCurrentState(transitionState);
+            transition(transitionState);
         } catch (std::runtime_error &exp) {
             // Catch all exceptions defined as runtime errors
             cerr << exp.what() << endl;
@@ -358,7 +361,7 @@ void GameEngine::validateMap(const string &transitionState, const vector<string 
         gameMap->validate();
         cout << "Map is valid!" << endl;
 
-        setCurrentState(transitionState);
+        transition(transitionState);
     } catch (std::runtime_error &exp) {
         // Catch all exceptions defined as runtime errors
         cerr << "Error: Map is not valid!" << endl;
@@ -391,7 +394,7 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
         if (!playerExists) {
             cout << "Adding player " << *commandArgs.at(1) << " to list of players" << endl;
             players->emplace_back(new Player(*commandArgs.at(1)));
-            setCurrentState(transitionState);
+            transition(transitionState);
         }
     }
 
@@ -472,7 +475,7 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
             cout << *player->getHand() << endl;
         }
 
-        setCurrentState(transitionState);
+        transition(transitionState);
     }
     cout << "\nThis is the state after the action: " << *currentState << endl;
 // TODO: enable call to main game loop
@@ -486,7 +489,9 @@ void GameEngine::issueOrder(const string &transitionState, const vector<string *
     cout << "Inside the issue order function! You are issuing an order!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -497,7 +502,9 @@ void GameEngine::issueOrdersEnd(const string &transitionState, const vector<stri
     cout << "Inside the quit issue orders function! You are ending the order issuing phase!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -508,7 +515,9 @@ void GameEngine::execOrder(const string &transitionState, const vector<string *>
     cout << "Inside the execute order function! You are executing an order!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -519,7 +528,9 @@ void GameEngine::endExecOrders(const string &transitionState, const vector<strin
     cout << "Inside the quit execute orders function! You are ending the order execution phase!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -530,7 +541,9 @@ void GameEngine::win(const string &transitionState, const vector<string *> &comm
     cout << "Inside the win function! You won!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -541,7 +554,9 @@ void GameEngine::replay(const string &transitionState, const vector<string *> &c
     cout << "Inside the replay function! You are starting a new game!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -552,7 +567,7 @@ void GameEngine::quit(const string &transitionState, const vector<string *> &com
     cout << "Thank you for playing Risk! Shutting down game..." << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+    transition(transitionState);
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -681,7 +696,7 @@ bool GameEngine:: checkForWin(){
 
 void GameEngine::startupPhase() {
     // Initial state at startup
-    setCurrentState("start");
+    transition("start");
 
     cout << "\nStartup phase\n" << endl;
 
@@ -717,4 +732,9 @@ void GameEngine::startupPhase() {
     }
 
 
+}
+
+string GameEngine::stringToLog() const {
+    std::string message =  std::string("The state of the game engine has been changed, it is now at: ") + std::string(*currentState);
+    return message;
 }
