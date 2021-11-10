@@ -322,6 +322,7 @@ bool Negotiate::validate() {
 //Executes a Negotiate order
 void Negotiate::execute() {
     cout << "Executing Negotiate Order" << endl;
+    Notify(*this);
 }
 
 //Defining the assignment operator

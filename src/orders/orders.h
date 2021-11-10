@@ -1,6 +1,6 @@
 #pragma once
 #include "observer/logging_observer.h"
-#include "gameLog/log_observer.h"
+#include "game_log/log_observer.h"
 #include <vector>
 #include <iostream>
 #include <string>

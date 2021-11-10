@@ -188,7 +188,7 @@ public:
     //Function that will check if there is a player that has won the game
     bool checkForWin();
 
-    // Override class from Order
+    // Override class from ILoggable
     string stringToLog() const override;
 };
 
