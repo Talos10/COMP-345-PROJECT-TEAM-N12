@@ -217,12 +217,10 @@ void Advance::execute() {
             }
 
             //All enemies dead and you still have attacking armies
-            if (attackingArmies > 0 && !defendingArmies) {
+            if (attackingArmies > 0 && defendingArmies == 0) {
                 targetTerritory->setOwner(this->getIssuingPlayer());
                 targetTerritory->setNumberOfArmies(attackingArmies);
-                //seems like I need a DECK to draw??? Maybe we should make the deck a global variable???
-//                this->getIssuingPlayer().draw();
-//                deck.draw(this->getIssuingPlayer()->getHand());
+                this->getIssuingPlayer()->setConqueredTerritoryInTurn(true);
                 this->setEffect("Target territory successfully captured!");
             }
             else {
@@ -335,6 +333,7 @@ Blockade::~Blockade() {};
 bool Blockade::validate() {
     cout << "Validating Blockade Order..." << endl;
     if (this->targetTerritory->getOwner() != this->getIssuingPlayer()) {
+        cout << "INVALID: target territory belongs to an enemy player!" << endl;
         return false;
     }
     return true;
@@ -605,17 +604,17 @@ void orders_driver() {
     *orders_list + airlift;
     *orders_list + negotiate;
     orders_list->addOrder(copyBomb);
-    cout << orders_list << endl;
+    cout << *orders_list << endl;
 
     //move orders
     orders_list->move(1, 4);
     cout << "#####Moved order at index 1 to position 4!#####" << endl;
-    cout << orders_list << endl;
+    cout << *orders_list << endl;
 
     //remove orders
     orders_list->remove(3);
     cout << "#####Removed order at index 3!#####" << endl;
-    cout << orders_list << endl;
+    cout << *orders_list << endl;
 
     //validate orders
     cout << "#####Checking if order at index 1 is valid#####" << endl;

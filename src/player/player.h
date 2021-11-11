@@ -38,6 +38,9 @@ private:
     //A collection of players for which this Player cannot attack for the remainder of the turn
     vector<Player*> friendPlayers;
 
+    //True if the player conquered a territory during their turn. Otherwise, false.
+    bool conqueredTerritoryInTurn;
+
 public:
     // Default constructor which initializes all the maps and the current game state.
     Player();
@@ -96,6 +99,12 @@ public:
 
     //Removes all players from the friends player vector
     void clearPlayerFriends();
+
+    //Check if the Player has conquered a territory during their turn.
+    bool hasConqueredTerritoryInTurn() const;
+
+    //Setter for the conqueredTerritoryInTurn boolean
+    void setConqueredTerritoryInTurn(const bool conqueredTerritoryInTurn);
 };
 
 // Free function in order to test the functionality of the Player for assignment #1.

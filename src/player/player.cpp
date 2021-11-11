@@ -14,6 +14,7 @@ Player::Player(){
     hand = new Hand();
     ordersList = new OrdersList();
     this->friendPlayers = vector<Player*>();
+    this->conqueredTerritoryInTurn = false;
 };
 
 // Copy constructor.
@@ -24,6 +25,7 @@ Player::Player(const Player &pl) {
     for (Player* player : pl.friendPlayers) {
         this->friendPlayers.push_back(new Player(*player));
     }
+    this->conqueredTerritoryInTurn = pl.conqueredTerritoryInTurn;
 }
 
 // Swaps the member data between two Player objects.
@@ -176,6 +178,16 @@ bool Player::isPlayerFriend(Player* player){
 //Removes all players from the friends player vector
 void Player::clearPlayerFriends() {
     this->friendPlayers.clear();
+}
+
+//Check if the Player has conquered a territory during their turn.
+bool Player::hasConqueredTerritoryInTurn() const {
+    return this->conqueredTerritoryInTurn;
+}
+
+//Setter for the conqueredTerritoryInTurn boolean
+void Player::setConqueredTerritoryInTurn(bool conqueredTerritoryInTurn) {
+    this->conqueredTerritoryInTurn = conqueredTerritoryInTurn;
 }
 
 // Free function in order to test the functionality of the Player for assignment #1.
