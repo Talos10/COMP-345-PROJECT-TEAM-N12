@@ -93,7 +93,7 @@ void Command::saveEffect(const string &newEffect, bool isCommandValid) {
 }
 
 string Command::stringToLog() const {
-    string message = "this is a command";
+    string message = "The command '" + string(*commandName) +"' has been saved with the following effect: " + string(*commandEffect);
     return message;
 }
 
@@ -306,7 +306,9 @@ tuple<bool, string, string> CommandProcessor::validate(const GameEngine &ge, con
 }
 
 string CommandProcessor::stringToLog() const {
-    string message = "This is the command processor";
+    deque<Command*>::iterator it = commandList->end() - 1;
+    string& name = *(*it)->getCommandName();
+    string message = "A new command \"" + name + "\" has been added to the command processor";
     return message;
 }
 

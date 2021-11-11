@@ -5,10 +5,7 @@
 
 // Default constructor
 LogObserver::LogObserver() {
-    //ofstream os;
     os.open(LOG_DIRECTORY + filename);
-    os << "constructor" << endl;
-    //os.close();
 
     this->_listOfSubjects = new list<Subject*>();
 }
@@ -17,38 +14,12 @@ LogObserver::LogObserver() {
 
 // Parametrized constructor
 LogObserver::LogObserver(vector<Subject*> *subjectsList) {
-    //ofstream os;
     os.open(LOG_DIRECTORY + filename);
-    os << "parametrized constructor" << endl;
-    //os.close();
 
     this->_listOfSubjects = new list<Subject*>(subjectsList->begin(), subjectsList->end());
     for(Subject* s : *_listOfSubjects) {
         s->Attach(this);
     }
-}
-
-// Copy constructor
-LogObserver::LogObserver(const LogObserver &lo) {
-//    for (int i = 0; i < lo._listOfSubjects->size(); i++) {
-//        list<Subject*>::iterator it = lo._listOfSubjects->begin();
-//        Subject* s = new Subject(*it);
-//        this->AddSubject(s);
-//    }
-}
-
-// Assignment operator
-//LogObserver &LogObserver::operator=(const LogObserver &logObserver) {
-//
-//}
-
-// Output operator
-ostream& operator << (ostream& out, const LogObserver& lo) {
-//    out << "The subjects list contains " << lo._listOfSubjects->size() << " subjects:" << endl;
-//    for(Subject* s: *(lo._listOfSubjects)) {
-//        out << *s << endl;
-//    }
-    return out;
 }
 
 // Destructor

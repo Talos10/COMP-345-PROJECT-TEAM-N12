@@ -18,39 +18,54 @@ int main(int argc, char const *argv[]) {
 
 
 
-    Order* order1 = new Deploy();
-    Order* order2 = new Airlift();
-    vector<Subject*> *subjectsList = new vector<Subject*>();
-    subjectsList->push_back(order1);
-    subjectsList->push_back(order2);
-    LogObserver *log = new LogObserver(subjectsList);
-    order1->execute();
-    order2->execute();
-    cout << "order1: " << order1->getAllObservers() << endl;
-    cout << "order2: " << order2->getAllObservers() << endl;
+//    Order* order1 = new Deploy();
+//    Order* order2 = new Airlift();
+//    vector<Subject*> *subjectsList = new vector<Subject*>();
+//    subjectsList->push_back(order1);
+//    subjectsList->push_back(order2);
+//    LogObserver *log = new LogObserver(subjectsList);
+//    order1->execute();
+//    order2->execute();
+//    cout << "order1: " << order1->getAllObservers() << endl;
+//    cout << "order2: " << order2->getAllObservers() << endl;
+//
+//    // LogObserver *log2 = new LogObserver();
+//    Order* order3 = new Advance();
+//    log->AddSubject(*order3);
+//    Order* order4 = new Blockade();
+//    log->AddSubject(*order4);
+//    Order* order5 = new Bomb();
+//    log->AddSubject(*order5);
+//    Order* order6 = new Negotiate();
+//    log->AddSubject(*order6);
+//    order3->execute();
+//    order4->execute();
+//    order5->execute();
+//    order6->execute();
+//    cout << "order3: " << order3->getAllObservers() << endl;
+//    cout << "order4: " << order4->getAllObservers() << endl;
+//    cout << "order5: " << order5->getAllObservers() << endl;
+//    OrdersList* orders_list = new OrdersList();
+//    log->AddSubject(*orders_list);
+//    orders_list->addOrder(order1);
+//    orders_list->addOrder(order2);
+//    orders_list->addOrder(order3);
+//    orders_list->addOrder(order4);
+//    orders_list->addOrder(order5);
+//    orders_list->addOrder(order6);
+//
+//    GameEngine *ge = new GameEngine("gameStart");
+//    log->AddSubject(*ge);
+//    ge->transition("bro");
+//    CommandProcessor *cp = new CommandProcessor();
+//    log->AddSubject(*cp);
+//    Command *c1 = new Command("gameStart");
+//    log->AddSubject(*c1);
+//    Command& c2 = *cp->getCommand(*ge);
+//    log->AddSubject(c2);
+//    c1->saveEffect("bro", true);
 
-    // LogObserver *log2 = new LogObserver();
-    Order* order3 = new Advance();
-    log->AddSubject(*order3);
-    Order* order4 = new Blockade();
-    log->AddSubject(*order4);
-    Order* order5 = new Bomb();
-    log->AddSubject(*order5);
-    Order* order6 = new Negotiate();
-    order3->execute();
-    order4->execute();
-    order5->execute();
-    order6->execute();
-    cout << "order3: " << order3->getAllObservers() << endl;
-    cout << "order4: " << order4->getAllObservers() << endl;
-    cout << "order5: " << order5->getAllObservers() << endl;
-    //delete subjectsList;
-    //subjectsList = nullptr;
 
-//    ofstream outfile;
-//    outfile.open("../log/gamelog.txt");
-//    outfile << "my text here!" << std::endl;
-//    outfile.close();
 
     switch (classDemo) {
         case 0:

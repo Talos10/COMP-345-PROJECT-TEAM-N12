@@ -1,6 +1,15 @@
-parametrized constructor
-This is from deploy
-this is from airlift
-this is from the advance
-this is from blockade
-this is from bomb
+A DEPLOY order has been placed
+An AIRLIFT order has been placed
+An ADVANCE order has been placed
+A BLOCKADE order has been placed
+A BOMB order has been placed
+A NEGOTIATE order has been placed
+An Order has been added to an OrdersList with an effect of Deploy effect. Deploy Order
+An Order has been added to an OrdersList with an effect of Airlift effect. Airlift Order
+An Order has been added to an OrdersList with an effect of Advance effect. Advance Order
+An Order has been added to an OrdersList with an effect of Blockade effect. Blockade Order
+An Order has been added to an OrdersList with an effect of Bomb effect. Bomb Order
+An Order has been added to an OrdersList with an effect of Negotiate effect. Negotiate Order
+The state of the game engine has been changed, it is now at: bro
+A new command "replay" has been added to the command processor
+The command 'gameStart' has been saved with the following effect: bro

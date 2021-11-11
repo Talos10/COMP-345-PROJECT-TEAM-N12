@@ -73,7 +73,7 @@ void Order::execute() {
 }
 
 string Order::stringToLog() const {
-    string message = "this is from order";
+    string message = "A general order has been placed";
     return message;
 }
 
@@ -118,7 +118,7 @@ ostream& operator<<(ostream& out, const Deploy& deploy) {
 }
 
 string Deploy::stringToLog() const {
-    string message = "This is from deploy";
+    string message = "A DEPLOY order has been placed";
     return message;
 }
 
@@ -163,7 +163,7 @@ ostream& operator<<(ostream& out, const Advance& advance) {
 }
 
 string Advance::stringToLog() const {
-    string message = "this is from the advance";
+    string message = "An ADVANCE order has been placed";
     return message;
 }
 
@@ -208,7 +208,7 @@ ostream& operator<<(ostream& out, const Bomb& bomb) {
 }
 
 string Bomb::stringToLog() const {
-    string message = "this is from bomb";
+    string message = "A BOMB order has been placed";
     return message;
 }
 
@@ -254,7 +254,7 @@ ostream& operator<<(ostream& out, const Blockade& blockade) {
 }
 
 string Blockade::stringToLog() const {
-    string message = "this is from blockade";
+    string message = "A BLOCKADE order has been placed";
     return message;
 }
 
@@ -299,7 +299,7 @@ ostream& operator<<(ostream& out, const Airlift& airlift) {
 }
 
 string Airlift::stringToLog() const {
-    string message = "this is from airlift";
+    string message = "An AIRLIFT order has been placed";
     return message;
 }
 
@@ -338,7 +338,7 @@ ostream& operator<<(ostream& out, const Negotiate& negotiate) {
 }
 
 string Negotiate::stringToLog() const {
-    string message = "this is from negotiate";
+    string message = "A NEGOTIATE order has been placed";
     return message;
 }
 
@@ -434,8 +434,11 @@ void OrdersList::operator+(Order* order) {
 
 // Override virtual pure function from ILoggable
 string OrdersList::stringToLog() const {
-    string effect = "this is the orders list";
-    return effect;
+    vector<Order*>::iterator it = orders->end() - 1;
+    string& effect = *(*it)->getEffect();
+    string& description = *(*it)->getDescription();
+    string message = "An Order has been added to an OrdersList with an effect of " + std::string(effect) + ". " + std::string(description);
+    return message;
 }
 
 //Defining the output operator
