@@ -477,28 +477,7 @@ void GameEngine::mainGameLoop(){
 
         reinforcementPhase();
 
-        //This big for-loop will take the different decision considering the neighbors of a player's
-        //territories
-        for(auto & player : *players){ //for each player
-
-            for(auto & territory : *player->getTerritories()){ //for each territory of a player
-
-                for(auto i = 0; i < territory->getNeighbours().size(); i++) { //for each neighbor of a territory
-
-                    //players->at(i)->issueOrder()
-                    auto neighbor = territory->getNeighbours().begin();
-                    std::advance(neighbor,i);
-                    if(static_cast<Territory*>(*neighbor)->getOwner() == nullptr)
-                        cout << *neighbor << " is the neighbor of " << territory <<
-                        " and has no owner " << endl;
-                    else
-                        cout << *neighbor << " is the neighbor of " << territory <<
-                        " and has owner " << *static_cast<Territory*>(*neighbor)->getOwner()->getPName() << endl;
-
-                }
-            }
-
-        }
+        issueOrdersPhase();
 
         executeOrdersPhase();
 
@@ -518,11 +497,42 @@ void GameEngine::reinforcementPhase(){
 
     for(auto & player : *players){
 
-        for(auto j = 0; j < player->getTerritories()->size(); j++){
+        player->increasePool(static_cast<int>(floor(static_cast<float>(player->getTerritories()->size())/3.0)));
 
-            player->getTerritories()->at(j)->addNumberArmy(static_cast<int>(floor(static_cast<float>(player->getTerritories()->size())/3.0)));
+//        for(auto j = 0; j < player->getTerritories()->size(); j++){
+//
+//
+//
+//            //player->getTerritories()->at(j)->addNumberArmy();
+//
+//        }
+    }
 
+}
+
+void GameEngine::issueOrdersPhase(){
+
+    //This big for-loop will take the different decision considering the neighbors of a player's
+    //territories
+    for(auto & player : *players){ //for each player
+
+        for(auto & territory : *player->getTerritories()){ //for each territory of a player
+
+            for(auto i = 0; i < territory->getNeighbours().size(); i++) { //for each neighbor of a territory
+
+                //players->at(i)->issueOrder()
+                auto neighbor = territory->getNeighbours().begin();
+                std::advance(neighbor,i);
+                if(static_cast<Territory*>(*neighbor)->getOwner() == nullptr)
+                    cout << *neighbor << " is the neighbor of " << territory <<
+                         " and has no owner " << endl;
+                else
+                    cout << *neighbor << " is the neighbor of " << territory <<
+                         " and has owner " << *static_cast<Territory*>(*neighbor)->getOwner()->getPName() << endl;
+
+            }
         }
+
     }
 
 }

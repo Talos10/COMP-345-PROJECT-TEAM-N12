@@ -174,6 +174,9 @@ public:
     //Function that will take care of the Reinforcement Phase part of the main game loop
     void reinforcementPhase();
 
+    //Function that will take care of the Issue Orders part of the main game loop
+    void issueOrdersPhase();
+
     //Function that will take care of the Orders Execution Phase part of the main game loop
     void executeOrdersPhase();
 
