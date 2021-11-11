@@ -289,8 +289,7 @@ bool Bomb::validate() {
 void Bomb::execute() {
     if (this->validate()) {
         cout << "Executing Bomb Order..." << endl;
-        //SHOULD I ROUND DOWN?????????
-        this->targetTerritory->removeArmies(0.5*this->targetTerritory->getNumberOfArmies());
+        this->targetTerritory->setNumberOfArmies(this->targetTerritory->getNumberOfArmies()/2);
         this->setEffect("removed half of the armies from the target territory!");
         cout << *this->getEffect() << endl;
     }
