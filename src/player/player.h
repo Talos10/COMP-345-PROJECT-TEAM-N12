@@ -33,6 +33,9 @@ private:
     //An OrdersList object containing Order objects the player has issued.
     OrdersList* ordersList;
 
+    //The reinforcement pool of the player that has armies that can be distributed to territories
+    int* reinforcementPool;
+
     //Name of the player
     string* pname;
 
@@ -61,7 +64,13 @@ public:
     //A function that will return the territories to be attacked.
     std::vector<Territory*> toAttack();
 
+    //Claim ownership of a territory
     void acquireTerritory(Territory* territory);
+
+    //Increases the number of armies in the player's reinforcement pool
+    void increasePool(int numOfArmies);
+
+    void decreasePool(int numOfArmies);
 
     //A function that will create an Order object and add it to the list of Orders.
     void issueOrder(Order* order);
@@ -93,6 +102,9 @@ public:
 
     // Setter for the player name.
     void setPName(const string &pname);
+
+    // Getter for the Reinforcement Pool
+    [[nodiscard]] int* getReinforcementPool() const;
 
 };
 

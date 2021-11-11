@@ -13,6 +13,7 @@ Player::Player(){
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
+    reinforcementPool = new int();
     pname = new string("Default Player Name");
 };
 
@@ -98,6 +99,19 @@ void Player::acquireTerritory(Territory* territory){
     territories->push_back(territory);
 }
 
+void Player::increasePool(int numOfArmies) {
+    this->reinforcementPool += numOfArmies;
+}
+
+void Player::decreasePool(int numOfArmies) {
+    if(numOfArmies <= *reinforcementPool){
+        this->reinforcementPool -= numOfArmies;
+    }else{
+        cout << "Number of armies to be removed is greater than the total number of armies in the pool." << endl;
+    }
+
+}
+
 // Getter for the hand.
 Hand* Player::getHand() const {
     return hand;
@@ -131,18 +145,19 @@ void Player::setPName(const string &pname) {
     this->pname = new string(pname);
 }
 
+// Getter for the Reinforcement Pool
+int* Player::getReinforcementPool() const {
+    return reinforcementPool;
+}
+
 //A function which will go through the collection of territories the player owns and
 //check if that territory has the attribute "defend". If it does, it is added to a temporary
 //list which is then returned. This list will contain all the territories to be defended.
 vector<Territory*> Player:: toAttack(){
 
     std::vector<Territory*> territories2Attack;
-    int i = 0;
+    //territories2Attack.push_back();
 
-    //getting an arbitrary set of territories to defend
-    for(auto i = 0; i < territories->size()/2; i++){
-        territories2Attack.push_back(territories->at(i));
-    }
 
     return territories2Attack;
 
@@ -154,11 +169,12 @@ vector<Territory*> Player:: toAttack(){
 vector<Territory*> Player::toDefend() {
 
     std::vector<Territory*> territories2Defend;
+    //territories2Defend.push_back();
 
-    //getting an arbitrary set of territories to attack
-    for(auto i = territories->size()/2; i < territories->size(); i++){
-        territories2Defend.push_back(territories->at(i));
+    for(auto & territory : *territories){
+
     }
+
 
     return territories2Defend;
 }
