@@ -457,8 +457,8 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
 
         // Give 50 initial armies to each player
         for (auto player : *players) {
-            // TODO: Implement reinforcement pool
-//            player.addArmies(50);
+            player->increasePool(50);
+            cout << "Player " << *player->getPName() << " has army count " << *player->getReinforcementPool() << endl;
 
             // Draw 2 cards per player
             for (int i = 0; i < 2; ++i) {

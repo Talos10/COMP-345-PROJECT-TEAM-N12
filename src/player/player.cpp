@@ -22,6 +22,7 @@ Player::Player(const string& pname){
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
+    reinforcementPool = new int();
 
     this->pname = new string(pname);
 }
@@ -100,12 +101,12 @@ void Player::acquireTerritory(Territory* territory){
 }
 
 void Player::increasePool(int numOfArmies) {
-    this->reinforcementPool += numOfArmies;
+    *this->reinforcementPool += numOfArmies;
 }
 
 void Player::decreasePool(int numOfArmies) {
     if(numOfArmies <= *reinforcementPool){
-        this->reinforcementPool -= numOfArmies;
+        *this->reinforcementPool -= numOfArmies;
     }else{
         cout << "Number of armies to be removed is greater than the total number of armies in the pool." << endl;
     }
