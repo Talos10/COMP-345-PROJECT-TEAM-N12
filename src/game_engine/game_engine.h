@@ -165,6 +165,9 @@ public:
     // A function which allows the user to start a game of Risk.
     void start();
 
+    // A function to execute the startup phase of the game
+    void startupPhase();
+
     // A function that prints the actions available for the user if setting up the game from the console.
     void printActionsIfNeeded();
 

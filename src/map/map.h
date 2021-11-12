@@ -9,6 +9,8 @@
 #include <iostream>
 #include "player/player.h"
 
+#define MAPS_DIR "../maps/"
+
 using std::list;
 using std::string;
 using std::vector;

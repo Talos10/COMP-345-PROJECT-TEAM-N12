@@ -100,7 +100,7 @@ void Player::acquireTerritory(Territory* territory){
 }
 
 void Player::increasePool(int numOfArmies) {
-    this->reinforcementPool += numOfArmies;
+    *this->reinforcementPool += numOfArmies;
 }
 
 void Player::decreasePool(int numOfArmies) {
