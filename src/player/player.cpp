@@ -1,5 +1,5 @@
 #include "player.h"
-
+#include <ctime>
 
 using namespace std;
 
@@ -176,6 +176,8 @@ int* Player::getReinforcementPool() const {
 //list which is then returned. This list will contain all the territories to be defended.
 vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
 
+    srand(time(nullptr)); //Initialize random seed
+
     //vector of territories with an action giving a reason why that territory was added to the list
     std::vector<tuple<Territory*,Territory*,string>> territories2Attack;
 
@@ -200,14 +202,8 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
 
                     cout << "!! ATTACK !! Current territory: " << territory->getName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
 
-                    cout << "0 tempHand: " << tempHand[0] << endl;
-                    cout << "1 tempHand: " << tempHand[1] << endl;
-                    cout << "2 tempHand: " << tempHand[2] << endl;
-                    cout << "3 tempHand: " << tempHand[3] << endl;
-                    cout << "4 tempHand: " << tempHand[4] << endl;
-
                     //75% chance to happen
-                    if((rand() % 100 < 75) && neighbor->getNumberOfArmies() < territory->getNumberOfArmies() && neighbor->getNumberOfArmies() > 0 && territory->getNumberOfArmies() > 0){
+                    if((rand() % 100 < 75) && neighbor->getNumberOfArmies() < territory->getNumberOfArmies() && territory->getNumberOfArmies() > 0){
 
                         cout << "doing advance order" << endl;
 
@@ -241,6 +237,8 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
 //check if that territory has the attribute "attack". If it does, it is added to a temporary
 //list which is then returned. This list will contain all the territories to be attacked.
 vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
+
+    srand(time(nullptr)); //Initialize random seed
 
     std::vector<tuple<Territory*,Territory*,string>> territories2Defend;
     bool airliftCardPlayed = false;

@@ -184,10 +184,10 @@ bool Advance::validate() {
         cout << "INVALID: source territory does not belong to player issuing the order!" << endl;
         return false;
     }
-    else if (find(sourceTerritory->getNeighbours().begin(), sourceTerritory->getNeighbours().end(), targetTerritory) != sourceTerritory->getNeighbours().end()) {
-        cout << "INVALID: target territory is not adjacent to the source territory!" << endl;
-        return false;
-    }
+//    else if (find(sourceTerritory->getNeighbours().begin(), sourceTerritory->getNeighbours().end(), targetTerritory) != sourceTerritory->getNeighbours().end()) {
+//        cout << "INVALID: target territory is not adjacent to the source territory!" << endl;
+//        return false;
+//    }
     return true;
 }
 

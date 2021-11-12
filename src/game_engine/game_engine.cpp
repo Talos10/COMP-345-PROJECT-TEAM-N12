@@ -653,7 +653,6 @@ void GameEngine::issueOrdersPhase(){
 
                 cout << "Player hand: " << *player->getHand() << endl;
                 cout << "Airlift card index: "<< player->hasCard(3) << endl;
-
                 player->getHand()->getHandsCards()->at(player->hasCard(3))->play(*deck, *player, new Airlift(*player,*get<0>(territoryTuple),*get<1>(territoryTuple), get<0>(territoryTuple)->getNumberOfArmies()/3));
 
             }
@@ -674,7 +673,6 @@ void GameEngine::issueOrdersPhase(){
 
                 cout << "Player hand: " << *player->getHand() << endl;
                 cout << "Nagotiate card index: "<< player->hasCard(4) << endl;
-
                 player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, new Negotiate(*player,*get<1>(territoryTuple)->getOwner()));
 
             }
@@ -696,8 +694,8 @@ void GameEngine::issueOrdersPhase(){
 
                 cout << "Player hand: " << *player->getHand() << endl;
                 cout << "Bomb card index: "<< player->hasCard(0) << endl;
-
                 player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, new Bomb(*player,*get<1>(territoryTuple)));
+
             }
         }
 
