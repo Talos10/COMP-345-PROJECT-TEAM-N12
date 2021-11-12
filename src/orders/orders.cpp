@@ -125,6 +125,7 @@ void Deploy::execute() {
         cout << "Executing Deploy Order..." << endl;
         this->targetTerritory->addArmies(this->numArmies);
         cout << *this->getEffect() << endl;
+        Notify(*this);
     }
 
 }
@@ -146,6 +147,11 @@ ostream& operator<<(ostream& out, const Deploy& deploy) {
 //clone a Deploy order
 Order* Deploy::clone() const {
     return new Deploy(*this);
+}
+
+string Deploy::stringToLog() const {
+    string message = "A DEPLOY order has been placed";
+    return message;
 }
 
 ////////////////////////////Advance CLASS////////////////////////////////////
@@ -195,6 +201,7 @@ bool Advance::validate() {
 void Advance::execute() {
     if (this->validate()) {
         cout << "Executing Advance Order..." << endl;
+        Notify(*this);
         bool bothTerritoriesBelongToTheIssuingPlayer = this->sourceTerritory->getOwner() == this->getIssuingPlayer() && this->targetTerritory->getOwner() == this->getIssuingPlayer();
         if (bothTerritoriesBelongToTheIssuingPlayer) {
             this->targetTerritory->addArmies(this->numArmies);
@@ -266,6 +273,12 @@ Order* Advance::clone() const {
     return new Advance(*this);
 }
 
+// Override the Iloggable function
+string Advance::stringToLog() const {
+    string message = "An ADVANCE order has been placed";
+    return message;
+}
+
 ////////////////////////////Bomb CLASS////////////////////////////////////
 //Default constructor
 Bomb::Bomb(): Order("A bomb order targets a territory owned by another player than the one issuing the order. Its result is to remove half of the armies from this territory.", "Half of the armies removed from target territory.") {
@@ -315,6 +328,7 @@ void Bomb::execute() {
         this->targetTerritory->setNumberOfArmies(this->targetTerritory->getNumberOfArmies()/2);
         this->setEffect("removed half of the armies from the target territory!");
         cout << *this->getEffect() << endl;
+        Notify(*this);
     }
 }
 
@@ -334,6 +348,12 @@ ostream& operator<<(ostream& out, const Bomb& bomb) {
 //clone a Bomb order
 Order* Bomb::clone() const {
     return new Bomb(*this);
+}
+
+// Override the ILoggable function
+string Bomb::stringToLog() const {
+    string message = "A BOMB order has been placed";
+    return message;
 }
 
 ////////////////////////////Blockade CLASS////////////////////////////////////
@@ -372,6 +392,8 @@ bool Blockade::validate() {
 void Blockade::execute() {
     if (this->validate()) {
         cout << "Executing Blockcade Order..." << endl;
+        Notify(*this);
+
         this->targetTerritory->addArmies(this->targetTerritory->getNumberOfArmies());
         this->getIssuingPlayer()->removeTerritory(*this->targetTerritory);
 
@@ -397,6 +419,11 @@ ostream& operator<<(ostream& out, const Blockade& blockade) {
 //clone a Blockade order
 Order* Blockade::clone() const {
     return new Blockade(*this);
+}
+
+string Blockade::stringToLog() const {
+    string message = "A BLOCKADE order has been placed";
+    return message;
 }
 
 ////////////////////////////Airlift CLASS////////////////////////////////////
@@ -449,6 +476,7 @@ void Airlift::execute() {
         this->sourceTerritory->removeArmies(numArmies);
         this->targetTerritory->addArmies(numArmies);
         cout << *this->getEffect() << endl;
+        Notify(*this);
     }
 }
 
@@ -470,6 +498,11 @@ ostream& operator<<(ostream& out, const Airlift& airlift) {
 //clone an Airlift order
 Order* Airlift::clone() const {
     return new Airlift(*this);
+}
+
+string Airlift::stringToLog() const {
+    string message = "An AIRLIFT order has been placed";
+    return message;
 }
 
 ////////////////////////////Negotiate CLASS////////////////////////////////////
@@ -508,6 +541,8 @@ bool Negotiate::validate() {
 void Negotiate::execute() {
     if (this->validate()) {
         cout << "Executing Negotiate Order..." << endl;
+        Notify(*this);
+
         this->getIssuingPlayer()->addFriendPlayer(this->enemyPlayer);
         this->enemyPlayer->addFriendPlayer(this->getIssuingPlayer());
         cout << *this->getEffect() << endl;
@@ -530,6 +565,11 @@ ostream& operator<<(ostream& out, const Negotiate& negotiate) {
 //clone a Negotiate order
 Order* Negotiate::clone() const {
     return new Negotiate(*this);
+}
+
+string Negotiate::stringToLog() const {
+    string message = "A NEGOTIATE order has been placed";
+    return message;
 }
 
 ////////////////////////////OrdersList CLASS////////////////////////////////////
@@ -598,6 +638,7 @@ void OrdersList::addOrder(Order* order) {
     else {
         this->orders->push_back(order);
     }
+    Notify(*this);
 }
 
 //Defining the assignment operator
@@ -619,6 +660,15 @@ OrdersList& OrdersList::operator=(const OrdersList& o_list) {
 //Defining the addition operator
 void OrdersList::operator+(Order* order) {
     this->addOrder(order);
+}
+
+// Override virtual pure function from ILoggable
+string OrdersList::stringToLog() const {
+    vector<Order*>::iterator it = orders->end() - 1;
+    string& effect = *(*it)->getEffect();
+    string& description = *(*it)->getDescription();
+    string message = "An Order has been added to an OrdersList with an effect of " + std::string(effect) + ". " + std::string(description);
+    return message;
 }
 
 //Defining the output operator
