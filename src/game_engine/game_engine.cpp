@@ -711,7 +711,7 @@ void GameEngine::startupPhase() {
 
     while (*currentState != "assignreinforcement") {
         // Get next command from command processor
-        nextCommand = commandProcessor->getCommand(*this);
+        nextCommand = commandProcessor->getCommand(*this, *this->log);
 
         // Validate against current state
         commandProcessorResult = commandProcessor->validate(*this, *nextCommand);

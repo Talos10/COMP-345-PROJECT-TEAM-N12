@@ -1,3 +1,4 @@
+The state of the game engine has been changed, it is now at: start
 A new COMMAND "loadmap canada-map.txt" has been added to the COMMAND PROCESSOR
 The command 'loadmap canada-map.txt' has the following effect: Loading map from file with the following name: canada-map.txt
 The state of the game engine has been changed, it is now at: maploaded
@@ -13,7 +14,3 @@ The state of the game engine has been changed, it is now at: playersadded
 A new COMMAND "gamestart" has been added to the COMMAND PROCESSOR
 The command 'gamestart' has the following effect: Assigning the countries and starting the game.
 The state of the game engine has been changed, it is now at: assignreinforcement
-A new COMMAND "replay" has been added to the COMMAND PROCESSOR
-The command 'replay' has the following effect: The command replay does not exist in the current state "assignreinforcement".
-A new COMMAND "quit" has been added to the COMMAND PROCESSOR
-The command 'quit' has the following effect: The command quit does not exist in the current state "assignreinforcement".
