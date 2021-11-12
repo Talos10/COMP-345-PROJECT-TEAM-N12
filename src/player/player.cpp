@@ -258,12 +258,13 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
     for(auto & territory : *territories){
 
         //15% chance to happen
-        if((rand() % 100 < 15) && !airliftCardPlayed && territory->getNumberOfArmies() >= 7){
+        if((rand() % 100 < 15) && tempHand[3] > 0 && !airliftCardPlayed && territory->getNumberOfArmies() >= 7){
             territories2Defend.emplace_back(territory, findWeakestTerritory(), "airlift");
             cout << "doing airlift" << endl;
             //doing this so the source territory is not touched by the player if another action was to occur on that territory
             //(I want to have that territory with the same 7+ armies that it had before). And also to prevent the player of doing this action too often
             airliftCardPlayed = true;
+            tempHand[3]--;
         }else{
             //for each neighbor of a territory
             for(Territory* neighbor: territory->getNeighbours()) {

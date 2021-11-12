@@ -223,10 +223,13 @@ void Advance::execute() {
             for (int i = 0; i < defendingArmies; i++) {
                 int chanceOfDefence = rand() % 100 + 1;
                 if (chanceOfDefence <= 70) {
+                    if (attackingArmies == 0) {
+                        break;
+                    }
                     attackingArmies--;
                 }
             }
-
+            cout << "Attacking armies: " << attackingArmies << " | Defending armies: " << defendingArmies << endl;
             //All enemies dead and you still have attacking armies
             if (attackingArmies > 0 && defendingArmies == 0) {
                 this->getIssuingPlayer()->acquireTerritory(targetTerritory);
