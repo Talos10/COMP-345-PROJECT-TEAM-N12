@@ -1,7 +1,5 @@
 #include "player.h"
 
-
-
 using namespace std;
 
 // The implementation file of the Player class.

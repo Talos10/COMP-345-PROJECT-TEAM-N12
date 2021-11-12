@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include <math.h>
+#include <cmath>
 #include <chrono>
 #include <algorithm>
 #include <random>
@@ -258,58 +258,9 @@ Map *GameEngine::getMap() const {
 }
 
 // Setter for the Map.
-void GameEngine::setMap(const string &filename) {
+void GameEngine::setMap(const string &fname) {
     delete this->gameMap;
-    this->gameMap = MapLoader::load(filename);
-}
-
-// TODO Change the description of the start method once A2 is finished.
-// Contains the main while loop of the game which creates the game flow. Based on the current state,
-// a list of actions are fetched from the stateMap, then for each action fetched, a description and
-// trigger keyword are fetched from the description map. Then finally, based on the trigger keyword
-// entered by the user, the corresponding handler method is fetched from the function map which will
-// be executed in order to execute the action wanted by the user.
-void GameEngine::start() {
-    // <0> A boolean indicating if the command is valid or not
-    // <1> A string corresponding to the command keyword without arguments
-    // <2> A string saying that the command is valid or why the command is invalid
-    tuple<bool, string, string> optionInfo;
-    Command *command;
-
-    cout << "\n********************************************\n" << endl;
-    cout << "*************Welcome to Warzone!************" << endl;
-    cout << "\n********************************************\n" << endl;
-
-    while (*currentState != "end") {
-        printActionsIfNeeded();
-
-        //////////////////
-
-        //TODO Change logic here so that commands are retrieved automatically only in two cases: non-stop, but only until
-        // 1. From the start state until the arriving in the assignreinforcement state
-        // 2. From the win state until either exiting OR until arriving in the assignreinforcement state again
-        command = commandProcessor->getCommand(*this, *this->log);
-        if (command == nullptr) {
-            cout << "\nReached end of the file. Exiting..." << endl;
-            break;
-        }
-
-        /////////////////
-
-        optionInfo = commandProcessor->validate(*this, *command);
-
-        if (get<0>(optionInfo)) {
-            cout << "\nExecuting valid command!" << endl;
-            command->saveEffect(get<2>(descriptionMap->at(get<1>(optionInfo))), true);
-            std::invoke(functionMap->at(get<1>(optionInfo)).first, this, functionMap->at(get<1>(optionInfo)).second,
-                        *command->getCommandArgs());
-        } else {
-            cout << "\nCommand is not valid and will not be executed!" << endl;
-            command->saveEffect(get<2>(optionInfo), false);
-        }
-
-        cout << "\nRe-printing current command:\n" << *command << endl;
-    }
+    this->gameMap = MapLoader::load(fname);
 }
 
 // A function that prints the actions available for the user if setting up the game from the console.
@@ -586,10 +537,21 @@ void game_engine_driver(const string &cmdArg) {
 
     cout << "\nRunning game engine driver!" << endl;
 
+    cout << "\n********************************************\n" << endl;
+    cout << "*************Welcome to Warzone!************" << endl;
+    cout << "\n********************************************\n" << endl;
 
+    gameEngine.start();
+}
 
-//    gameEngine.start();
-    gameEngine.startupPhase();
+void GameEngine::start() {
+    while (*currentState != "end") {
+        startupPhase();
+//        mainGameLoop();
+
+        //TODO Remove this and include this logic in the mainGameLoop
+        transition("end");
+    }
 }
 
 void GameEngine::mainGameLoop(){
@@ -701,26 +663,35 @@ bool GameEngine:: checkForWin(){
 }
 
 void GameEngine::startupPhase() {
-    // Initial state at startup
-    transition("start");
+    // <0> A boolean indicating if the command is valid or not
+    // <1> A string corresponding to the command keyword without arguments
+    // <2> A string saying that the command is valid or why the command is invalid
+    tuple<bool, string, string> commandProcessorResult;
+    Command *nextCommand;
 
     cout << "\nStartup phase\n" << endl;
 
-    Command *nextCommand;
-    tuple<bool, string, string> commandProcessorResult;
+    // Initial state at startup
+    transition("start");
 
     while (*currentState != "assignreinforcement") {
+        printActionsIfNeeded();
+
         // Get next command from command processor
-        nextCommand = commandProcessor->getCommand(*this, *this->log);
+        nextCommand = commandProcessor->getCommand(*this, *log);
+
+        if (nextCommand == nullptr) {
+            cerr << "\nReached end of the file. Exiting..." << endl;
+            break;
+        }
 
         // Validate against current state
         commandProcessorResult = commandProcessor->validate(*this, *nextCommand);
 
         if (get<0>(commandProcessorResult)) {
-            // Command is valid, execute action given the state
-
             nextCommand->saveEffect(get<2>(descriptionMap->at(get<1>(commandProcessorResult))), true);
 
+            // Command is valid, execute action given the state
             std::invoke(
                     functionMap->at(get<1>(commandProcessorResult)).first,
                     this,

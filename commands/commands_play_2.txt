@@ -1,0 +1,12 @@
+loadmap canada-map.txt
+validatemap
+addplayer talos
+addplayer obama
+gamestart
+replay
+loadmap canada-map.txt
+validatemap
+addplayer david
+addplayer eric
+gamestart
+quit

@@ -4,8 +4,8 @@
 #include <deque>
 #include <string>
 #include <fstream>
-#include <game_engine/game_engine.h>
-#include <game_log/log_observer.h>
+#include "game_engine/game_engine.h"
+#include "game_log/log_observer.h"
 #include "observer/logging_observer.h"
 
 using namespace std;

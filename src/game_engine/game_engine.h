@@ -166,7 +166,7 @@ public:
     [[nodiscard]] Map *getMap() const;
 
     // Setter for the Map.
-    void setMap(const string &filename);
+    void setMap(const string &fname);
 
     // A function which allows the user to start a game of Risk.
     void start();

@@ -14,3 +14,4 @@ The state of the game engine has been changed, it is now at: playersadded
 A new COMMAND "gamestart" has been added to the COMMAND PROCESSOR
 The command 'gamestart' has the following effect: Assigning the countries and starting the game.
 The state of the game engine has been changed, it is now at: assignreinforcement
+The state of the game engine has been changed, it is now at: end

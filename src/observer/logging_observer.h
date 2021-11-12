@@ -22,8 +22,9 @@ public:
     ~Subject();
     virtual void Attach(Observer* o);
     virtual void Detach(Observer* o);
-    virtual void Notify(const ILoggable& log);
-    list<Observer*>* getAllObservers() const;
+    virtual void Notify(const ILoggable &log);
+
+    [[nodiscard]] list<Observer *> *getAllObservers() const;
 private:
     list<Observer*> *_observers;
 };

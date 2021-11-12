@@ -1,12 +1,13 @@
 #include "logging_observer.h"
 
 /////////////////////// Observer class ///////////////////////
-Observer::Observer() {}
-Observer::~Observer() {}
+Observer::Observer() = default;
+
+Observer::~Observer() = default;
 
 /////////////////////// Subject class ///////////////////////
 Subject::Subject() {
-    _observers = new list<Observer*>;
+    _observers = new list<Observer *>;
 }
 
 Subject::~Subject() {
@@ -22,15 +23,16 @@ void Subject::Detach(Observer *o) {
 }
 
 void Subject::Notify(const ILoggable& log) {
-    list<Observer*>::iterator i = _observers->begin();
-    for(; i != _observers->end(); ++i)
+    list<Observer *>::iterator i = _observers->begin();
+    for (; i != _observers->end(); ++i)
         (*i)->Update(log);
 }
 
-list<Observer*>* Subject::getAllObservers() const {
+list<Observer *> *Subject::getAllObservers() const {
     return this->_observers;
 }
 
 /////////////////////// ILoggable class ///////////////////////
-ILoggable::ILoggable() {}
-ILoggable::~ILoggable() {}
+ILoggable::ILoggable() = default;
+
+ILoggable::~ILoggable() = default;
