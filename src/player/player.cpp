@@ -200,6 +200,12 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
 
                     cout << "!! ATTACK !! Current territory: " << territory->getName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
 
+                    cout << "0 tempHand: " << tempHand[0] << endl;
+                    cout << "1 tempHand: " << tempHand[1] << endl;
+                    cout << "2 tempHand: " << tempHand[2] << endl;
+                    cout << "3 tempHand: " << tempHand[3] << endl;
+                    cout << "4 tempHand: " << tempHand[4] << endl;
+
                     //75% chance to happen
                     if((rand() % 100 < 75) && neighbor->getNumberOfArmies() < territory->getNumberOfArmies() && neighbor->getNumberOfArmies() > 0 && territory->getNumberOfArmies() > 0){
 
@@ -317,11 +323,9 @@ void Player::issueOrder(Order* order){
 
 int Player::hasCard(int cardType){
 
-    for(auto i = 0; i < hand->getHandsCards()->size(); i++) { //for each neighbor of a territory
+    int i = 0;
 
-        auto card = *hand->getHandsCards()->begin();
-        //I'm not sure whether or not this has a O(n^2) traversal but it works so whatever
-        std::advance(card,i);
+    for(Card* card: *hand->getHandsCards()) { //for each neighbor of a territory
 
         if(*card->getType() == cardType){
 
@@ -329,9 +333,11 @@ int Player::hasCard(int cardType){
 
         }
 
+        i++;
+
     }
 
-    return -1;
+    return -255;
 
 }
 

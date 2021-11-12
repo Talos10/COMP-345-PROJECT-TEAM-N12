@@ -649,7 +649,12 @@ void GameEngine::issueOrdersPhase(){
 
             if(get<2>(territoryTuple) == "airlift"){
 
-                player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, new Airlift(*player,*get<0>(territoryTuple),*get<1>(territoryTuple), get<0>(territoryTuple)->getNumberOfArmies()/3));
+                cout << "about to do airlift" << endl;
+
+                cout << "Player hand: " << *player->getHand() << endl;
+                cout << "Airlift card index: "<< player->hasCard(3) << endl;
+
+                player->getHand()->getHandsCards()->at(player->hasCard(3))->play(*deck, *player, new Airlift(*player,*get<0>(territoryTuple),*get<1>(territoryTuple), get<0>(territoryTuple)->getNumberOfArmies()/3));
 
             }
             else if(get<2>(territoryTuple) == "deploy"){
@@ -665,7 +670,12 @@ void GameEngine::issueOrdersPhase(){
             }
             else if(get<2>(territoryTuple) == "negotiate"){
 
-                player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, new Negotiate(*player,*get<1>(territoryTuple)->getOwner()));
+                cout << "about to do negotiate" << endl;
+
+                cout << "Player hand: " << *player->getHand() << endl;
+                cout << "Nagotiate card index: "<< player->hasCard(4) << endl;
+
+                player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, new Negotiate(*player,*get<1>(territoryTuple)->getOwner()));
 
             }
 
@@ -678,9 +688,15 @@ void GameEngine::issueOrdersPhase(){
             cout << "issuing orders for attack" << endl;
 
             if(get<2>(territoryTuple) == "advance"){
+                cout << "about to do advance" << endl;
                 player->issueOrder(new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()+1));
             }
             else if(get<2>(territoryTuple) == "bomb"){
+                cout << "about to do bomb" << endl;
+
+                cout << "Player hand: " << *player->getHand() << endl;
+                cout << "Bomb card index: "<< player->hasCard(0) << endl;
+
                 player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, new Bomb(*player,*get<1>(territoryTuple)));
             }
         }
