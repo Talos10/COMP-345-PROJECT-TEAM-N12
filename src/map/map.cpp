@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <string>
 
-#define MAPS_DIR "../maps/"
 using std::cout, std::endl, std::cerr;
 using std::ifstream;
 using std::find;
@@ -197,10 +196,24 @@ int Territory::getNumberOfArmies() const {
 }
 
 /**
+ * set a cumulative value for the number of armies in the territory
+ */
+void Territory::addNumberArmy(int numOfArmies) {
+    this->numberOfArmies += numOfArmies;
+}
+
+/**
  * @return the current Owner of the territory
  */
 Player* Territory::getOwner() const {
     return owner;
+}
+
+/**
+ * set the owner of a territory
+ */
+void Territory::setOwner(Player *theOwner) {
+    this->owner = theOwner;
 }
 
 /**

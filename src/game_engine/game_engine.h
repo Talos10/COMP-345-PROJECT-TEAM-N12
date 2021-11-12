@@ -5,6 +5,8 @@
 #include <vector>
 #include <map>
 #include "command_processor/command_processing.h"
+#include "player/player.h"
+#include "map/map.h"
 
 using namespace std;
 
@@ -34,6 +36,15 @@ private:
 
     // A string which indicates whether the commands to start the game will be taken in via the console or from a file.
     string *commandReadMode;
+
+    //A collection of players present in the game.
+    std::vector<Player*>* players;
+
+    //The map the players will fight on.
+    Map* gameMap;
+
+    //The deck from which the players will draw cards
+    Deck* deck;
 
     // Defining the output operator for the GameEngine object.
     friend std::ostream &operator<<(std::ostream &stream, const GameEngine &ge);
@@ -89,6 +100,7 @@ private:
     void quit(const string &transitionState, const vector<string *> &commandArgs);
 
 public:
+
     // One param constructor which initializes all the maps, the current game state, and the mode in which the game
     // start-up commands will be read (from console or file).
     GameEngine(const string &commandReadMode);
@@ -138,15 +150,47 @@ public:
     // Setter for the commandReadMode.
     void setCommandReadMode(const string &state);
 
+    // Getter for the players.
+    [[nodiscard]] std::vector<Player*>* getPlayers() const;
+
+    // Setter for the players.
+    void setPlayers(const std::vector<Player*> &players);
+
+    // Getter for the Map.
+    [[nodiscard]] Map *getMap() const;
+
+    // Setter for the Map.
+    void setMap(const string &filename);
+
     // A function which allows the user to start a game of Risk.
     void start();
 
+    // A function to execute the startup phase of the game
+    void startupPhase();
+
     // A function that prints the actions available for the user if setting up the game from the console.
     void printActionsIfNeeded();
+
+    //Function that will run the main game loop for the gameplay part
+    void mainGameLoop();
+
+    //Function that will take care of the Reinforcement Phase part of the main game loop
+    void reinforcementPhase();
+
+    //Function that will take care of the Issue Orders part of the main game loop
+    void issueOrdersPhase();
+
+    //Function that will take care of the Orders Execution Phase part of the main game loop
+    void executeOrdersPhase();
+
+    //Function that will check if there is a player that has won the game
+    bool checkForWin();
 };
 
 // Free function in order to test the functionality of the GameEngine for assignment #2. Takes in a commandline argument
 // which specifies if the commands are to be read through the console (-console) or from a file (-file <filename>).
 void game_engine_driver(const string &cmdArg);
+
+
 
 #endif //COMP_345_PROJECT_TEAM_N12_GAME_ENGINE_H
