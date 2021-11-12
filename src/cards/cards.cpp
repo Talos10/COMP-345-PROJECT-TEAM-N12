@@ -89,7 +89,7 @@ void Card::play(Deck& deck, Player& player) {
             break;
     }
     // Create an order with a description and an effect chosen by the card type
-    Order *order = new Order();
+    Order *order = new Deploy();
     order->setDescription(description);
     order->setEffect(effect);
 

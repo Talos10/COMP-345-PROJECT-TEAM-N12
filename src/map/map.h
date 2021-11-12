@@ -66,14 +66,17 @@ public:
     list<Territory *> &getNeighbours();
     int getNumberOfArmies() const;
     Player* getOwner() const;
+    void setOwner(Player* player);
+    void setNumberOfArmies(const int numArmies);
     void addNeighbour(Territory* territory);
+    void addArmies(const int numArmies);
+    void removeArmies(const int numArmies);
 
     int getX() const;
 
     int getY() const;
 
     void addNumberArmy(int numOfArmies);
-    void setOwner(Player *owner);
 
     // Copy constructor
     Territory(const Territory& territory);

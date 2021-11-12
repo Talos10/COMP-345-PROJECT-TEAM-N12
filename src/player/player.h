@@ -17,6 +17,8 @@ using namespace std;
 //Forward declaration
 class Hand;
 class Territory;
+class OrdersList;
+class Order;
 
 // This class implements the player of the game (who will carry certain information about the territories,
 // the hand with cards and the list of orders).
@@ -32,6 +34,12 @@ private:
 
     //An OrdersList object containing Order objects the player has issued.
     OrdersList* ordersList;
+
+    //A collection of players for which this Player cannot attack for the remainder of the turn
+    vector<Player*> friendPlayers;
+
+    //True if the player conquered a territory during their turn. Otherwise, false.
+    bool conqueredTerritoryInTurn;
 
     //The reinforcement pool of the player that has armies that can be distributed to territories
     int* reinforcementPool;
@@ -88,6 +96,9 @@ public:
     // Setter for the territories.
     void setTerritories(const std::vector<Territory*> &territories);
 
+    // Removes a territory from the Player's collection of territories
+    void removeTerritory(const Territory& territory);
+
     // Getter for the hand.
     [[nodiscard]] Hand* getHand() const;
 
@@ -104,6 +115,18 @@ public:
     // between two Player objects.
     void swap(Player &first, Player &second);
 
+    //Adds a friend player that cannot be attacked.
+    void addFriendPlayer(Player* player);
+
+    //Check if player is a friend
+    bool isPlayerFriend(Player* player);
+
+    //Removes all players from the friends player vector
+    void clearPlayerFriends();
+
+    //Check if the Player has conquered a territory during their turn.
+    bool hasConqueredTerritoryInTurn() const;
+
     // Getter for the player name.
     [[nodiscard]] string* getPName() const;
 
@@ -113,6 +136,8 @@ public:
     // Getter for the Reinforcement Pool
     [[nodiscard]] int* getReinforcementPool() const;
 
+    //Setter for the conqueredTerritoryInTurn boolean
+    void setConqueredTerritoryInTurn(const bool conqueredTerritoryInTurn);
 };
 
 // Free function in order to test the functionality of the Player for assignment #1.

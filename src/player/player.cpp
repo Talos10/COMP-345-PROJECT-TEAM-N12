@@ -11,6 +11,8 @@ Player::Player(){
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
+    this->friendPlayers = vector<Player*>();
+    this->conqueredTerritoryInTurn = false;
     reinforcementPool = new int();
     pname = new string("Default Player Name");
 };
@@ -29,6 +31,10 @@ Player::Player(const Player &pl) {
     this->territories = new std::vector<Territory*>(*pl.territories);
     this->hand = new Hand(*pl.hand);
     this->ordersList = new OrdersList(*pl.ordersList);
+    for (Player* player : pl.friendPlayers) {
+        this->friendPlayers.push_back(new Player(*player));
+    }
+    this->conqueredTerritoryInTurn = pl.conqueredTerritoryInTurn;
     this->pname = new string(*pl.pname);
     this->reinforcementPool = new int();
 }
@@ -47,6 +53,9 @@ Player::~Player() {
     delete territories;
     delete hand;
     delete ordersList;
+    for (Player* player : this->friendPlayers) {
+        delete player;
+    }
     delete pname;
     delete reinforcementPool;
 }
@@ -83,6 +92,17 @@ std::vector<Territory*>* Player::getTerritories() const {
 void Player::setTerritories(const std::vector<Territory*> &territories) {
     delete this->territories;
     this->territories = new std::vector(territories);
+}
+
+// Removes a territory from the Player's collection of territories
+void Player::removeTerritory(const Territory& territory) {
+    // Create an iterator that will point to the same territory owned by the player as the territory to be removed
+    vector<Territory*>::iterator it = std::find(this->territories->begin(), this->territories->end(), &territory);
+
+    // If the territory is found, delete the reference to the territory in the collection of the player
+    if(it != this->territories->end()){
+        this->territories->erase(it);       //deleting pointer causing memory leak???? I dont think so cuz the passed territory still holds the reference
+    }
 }
 
 //Defining the output operator
@@ -286,16 +306,47 @@ int Player::hasCard(int cardType){
 
 }
 
-Territory* Player::findWeakestTerritory(){
-    Territory* weakest = territories->at(0);
+Territory* Player::findWeakestTerritory() {
+    Territory *weakest = territories->at(0);
 
-    for(auto territory: *territories){
-        if(territory->getNumberOfArmies() < weakest->getNumberOfArmies()){
+    for (auto territory: *territories) {
+        if (territory->getNumberOfArmies() < weakest->getNumberOfArmies()) {
             weakest = territory;
         }
     }
 
     return weakest;
+}
+
+//Adds a friend player that cannot be attacked.
+void Player::addFriendPlayer(Player* player){
+    this->friendPlayers.push_back(player);
+}
+
+//Check if player is a friend
+bool Player::isPlayerFriend(Player* player){
+    //Can I just check the address?????????? what if copy constructor is used????????
+    if (find(this->friendPlayers.begin(), this->friendPlayers.end(), player) != this->friendPlayers.end()) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+//Removes all players from the friends player vector
+void Player::clearPlayerFriends() {
+    this->friendPlayers.clear();
+}
+
+//Check if the Player has conquered a territory during their turn.
+bool Player::hasConqueredTerritoryInTurn() const {
+    return this->conqueredTerritoryInTurn;
+}
+
+//Setter for the conqueredTerritoryInTurn boolean
+void Player::setConqueredTerritoryInTurn(bool conqueredTerritoryInTurn) {
+    this->conqueredTerritoryInTurn = conqueredTerritoryInTurn;
 }
 
 // Free function in order to test the functionality of the Player for assignment #1.
