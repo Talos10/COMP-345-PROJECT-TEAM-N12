@@ -35,7 +35,7 @@ public:
     Order(const Order& order);
 
     //Desctructor
-    ~Order();
+    virtual ~Order();
 
     //Checks if an order is valid.
     virtual bool validate() = 0;

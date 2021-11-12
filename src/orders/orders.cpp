@@ -16,14 +16,14 @@ Order::Order(const string& description, const string& effect) {
 Order::Order(const string& description, const string& effect, Player& issuingPlayer) {
     this->description = new string(description);
     this->effect = new string(effect);
-    this->issuingPlayer = &issuingPlayer;    //shallow copy because want to refer to same player???
+    this->issuingPlayer = &issuingPlayer;   //shallow copy because want to refer to same player
 }
 
 //Copy constructor
 Order::Order(const Order& order) {
     this->description = new string(*(order.description));
     this->effect = new string(*(order.effect));
-    this->issuingPlayer = order.issuingPlayer;    //shallow copy because want to refer to same player???
+    this->issuingPlayer = order.issuingPlayer;    //shallow copy because want to refer to same player
 }
 
 //Destructor
@@ -31,7 +31,7 @@ Order::~Order() {
     delete description;
     delete effect;
     //delete issuingPlayer; //should I call this or let the Player destructor handle it??????
-    //set issuingPlayer = nullptr????
+    this->issuingPlayer = nullptr;
 }
 
 //Getter to retrieve the description of an Order
@@ -72,7 +72,7 @@ Order& Order::operator=(const Order& order) {
         delete this->effect;
         this->description = new string(*(order.description));
         this->effect = new string(*(order.effect));
-        this->issuingPlayer = order.getIssuingPlayer(); //shallow copy but I think its correct because you dont want to just copy a PLayer (the players should remain the same)??????
+        this->issuingPlayer = order.getIssuingPlayer();  //shallow copy because want to refer to same player
     }
     return *this;
 }
@@ -83,20 +83,13 @@ ostream& operator<<(ostream& out, const Order& order) {
 	return out;
 }
 
-//Checks if an order is valid
-bool Order::validate() {
-    return true;
-}
-
-//Executes an order if it is valid.
-void Order::execute() {
-    cout << "executing" << endl;
-}
-
 ////////////////////////////Deploy CLASS////////////////////////////////////
 //Default constructor
 Deploy::Deploy(): Order("A deploy order tells a certain number of armies taken from the reinforcement pool to deploy to a \n"
-                        "target territory owned by the player issuing this order.", "Armies moved from reinforcement pool to target territory.") {}
+                        "target territory owned by the player issuing this order.", "Armies moved from reinforcement pool to target territory.") {
+    this->targetTerritory = nullptr;
+    this->numArmies = 0;
+}
 
 //Parameterized Constructor
 Deploy::Deploy(Player& issuingPlayer, Territory& targetTerritory, int numArmies): Deploy() {
@@ -106,10 +99,15 @@ Deploy::Deploy(Player& issuingPlayer, Territory& targetTerritory, int numArmies)
 }
 
 //Copy constructor
-Deploy::Deploy(const Deploy& deploy_order): Order(deploy_order) {}
+Deploy::Deploy(const Deploy& deploy_order): Order(deploy_order) {
+    this->targetTerritory = deploy_order.targetTerritory;
+    this->numArmies = deploy_order.numArmies;
+}
 
 //Destructor
-Deploy::~Deploy() {}
+Deploy::~Deploy() {
+    this->targetTerritory = nullptr;
+}
 
 //Checks if a Deploy order is valid
 bool Deploy::validate() {
@@ -134,6 +132,8 @@ void Deploy::execute() {
 //Defining the assignment operator
 Deploy& Deploy::operator=(const Deploy& deploy_order) {
     Order::operator=(deploy_order);
+    this->targetTerritory = deploy_order.targetTerritory;
+    this->numArmies = deploy_order.numArmies;
     return *this;
 }
 
@@ -150,7 +150,11 @@ Order* Deploy::clone() const {
 
 ////////////////////////////Advance CLASS////////////////////////////////////
 //Default constructor
-Advance::Advance(): Order("An advance order tells a certain number of army units to move from a source territory to a target adjacent territory.", "Moved a number of armies from source territory to adjacent target territory.") {}
+Advance::Advance(): Order("An advance order tells a certain number of army units to move from a source territory to a target adjacent territory.", "Moved a number of armies from source territory to adjacent target territory.") {
+    this->sourceTerritory = nullptr;
+    this->targetTerritory = nullptr;
+    this->numArmies = 0;
+}
 
 //Parameterized Constructor
 Advance::Advance(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies): Advance() {
@@ -161,10 +165,17 @@ Advance::Advance(Player& issuingPlayer, Territory& sourceTerritory, Territory& t
 }
 
 //Copy constructor
-Advance::Advance(const Advance& adv_order): Order(adv_order) {}
+Advance::Advance(const Advance& adv_order): Order(adv_order) {
+    this->sourceTerritory = adv_order.sourceTerritory;
+    this->targetTerritory = adv_order.targetTerritory;
+    this->numArmies = adv_order.numArmies;
+}
 
 //Desctructor
-Advance::~Advance() {};
+Advance::~Advance() {
+    this->sourceTerritory = nullptr;
+    this->targetTerritory = nullptr;
+};
 
 //Checks if an Advance order is valid
 bool Advance::validate() {
@@ -235,6 +246,9 @@ void Advance::execute() {
 //Defining the assignment operator
 Advance& Advance::operator=(const Advance& adv_order) {
     Order::operator=(adv_order);
+    this->sourceTerritory = adv_order.sourceTerritory;
+    this->targetTerritory = adv_order.targetTerritory;
+    this->numArmies = adv_order.numArmies;
     return *this;
 }
 
@@ -251,7 +265,9 @@ Order* Advance::clone() const {
 
 ////////////////////////////Bomb CLASS////////////////////////////////////
 //Default constructor
-Bomb::Bomb(): Order("A bomb order targets a territory owned by another player than the one issuing the order. Its result is to remove half of the armies from this territory.", "Half of the armies removed from target territory.") {}
+Bomb::Bomb(): Order("A bomb order targets a territory owned by another player than the one issuing the order. Its result is to remove half of the armies from this territory.", "Half of the armies removed from target territory.") {
+    this->targetTerritory = nullptr;
+}
 
 //Parameterized Constructor
 Bomb::Bomb(Player& issuingPlayer, Territory& targetTerritory): Bomb() {
@@ -260,10 +276,14 @@ Bomb::Bomb(Player& issuingPlayer, Territory& targetTerritory): Bomb() {
 }
 
 //Copy constructor
-Bomb::Bomb(const Bomb& bomb_order): Order(bomb_order) {}
+Bomb::Bomb(const Bomb& bomb_order): Order(bomb_order) {
+    this->targetTerritory = bomb_order.targetTerritory;
+}
 
 //Destructor
-Bomb::~Bomb() {};
+Bomb::~Bomb() {
+    this->targetTerritory = nullptr;
+};
 
 //Checks if a Bomb order is valid
 bool Bomb::validate() {
@@ -298,6 +318,7 @@ void Bomb::execute() {
 //Defining the assignment operator
 Bomb& Bomb::operator=(const Bomb& bomb_order) {
     Order::operator=(bomb_order);
+    this->targetTerritory = bomb_order.targetTerritory;
     return *this;
 }
 
@@ -314,7 +335,9 @@ Order* Bomb::clone() const {
 
 ////////////////////////////Blockade CLASS////////////////////////////////////
 //Default constructor
-Blockade::Blockade(): Order("A blockade order targets a territory that belongs to the player issuing the order", "double  the  number of  armies on the territory  and to  transfer the ownership  of  the  territory to the Neutral player.") {}
+Blockade::Blockade(): Order("A blockade order targets a territory that belongs to the player issuing the order", "double  the  number of  armies on the territory  and to  transfer the ownership  of  the  territory to the Neutral player.") {
+    this->targetTerritory = nullptr;
+}
 
 //Parameterized Constructor
 Blockade::Blockade(Player& issuingPlayer, Territory& targetTerritory): Blockade() {
@@ -323,10 +346,14 @@ Blockade::Blockade(Player& issuingPlayer, Territory& targetTerritory): Blockade(
 }
 
 //Copy constructor
-Blockade::Blockade(const Blockade& blockade_order): Order(blockade_order) {}
+Blockade::Blockade(const Blockade& blockade_order): Order(blockade_order) {
+    this->targetTerritory = blockade_order.targetTerritory;
+}
 
 //Destructor
-Blockade::~Blockade() {};
+Blockade::~Blockade() {
+    this->targetTerritory = nullptr;
+};
 
 //Checks if a Blockade order is valid
 bool Blockade::validate() {
@@ -354,6 +381,7 @@ void Blockade::execute() {
 //Defining the assignment operator
 Blockade& Blockade::operator=(const Blockade& blockade_order) {
     Order::operator=(blockade_order);
+    this->targetTerritory = blockade_order.targetTerritory;
     return *this;
 }
 
@@ -370,7 +398,11 @@ Order* Blockade::clone() const {
 
 ////////////////////////////Airlift CLASS////////////////////////////////////
 //Default constructor
-Airlift::Airlift(): Order("An airlift order tells a certain number of armies taken from a source territory to be moved to a target territory, the source and the target territory being owned by the player issuing the order.", "Armies moved from source territory to target territory") {}
+Airlift::Airlift(): Order("An airlift order tells a certain number of armies taken from a source territory to be moved to a target territory, the source and the target territory being owned by the player issuing the order.", "Armies moved from source territory to target territory") {
+    this->sourceTerritory = nullptr;
+    this->targetTerritory = nullptr;
+    this->numArmies = 0;
+}
 
 //Parameterized Constructor
 Airlift::Airlift(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies): Airlift() {
@@ -381,10 +413,17 @@ Airlift::Airlift(Player& issuingPlayer, Territory& sourceTerritory, Territory& t
 }
 
 //Copy constructor
-Airlift::Airlift(const Airlift& airlift_order): Order(airlift_order) {}
+Airlift::Airlift(const Airlift& airlift_order): Order(airlift_order) {
+    this->sourceTerritory = airlift_order.sourceTerritory;
+    this->targetTerritory = airlift_order.targetTerritory;
+    this->numArmies = airlift_order.numArmies;
+}
 
 //Destructor
-Airlift::~Airlift() {};
+Airlift::~Airlift() {
+    this->sourceTerritory = nullptr;
+    this->targetTerritory = nullptr;
+};
 
 //Checks if an Airlift order is valid
 bool Airlift::validate() {
@@ -413,6 +452,9 @@ void Airlift::execute() {
 //Defining the assignment operator
 Airlift& Airlift::operator=(const Airlift& airlift_order) {
     Order::operator=(airlift_order);
+    this->sourceTerritory = airlift_order.sourceTerritory;
+    this->targetTerritory = airlift_order.targetTerritory;
+    this->numArmies = airlift_order.numArmies;
     return *this;
 }
 
@@ -429,7 +471,9 @@ Order* Airlift::clone() const {
 
 ////////////////////////////Negotiate CLASS////////////////////////////////////
 //Default constructor
-Negotiate::Negotiate(): Order("A negotiate order targets an enemy player. It results in the target player and the player issuing the order to not be able to successfully attack each others’ territories for the remainder of the turn.", "Players cannot attack eachother for remainder of the turn.") {}
+Negotiate::Negotiate(): Order("A negotiate order targets an enemy player. It results in the target player and the player issuing the order to not be able to successfully attack each others’ territories for the remainder of the turn.", "Players cannot attack eachother for remainder of the turn.") {
+    this->enemyPlayer = nullptr;
+}
 
 //Parameterized Constructor
 Negotiate::Negotiate(Player& issuingPlayer, Player& enemyPlayer): Negotiate() {
@@ -438,10 +482,14 @@ Negotiate::Negotiate(Player& issuingPlayer, Player& enemyPlayer): Negotiate() {
 }
 
 //Copy constructor
-Negotiate::Negotiate(const Negotiate& negotiate_order): Order(negotiate_order) {}
+Negotiate::Negotiate(const Negotiate& negotiate_order): Order(negotiate_order) {
+    this->enemyPlayer = negotiate_order.enemyPlayer;
+}
 
 //Destructor
-Negotiate::~Negotiate() {};
+Negotiate::~Negotiate() {
+    this->enemyPlayer = nullptr;
+};
 
 //Checks if a Negotiate order is valid
 bool Negotiate::validate() {
@@ -466,6 +514,7 @@ void Negotiate::execute() {
 //Defining the assignment operator
 Negotiate& Negotiate::operator=(const Negotiate& negotiate_order) {
     Order::operator=(negotiate_order);
+    this->enemyPlayer = negotiate_order.enemyPlayer;
     return *this;
 }
 
