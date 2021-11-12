@@ -459,8 +459,32 @@ void GameEngine::mainGameLoop(){
     players->emplace_back(new Player("obama"));
     players->emplace_back(new Player("talos"));
     cout << "\nAssigning an arbitrary territory to the players:\n" << endl;
-    players->at(0)->acquireTerritory(gameMap->getTerritoryByID(1)); //Continent 1 Territory 1
-    players->at(1)->acquireTerritory(gameMap->getTerritoryByID(8));//Continent 3 Territory 12
+    for(auto i = 1; i <= 3; i ++){
+
+        for(auto j = 0; j < gameMap->getContinentByID(i)->getTerritories().size(); j++){
+
+            players->at(0)->acquireTerritory(gameMap->getContinentByID(i)->getTerritories().at(j));
+
+        }
+    }
+
+    for(auto i = 4; i <= 6; i ++){
+
+        for(auto j = 0; j < gameMap->getContinentByID(i)->getTerritories().size(); j++){
+
+            players->at(1)->acquireTerritory(gameMap->getContinentByID(i)->getTerritories().at(j));
+
+        }
+    }
+
+    cout << "Total number of territories: " << gameMap->getContinentByID(1)->getTerritories().size() + gameMap->getContinentByID(2)->getTerritories().size() + gameMap->getContinentByID(3)->getTerritories().size() + gameMap->getContinentByID(4)->getTerritories().size() + gameMap->getContinentByID(5)->getTerritories().size() + gameMap->getContinentByID(6)->getTerritories().size() << endl;
+
+    cout << "P1 nbrs of terr: " << players->at(0)->getTerritories()->size() << endl;
+
+    cout << "P2 nbrs of terr: " << players->at(1)->getTerritories()->size() << endl;
+
+    //players->at(0)->acquireTerritory(gameMap->getTerritoryByID(1)); //Continent 1 Territory 1
+    //players->at(1)->acquireTerritory(gameMap->getTerritoryByID(8));//Continent 3 Territory 12
     //cout << gameMap->getTerritoryByID(1) << " with a numArmies of " << gameMap->getTerritoryByID(1)->getNumberOfArmies() << endl;
     //end TODO
 
@@ -477,9 +501,9 @@ void GameEngine::mainGameLoop(){
 
         reinforcementPhase();
 
-        issueOrdersPhase();
+        //issueOrdersPhase();
 
-        executeOrdersPhase();
+        //executeOrdersPhase();
 
         cout << "Deck: " << *deck << endl;
 
@@ -499,38 +523,45 @@ void GameEngine::reinforcementPhase(){
 
         player->increasePool(static_cast<int>(floor(static_cast<float>(player->getTerritories()->size())/3.0)));
 
-//        for(auto j = 0; j < player->getTerritories()->size(); j++){
-//
-//
-//
-//            //player->getTerritories()->at(j)->addNumberArmy();
-//
-//        }
     }
 
 }
 
 void GameEngine::issueOrdersPhase(){
 
-    //This big for-loop will take the different decision considering the neighbors of a player's
-    //territories
+
     for(auto & player : *players){ //for each player
 
-        for(auto & territory : *player->getTerritories()){ //for each territory of a player
+        //Issue the orders related to attack other territories
+        for(auto& territoryPair: player->toAttack()){
 
-            for(auto i = 0; i < territory->getNeighbours().size(); i++) { //for each neighbor of a territory
+            if(territoryPair.second == "advance"){
+                player->issueOrder(new Advance());
+            }
+            else if(territoryPair.second == "bomb"){
+                player->issueOrder(new Bomb());
+            }
+        }
 
-                //players->at(i)->issueOrder()
-                auto neighbor = territory->getNeighbours().begin();
-                std::advance(neighbor,i);
-                if(static_cast<Territory*>(*neighbor)->getOwner() == nullptr)
-                    cout << *neighbor << " is the neighbor of " << territory <<
-                         " and has no owner " << endl;
-                else
-                    cout << *neighbor << " is the neighbor of " << territory <<
-                         " and has owner " << *static_cast<Territory*>(*neighbor)->getOwner()->getPName() << endl;
+        //Issue orders related to defend the player's territories
+        for(auto& territoryPair: player->toDefend()){
+
+            if(territoryPair.second == "airlift"){
+
+                player->issueOrder(new Airlift());
 
             }
+            else if(territoryPair.second == "deploy"){
+
+                player->issueOrder(new Deploy());
+
+            }
+            else if(territoryPair.second == "negotiate"){
+
+                player->issueOrder(new Negotiate());
+
+            }
+
         }
 
     }

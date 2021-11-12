@@ -59,18 +59,25 @@ public:
     friend ostream& operator<<(ostream& out, const Player& pl);
 
     //A function that will return the territories to be defended.
-    std::vector<Territory*> toDefend();
+    std::vector<pair<Territory*,string>> toDefend();
 
     //A function that will return the territories to be attacked.
-    std::vector<Territory*> toAttack();
+    std::vector<pair<Territory*,string>> toAttack();
 
     //Claim ownership of a territory
     void acquireTerritory(Territory* territory);
 
-    //Increases the number of armies in the player's reinforcement pool
+    //Increases the number of armies in the player's reinforcement pool.
     void increasePool(int numOfArmies);
 
+    //Decreases the number of armies in the player's reinforcement pool.
     void decreasePool(int numOfArmies);
+
+    //Check if the player has a specific card type in their hand.
+    int hasCard(int cardType);
+
+    // Returns the first territory with the smallest number of armies
+    Territory* findWeakestTerritory();
 
     //A function that will create an Order object and add it to the list of Orders.
     void issueOrder(Order* order);
