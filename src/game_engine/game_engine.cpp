@@ -16,9 +16,11 @@ using namespace std;
 // One param constructor which initializes all the maps, the current game state, and the mode in which the game
 // start-up commands will be read (from console or file).
 GameEngine::GameEngine(const string &readMode) {
-    // Map and state initializations
+    // Add the Observer and attach the game engine
     log = new LogObserver();
     log->AddSubject(*this);
+
+    // Map and state initializations
     currentState = new string("start");
     stateMap = new std::map<string, vector<string> *>{};
     descriptionMap = new std::map<string, tuple<string, int, string>>{};
