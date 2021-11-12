@@ -399,7 +399,11 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
 
         if (!playerExists) {
             cout << "Adding player " << *commandArgs.at(1) << " to list of players" << endl;
-            players->emplace_back(new Player(*commandArgs.at(1)));
+
+            Player *player = new Player(*commandArgs.at(1));
+            players->emplace_back(player);
+            this->log->AddSubject(*player->getOrdersList());
+
             transition(transitionState);
         }
     }
