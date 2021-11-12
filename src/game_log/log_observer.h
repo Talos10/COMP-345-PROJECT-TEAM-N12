@@ -44,7 +44,7 @@ public:
     void writeLog(const string& text);
 
     // Get all subjects associated to the log obserber
-    list<Subject*>* getAllSubjects();
+    list<Subject*>* getAllSubjects() const;
 };
 
 static string filename = "gamelog.txt";

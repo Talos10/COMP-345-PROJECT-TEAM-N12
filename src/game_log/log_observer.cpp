@@ -10,8 +10,6 @@ LogObserver::LogObserver() {
     this->_listOfSubjects = new list<Subject*>();
 }
 
-
-
 // Parametrized constructor
 LogObserver::LogObserver(vector<Subject*> *subjectsList) {
     os.open(LOG_DIRECTORY + filename);
@@ -20,6 +18,44 @@ LogObserver::LogObserver(vector<Subject*> *subjectsList) {
     for(Subject* s : *_listOfSubjects) {
         s->Attach(this);
     }
+}
+
+// Copy constructor
+LogObserver::LogObserver(const LogObserver &log) {
+    list<Subject*>::iterator it;
+    for(int i = 0; i < log.getAllSubjects()->size(); i++) {
+        it = log.getAllSubjects()->begin();
+        advance(it,i);
+        Subject* c = new Subject(*(*it));
+        this->_listOfSubjects->emplace_back(c);
+    }
+    this->os.open(LOG_DIRECTORY + filename);
+}
+
+// Assignment operator
+LogObserver& LogObserver::operator=(const LogObserver& logObserver) {
+    if(this != &logObserver){
+        // Delete all cards in left hand side in case there are already members
+        for(int index = 0; index < this->_listOfSubjects->size(); index++) {
+            this->_listOfSubjects->pop_back();
+        }
+        // add all cards from right hand side to left hand side
+        list<Subject*>::iterator it;
+        for (int i = 0 ; i < logObserver.getAllSubjects()->size(); i++) {
+            it = logObserver.getAllSubjects()->begin();
+            advance(it,i);
+            Subject* c = new Subject(*(*it));
+            this->_listOfSubjects->emplace_back(c);
+        }
+    }
+    this->os.open(LOG_DIRECTORY + filename);
+    return *this;
+}
+
+// Output operator
+ostream& operator << (ostream& out, const LogObserver& lo) {
+    out << "The log observer contains " << lo._listOfSubjects->size() << " subjects" << endl;
+    return out;
 }
 
 // Destructor
@@ -55,6 +91,6 @@ void LogObserver::writeLog(const string& text) {
     cout << text << endl;
 }
 
-list<Subject*>* LogObserver::getAllSubjects() {
+list<Subject*>* LogObserver::getAllSubjects() const {
     return this->_listOfSubjects;
 }
