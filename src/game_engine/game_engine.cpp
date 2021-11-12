@@ -445,7 +445,7 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
                 }
 
                 // Iterator points to the next player to be assigned a territory
-                territory->setOwner(*iterator);
+                static_cast<Player*>(*iterator)->acquireTerritory(territory);
                 cout << "Territory " << territory->getId() << " (" << territory->getName() << ") is owned by player " << *static_cast<Player>(**iterator).getPName() << endl;
 
                 // Point iterator to next player
@@ -476,7 +476,7 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
     }
     cout << "\nThis is the state after the action: " << *currentState << endl;
 // TODO: enable call to main game loop
-//    mainGameLoop();
+    mainGameLoop();
 }
 
 // A function which will allow the issuing of an order using the orders_list class.
@@ -572,59 +572,24 @@ void game_engine_driver(const string &cmdArg) {
 }
 
 void GameEngine::mainGameLoop(){
-    //TODO remove this part once Donya finishes part 2
-    gameMap = MapLoader::load("canada-map.txt");
     bool gameOver = false;
-    players->emplace_back(new Player("obama"));
-    players->emplace_back(new Player("talos"));
-    cout << "\nAssigning an arbitrary territory to the players:\n" << endl;
-    for(auto i = 1; i <= 3; i ++){
 
-        for(auto j = 0; j < gameMap->getContinentByID(i)->getTerritories().size(); j++){
-
-            players->at(0)->acquireTerritory(gameMap->getContinentByID(i)->getTerritories().at(j));
-
-        }
-    }
-
-    for(auto i = 4; i <= 6; i ++){
-
-        for(auto j = 0; j < gameMap->getContinentByID(i)->getTerritories().size(); j++){
-
-            players->at(1)->acquireTerritory(gameMap->getContinentByID(i)->getTerritories().at(j));
-
-        }
-    }
-
-    cout << "Total number of territories: " << gameMap->getContinentByID(1)->getTerritories().size() + gameMap->getContinentByID(2)->getTerritories().size() + gameMap->getContinentByID(3)->getTerritories().size() + gameMap->getContinentByID(4)->getTerritories().size() + gameMap->getContinentByID(5)->getTerritories().size() + gameMap->getContinentByID(6)->getTerritories().size() << endl;
-
-    cout << "P1 nbrs of terr: " << players->at(0)->getTerritories()->size() << endl;
-
-    cout << "P2 nbrs of terr: " << players->at(1)->getTerritories()->size() << endl;
-
-    //players->at(0)->acquireTerritory(gameMap->getTerritoryByID(1)); //Continent 1 Territory 1
-    //players->at(1)->acquireTerritory(gameMap->getTerritoryByID(8));//Continent 3 Territory 12
-    //cout << gameMap->getTerritoryByID(1) << " with a numArmies of " << gameMap->getTerritoryByID(1)->getNumberOfArmies() << endl;
-    //end TODO
-
-
-    //Check if a player owns at least 1 territory, remove this player if the player does not own any territory
-    for(auto i = 0; i < players->size(); i++){
-        if(players->at(i)->getTerritories()->empty()){
-            cout << "Player "<< *players->at(i)->getPName() << " has no territories left. Player is therefore eliminated." << endl;
-            players->erase(players->begin() + i);
-        }
-    }
 
     while(!gameOver){
+
+        //Check if a player owns at least 1 territory, remove this player if the player does not own any territory
+        for(auto i = 0; i < players->size(); i++){
+            if(players->at(i)->getTerritories()->empty()){
+                cout << "Player "<< *players->at(i)->getPName() << " has no territories left. Player is therefore eliminated." << endl;
+                players->erase(players->begin() + i);
+            }
+        }
 
         reinforcementPhase();
 
         //issueOrdersPhase();
 
         //executeOrdersPhase();
-
-        cout << "Deck: " << *deck << endl;
 
         gameOver = checkForWin();
 
