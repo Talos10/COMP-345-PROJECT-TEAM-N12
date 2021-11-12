@@ -229,7 +229,7 @@ void Advance::execute() {
 
             //All enemies dead and you still have attacking armies
             if (attackingArmies > 0 && defendingArmies == 0) {
-                targetTerritory->setOwner(this->getIssuingPlayer());
+                this->getIssuingPlayer()->acquireTerritory(targetTerritory);
                 targetTerritory->setNumberOfArmies(attackingArmies);
                 this->getIssuingPlayer()->setConqueredTerritoryInTurn(true);
                 this->setEffect("Target territory successfully captured!");

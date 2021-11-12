@@ -1,5 +1,6 @@
 #include "player.h"
 
+
 using namespace std;
 
 // The implementation file of the Player class.
@@ -69,7 +70,7 @@ ostream& operator<<(ostream& out, const Player &pl)
         out << territory << endl;
     }
 
-    out << "\nHand: \n" << *pl.getHand() << "\nOrdersList: \n" << *pl.getOrders();
+    out << "\nHand: \n" << *pl.getHand() << "\nOrdersList: \n" << *pl.getOrdersList();
     return out;
 }
 
@@ -144,12 +145,12 @@ void Player::setHand(const Hand &hand) {
 }
 
 // Getter for the orders list.
-OrdersList* Player:: getOrders() const {
+OrdersList* Player:: getOrdersList() const {
     return ordersList;
 }
 
 // Setter for the orders list.
-void Player::setOrders(const OrdersList &ordersList) {
+void Player::setOrdersList(const OrdersList &ordersList) {
     delete this->ordersList;
     this->ordersList = new OrdersList(ordersList);
 }
@@ -173,34 +174,47 @@ int* Player::getReinforcementPool() const {
 //A function which will go through the collection of territories the player owns and
 //check if that territory has the attribute "defend". If it does, it is added to a temporary
 //list which is then returned. This list will contain all the territories to be defended.
-vector<pair<Territory*,string>> Player:: toAttack(){
+vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
 
     //vector of territories with an action giving a reason why that territory was added to the list
-    std::vector<pair<Territory*,string>> territories2Attack;
+    std::vector<tuple<Territory*,Territory*,string>> territories2Attack;
+
+    // Copy of the player's hand to keep track of which cards are going to be played
+    std::map<int,int> tempHand;
+    tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
+
+    //Counts the number of cards for each type
+    for(Card *card: *hand->getHandsCards()){
+        tempHand[*card->getType()] += 1;
+    }
 
     for(auto & territory : *territories){
 
-        for(auto i = 0; i < territory->getNeighbours().size(); i++) { //for each neighbor of a territory
-
-            auto neighbor = territory->getNeighbours().begin();
-            std::advance(neighbor,i);
+        for(Territory* neighbor: territory->getNeighbours()) { //for each neighbor of a territory
 
             //check if the neighbor has an owner
-            if(static_cast<Territory*>(*neighbor)->getOwner() != nullptr){
+            if(neighbor->getOwner() != nullptr){
 
                 //check if the neighbor is owned by a different player
-                if(static_cast<Territory*>(*neighbor)->getOwner() != territory->getOwner()){
+                if(neighbor->getOwner() != territory->getOwner()){
+
+                    cout << "!! ATTACK !! Current territory: " << territory->getName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
 
                     //75% chance to happen
-                    if((rand() % 100 < 75) && static_cast<Territory*>(*neighbor)->getNumberOfArmies() < territory->getNumberOfArmies()){
+                    if((rand() % 100 < 75) && neighbor->getNumberOfArmies() < territory->getNumberOfArmies() && neighbor->getNumberOfArmies() > 0 && territory->getNumberOfArmies() > 0){
 
-                        territories2Attack.emplace_back(static_cast<Territory*>(*neighbor),"advance");
+                        cout << "doing advance order" << endl;
+
+                        territories2Attack.emplace_back(territory,neighbor,"advance");
 
                     }
                     //check if the hostile neighbor has a greater number of armies and if the player has a bomb card, 75% chance to play the card
-                    else if((rand() % 100 < 75) && this->hasCard(0) && static_cast<Territory*>(*neighbor)->getNumberOfArmies() > territory->getNumberOfArmies()){
+                    else if((rand() % 100 < 75) && tempHand[0] > 0 && neighbor->getNumberOfArmies() > territory->getNumberOfArmies()){
 
-                        territories2Attack.emplace_back(static_cast<Territory*>(*neighbor),"bomb");
+                        cout << "doing bomb order" << endl;
+
+                        territories2Attack.emplace_back(territory,neighbor,"bomb");
+                        tempHand[0]--;
 
                     }
                 }
@@ -211,6 +225,8 @@ vector<pair<Territory*,string>> Player:: toAttack(){
 
     }
 
+    cout << "in toAttack, list: " << territories2Attack.size() << endl;
+
     return territories2Attack;
 
 }
@@ -218,52 +234,64 @@ vector<pair<Territory*,string>> Player:: toAttack(){
 //A function which will go through the collection of territories the player owns and
 //check if that territory has the attribute "attack". If it does, it is added to a temporary
 //list which is then returned. This list will contain all the territories to be attacked.
-vector<pair<Territory*,string>> Player::toDefend() {
+vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
 
-    std::vector<pair<Territory*,string>> territories2Defend;
+    std::vector<tuple<Territory*,Territory*,string>> territories2Defend;
     bool airliftCardPlayed = false;
     bool diplomacyCardPlayed = false;
+
+    // Copy of the player's hand to keep track of which cards are going to be played
+    std::map<int,int> tempHand;
+    tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
+
+    //Counts the number of cards for each type
+    for(Card *card: *hand->getHandsCards()){
+        tempHand[*card->getType()] += 1;
+    }
+
 
     //for each territory
     for(auto & territory : *territories){
 
         //15% chance to happen
-        if((rand() % 100 < 15) && !airliftCardPlayed && territory->getNumberOfArmies() > 7){
-            territories2Defend.emplace_back(findWeakestTerritory(), "airlift");
+        if((rand() % 100 < 15) && !airliftCardPlayed && territory->getNumberOfArmies() >= 7){
+            territories2Defend.emplace_back(territory, findWeakestTerritory(), "airlift");
+            cout << "doing airlift" << endl;
             //doing this so the source territory is not touched by the player if another action was to occur on that territory
             //(I want to have that territory with the same 7+ armies that it had before). And also to prevent the player of doing this action too often
             airliftCardPlayed = true;
         }else{
             //for each neighbor of a territory
-            for(auto i = 0; i < territory->getNeighbours().size(); i++) {
-
-                auto neighbor = territory->getNeighbours().begin();
-                std::advance(neighbor,i);
+            for(Territory* neighbor: territory->getNeighbours()) {
 
                 //check if the neighbor has an owner
-                if(static_cast<Territory*>(*neighbor)->getOwner() != nullptr){
+                if(neighbor->getOwner() != nullptr){
 
                     //check if the neighbor is owned by the same player
-                    if(static_cast<Territory*>(*neighbor)->getOwner() == territory->getOwner()){
+                    if(neighbor->getOwner() == territory->getOwner()){
 
-                        //25% chance to happen
-                        if((rand() % 100 < 25) && territory->getNumberOfArmies() > static_cast<Territory*>(*neighbor)->getNumberOfArmies()){
+                        cout << "!! DEFEND !! Current territory: " << territory->getName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
 
-                            territories2Defend.emplace_back(static_cast<Territory*>(*neighbor),"deploy");
-                            break;
-
+                        if(territory->getNumberOfArmies() > neighbor->getNumberOfArmies()){
+                            territories2Defend.emplace_back(territory, neighbor,"deploy");
+                            cout << "doing deploy1" << endl;
+                        }
+                        else if((rand() % 100 < 50)){
+                            territories2Defend.emplace_back(territory, neighbor,"deploy");
+                            cout << "doing deploy2" << endl;
                         }
 
                     }
                     //Territory is owned by another player
                     else{
                         //check if there is a hostile territory with 2x or more the number of armies and will play the diplomacy card if this is the case
-                        if(!diplomacyCardPlayed && this->hasCard(4) && static_cast<Territory*>(*neighbor)-> getNumberOfArmies() >= 2*territory->getNumberOfArmies()){
+                        if(!diplomacyCardPlayed && tempHand[4] > 0 && neighbor-> getNumberOfArmies() >= 2*territory->getNumberOfArmies()){
 
-                            territories2Defend.emplace_back(territory,"negotiate");
-
+                            territories2Defend.emplace_back(territory, neighbor,"negotiate");
                             //to prevent the player from doing diplomacy too often
                             diplomacyCardPlayed = true;
+                            tempHand[4]--;
+                            cout << "doing negotiate" << endl;
                         }
                     }
 
@@ -272,9 +300,10 @@ vector<pair<Territory*,string>> Player::toDefend() {
             }
         }
 
-        if((rand() % 100 < 5) && this->hasCard(2)){
-            territories2Defend.emplace_back(territory,"blockade");
-        }
+//        if((rand() % 100 < 5) && tempHand[2] > 0){
+//            territories2Defend.emplace_back(territory, territory, "blockade");
+//            tempHand[2]--;
+//        }
 
     }
 
@@ -385,14 +414,14 @@ void player_driver(const string &filename) {
     //Output territories to attack
     cout << "\nTerritories to attack:" << endl;
     for(auto i = 0; i < player1->toAttack().size(); i++){
-        cout << "\n" << player1->toAttack().at(i).first;
+        cout << "\n" << get<0>(player1->toAttack().at(i));
     }
     cout << endl;
 
     //Output territories to defend
     cout << "\nTerritories to defend:" << endl;
     for(auto i = 0; i < player1->toDefend().size(); i++){
-        cout << "\n" << player1->toDefend().at(i).first;
+        cout << "\n" << get<0>(player1->toDefend().at(i));
     }
     cout << "\n" << endl;
 
@@ -400,13 +429,13 @@ void player_driver(const string &filename) {
     player1->issueOrder(new Deploy());
 
     //Output the list of orders
-    cout << "Issued orders: \n" << *player1->getOrders() << endl;
+    cout << "Issued orders: \n" << *player1->getOrdersList() << endl;
 
     //Issue an additional order
     player1->issueOrder(new Advance());
 
     //Output the list of orders with the 2 orders
-    cout << "Issued orders after adding a 2nd order: \n" << *player1->getOrders() << endl;
+    cout << "Issued orders after adding a 2nd order: \n" << *player1->getOrdersList() << endl;
 
     //Testing copy constructor
     Player* player2 = new Player(*player1);

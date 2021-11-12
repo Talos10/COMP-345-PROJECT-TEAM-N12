@@ -10,6 +10,8 @@
 #include "cards/cards.h"
 #include "orders/orders.h"
 #include "map/map.h"
+#include <algorithm>
+#include <map>
 
 
 using namespace std;
@@ -67,10 +69,10 @@ public:
     friend ostream& operator<<(ostream& out, const Player& pl);
 
     //A function that will return the territories to be defended.
-    std::vector<pair<Territory*,string>> toDefend();
+    vector<tuple<Territory*,Territory*,string>> toDefend();
 
     //A function that will return the territories to be attacked.
-    std::vector<pair<Territory*,string>> toAttack();
+    vector<tuple<Territory*,Territory*,string>> toAttack();
 
     //Claim ownership of a territory
     void acquireTerritory(Territory* territory);
@@ -106,10 +108,10 @@ public:
     void setHand(const Hand &hand);
 
     // Getter for the orders list.
-    [[nodiscard]] OrdersList* getOrders() const;
+    [[nodiscard]] OrdersList* getOrdersList() const;
 
     // Setter for the orders list.
-    void setOrders(const OrdersList &ordersList);
+    void setOrdersList(const OrdersList &ordersList);
 
     // A function used in the assignment operator definition which swaps the member data
     // between two Player objects.

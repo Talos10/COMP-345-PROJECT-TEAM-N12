@@ -587,13 +587,22 @@ void GameEngine::mainGameLoop(){
 
         reinforcementPhase();
 
-        //issueOrdersPhase();
+        issueOrdersPhase();
 
-        //executeOrdersPhase();
+        executeOrdersPhase();
 
         gameOver = checkForWin();
 
-        break;
+        for(Player* player: *players){
+
+            player->clearPlayerFriends();
+
+            if(player->hasConqueredTerritoryInTurn()){
+                deck->draw(*player->getHand());
+                player->setConqueredTerritoryInTurn(false);
+            }
+
+        }
 
     }
 
@@ -617,36 +626,69 @@ void GameEngine::issueOrdersPhase(){
 
     for(auto & player : *players){ //for each player
 
-        //Issue the orders related to attack other territories
-        for(auto& territoryPair: player->toAttack()){
+        //Issue orders related to defend the player's territories
 
-            if(territoryPair.second == "advance"){
-                player->issueOrder(new Advance());
-            }
-            else if(territoryPair.second == "bomb"){
-                player->issueOrder(new Bomb());
+        cout << "Size of toDefend: " << player->toDefend().size() << endl;
+
+        vector<tuple<Territory*,Territory*,string>> territoriesToDefend = player->toDefend();
+        int numOfDeploys = 0;
+        for(auto& territoryTuple: territoriesToDefend){
+            if(get<2>(territoryTuple) == "deploy"){
+                numOfDeploys++;
             }
         }
+        int currentDeployIndex = 0;
 
-        //Issue orders related to defend the player's territories
-        for(auto& territoryPair: player->toDefend()){
+        for(auto& territoryTuple: territoriesToDefend){
 
-            if(territoryPair.second == "airlift"){
+            if(get<2>(territoryTuple) == "airlift"){
 
-                player->issueOrder(new Airlift());
-
-            }
-            else if(territoryPair.second == "deploy"){
-
-                player->issueOrder(new Deploy());
+                player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, new Airlift(*player,*get<0>(territoryTuple),*get<1>(territoryTuple), get<0>(territoryTuple)->getNumberOfArmies()/3));
 
             }
-            else if(territoryPair.second == "negotiate"){
+            else if(get<2>(territoryTuple) == "deploy"){
 
-                player->issueOrder(new Negotiate());
+                int reinforcementPool = *player->getReinforcementPool();
+                currentDeployIndex++;
+
+                if(reinforcementPool < 5){
+                    cout << "&&&&&&&&&&reinforcementPool < 5" << endl;
+                    player->issueOrder(new Deploy(*player, *get<0>(territoryTuple), reinforcementPool));
+                    player->decreasePool(reinforcementPool);
+                }
+                else if(numOfDeploys == currentDeployIndex){
+                    cout << "&&&&&&&&&&last deploy" << endl;
+                    player->issueOrder(new Deploy(*player, *get<0>(territoryTuple), reinforcementPool));
+                    player->decreasePool(reinforcementPool);
+                }
+                else{
+                    cout << "&&&&&&&&&&else deploy" << endl;
+                    player->issueOrder(new Deploy(*player, *get<0>(territoryTuple), reinforcementPool/3));
+                    cout << "did issue order" << endl;
+                    player->decreasePool(reinforcementPool/3);
+                }
+
+            }
+            else if(get<2>(territoryTuple) == "negotiate"){
+
+                player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, new Negotiate(*player,*get<1>(territoryTuple)->getOwner()));
 
             }
 
+        }
+
+        //Issue the orders related to attack other territories
+        cout << "Size of toAttack: " << player->toAttack().size() << endl;
+        for(auto& territoryTuple: player->toAttack()){
+
+            cout << "inside" << endl;
+
+            if(get<2>(territoryTuple) == "advance"){
+                player->issueOrder(new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()+1));
+            }
+            else if(get<2>(territoryTuple) == "bomb"){
+                player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, new Bomb(*player,*get<1>(territoryTuple)));
+            }
         }
 
     }
@@ -657,10 +699,25 @@ void GameEngine::executeOrdersPhase(){
 
     cout << "\nExecuting Orders Phase ...\n" << endl;
 
+    cout << "Size orders list: " << players->at(0)->getOrdersList()->getOrders()->size() << " ******************************************" << endl;
+
     for(auto & player : *players){
 
-        //TODO execute the orders from the ordersList for each player
+        //execute deploy orders first
+        for(int i = 0; i < player->getOrdersList()->getOrders()->size(); i++){
+            if (player->getOrdersList()->getOrders()->at(i)->getDescription()->find("deploy") != std::string::npos) {
+                player->getOrdersList()->getOrders()->at(i)->execute();
+                delete player->getOrdersList()->getOrders()->at(i);
+                player->getOrdersList()->getOrders()->erase(player->getOrdersList()->getOrders()->begin()+i);
+            }
+        }
 
+        //execute the other orders after
+        for(int i = 0; i < player->getOrdersList()->getOrders()->size(); i++){
+            player->getOrdersList()->getOrders()->at(i)->execute();
+            delete player->getOrdersList()->getOrders()->at(i);
+            player->getOrdersList()->getOrders()->erase(player->getOrdersList()->getOrders()->begin()+i);
+        }
     }
 
 }

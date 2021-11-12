@@ -62,40 +62,7 @@ void Card::setType(const Type& card_type) {
 // This function creates an order of the current card and adds it to a list of orders which is a parameter passed by reference.
 // Then, it removes the card that was played from the hand which is a parameter passed by reference
 // Finally, it adds the same card to the deck
-void Card::play(Deck& deck, Player& player) {
-    // Create an order, set the effect and the description, and push it in a list of orders
-    string effect = "";
-    string description = "This card has the type: ";
-    switch (*this->getType()) {
-        case 0:
-            description += "bomb";
-            effect = "bomb";
-            break;
-        case 1:
-            description += "reinforcement";
-            effect = "reinforcement";
-            break;
-        case 2:
-            description += "blockade";
-            effect = "blockade";
-            break;
-        case 3:
-            description += "airlift";
-            effect = "airlift";
-            break;
-        case 4:
-            description += "diplomacy";
-            effect = "diplomacy";
-            break;
-    }
-    // Create an order with a description and an effect chosen by the card type
-    Order *order = new Deploy();
-    order->setDescription(description);
-    order->setEffect(effect);
-
-    // Put the created order in the list of orders
-    player.issueOrder(order);
-
+void Card::play(Deck& deck, Player& player, Order* order) {
 
     // Create references for the content of the hand cards and the content of the card being played
     vector<Card*>* hand_cards = player.getHand()->getHandsCards();
@@ -106,6 +73,8 @@ void Card::play(Deck& deck, Player& player) {
 
     // If the card is found, delete the reference to the hand card, and add the reference to the deck
     if(it != hand_cards->end()){
+        // Put the created order in the list of orders
+        player.issueOrder(order);
         hand_cards->erase(it);
         deck.getWarzoneCards()->insert(deck.getWarzoneCards()->begin(), card_address);
     }
@@ -309,13 +278,17 @@ void card_driver() {
     cout << deck << endl;
     cout << *player.getHand() << endl;
 
+    Deploy* order = new Deploy();
+
     // Play all the cards in the hand
     while (!player.getHand()->getHandsCards()->empty()) {
-        player.getHand()->getHandsCards()->at(0)->play(deck, player);
+        player.getHand()->getHandsCards()->at(0)->play(deck, player, order);
     }
 
     // Print the deck, the hand and the orders
     cout << deck << endl;
     cout << *player.getHand() << endl;
-    cout << *player.getOrders() << endl;
+    cout << *player.getOrdersList() << endl;
+
+    delete order;
 }
