@@ -613,6 +613,7 @@ void GameEngine::reinforcementPhase(){
 
 void GameEngine::issueOrdersPhase(){
 
+    cout << "\nStarting Issuing Phase ...\n" << endl;
 
     for(auto & player : *players){ //for each player
 
