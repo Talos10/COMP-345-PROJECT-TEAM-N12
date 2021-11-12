@@ -71,9 +71,6 @@ public:
 
     //Defining the assignment operator
     Order& operator=(const Order& order);
-
-    // Override class from ILoggable
-    virtual string stringToLog() const override;
 };
 
 // This class implements a Deploy order.
