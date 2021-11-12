@@ -616,6 +616,8 @@ void GameEngine::reinforcementPhase(){
 
         player->increasePool(static_cast<int>(floor(static_cast<float>(player->getTerritories()->size())/3.0)));
 
+        cout << "current reinforcementPool for "<< *player->getPName() << " = " << *player->getReinforcementPool() << endl;
+
     }
 
 }
@@ -637,9 +639,13 @@ void GameEngine::issueOrdersPhase(){
                 numOfDeploys++;
             }
         }
+
+        cout << "numOfDeploys: " << numOfDeploys << endl;
         int currentDeployIndex = 0;
 
         for(auto& territoryTuple: territoriesToDefend){
+
+            cout << "issuing orders for defend" << endl;
 
             if(get<2>(territoryTuple) == "airlift"){
 
@@ -651,22 +657,10 @@ void GameEngine::issueOrdersPhase(){
                 int reinforcementPool = *player->getReinforcementPool();
                 currentDeployIndex++;
 
-                if(reinforcementPool < 5){
-                    cout << "&&&&&&&&&&reinforcementPool < 5" << endl;
-                    player->issueOrder(new Deploy(*player, *get<0>(territoryTuple), reinforcementPool));
-                    player->decreasePool(reinforcementPool);
-                }
-                else if(numOfDeploys == currentDeployIndex){
-                    cout << "&&&&&&&&&&last deploy" << endl;
-                    player->issueOrder(new Deploy(*player, *get<0>(territoryTuple), reinforcementPool));
-                    player->decreasePool(reinforcementPool);
-                }
-                else{
-                    cout << "&&&&&&&&&&else deploy" << endl;
-                    player->issueOrder(new Deploy(*player, *get<0>(territoryTuple), reinforcementPool/3));
-                    cout << "did issue order" << endl;
-                    player->decreasePool(reinforcementPool/3);
-                }
+                cout << "&&&&&&&&&&else deploy" << endl;
+                player->issueOrder(new Deploy(*player, *get<0>(territoryTuple), reinforcementPool/numOfDeploys));
+                cout << "did issue order" << endl;
+                player->decreasePool(reinforcementPool/numOfDeploys);
 
             }
             else if(get<2>(territoryTuple) == "negotiate"){
@@ -681,7 +675,7 @@ void GameEngine::issueOrdersPhase(){
         cout << "Size of toAttack: " << player->toAttack().size() << endl;
         for(auto& territoryTuple: player->toAttack()){
 
-            cout << "inside" << endl;
+            cout << "issuing orders for attack" << endl;
 
             if(get<2>(territoryTuple) == "advance"){
                 player->issueOrder(new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()+1));
