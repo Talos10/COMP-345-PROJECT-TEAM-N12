@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <string>
 
-#define MAPS_DIR "../maps/"
 using std::cout, std::endl, std::cerr;
 using std::ifstream;
 using std::find;

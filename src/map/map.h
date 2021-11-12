@@ -9,6 +9,8 @@
 #include <iostream>
 #include "player/player.h"
 
+#define MAPS_DIR "../maps/"
+
 using std::list;
 using std::string;
 using std::vector;
@@ -73,6 +75,9 @@ public:
     int getX() const;
 
     int getY() const;
+
+    void addNumberArmy(int numOfArmies);
+    void setOwner(Player *owner);
 
     // Copy constructor
     Territory(const Territory& territory);

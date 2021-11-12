@@ -140,7 +140,7 @@ Deploy& Deploy::operator=(const Deploy& deploy_order) {
 //Defining the output operator
 ostream& operator<<(ostream& out, const Deploy& deploy) {
 	out << *deploy.getDescription();
-	return out;
+    return out;
 }
 
 //clone a Deploy order
@@ -572,14 +572,12 @@ void OrdersList::move(int currentIndex, int newIndex) {
 
 //Remove an order in the vector by specifying its respective index
 void OrdersList::remove(const int orderIndex) {
-    if (this->orders->size() == 0) {
+    if (this->orders->empty()) {
         cout << "Cannot remove an order because there are no orders in the OrdersList!" << endl;
-    }
-    else if (orderIndex >= 0 && orderIndex < this->orders->size()) {
+    } else if (orderIndex >= 0 && orderIndex < this->orders->size()) {
         delete this->orders->at(orderIndex);    //free memory
         this->orders->erase(this->orders->begin() + orderIndex);    //deletes pointer from vector
-    }
-    else {
+    } else {
         cout << "Invalid order position" << endl;
     }
 }
