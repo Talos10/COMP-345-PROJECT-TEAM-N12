@@ -93,7 +93,7 @@ void Command::saveEffect(const string &newEffect, bool isCommandValid) {
 }
 
 string Command::stringToLog() const {
-    string message = "The command '" + string(*commandName) +"' has been saved with the following effect: " + string(*commandEffect);
+    string message = "The command '" + string(*commandName) +"' has the following effect: " + string(*commandEffect);
     return message;
 }
 
@@ -204,7 +204,7 @@ CommandProcessor &CommandProcessor::operator=(CommandProcessor cmdProcessor) {
 
 // Method which reads a command, saves it in a Command object, and then returns that object by calling the readCommand
 // and saveCommand methods.
-Command *CommandProcessor::getCommand(const GameEngine &ge) {
+Command *CommandProcessor::getCommand(const GameEngine &ge, LogObserver& log) {
     string *cmd = readCommand();
 
     if (cmd == nullptr) {
@@ -213,6 +213,7 @@ Command *CommandProcessor::getCommand(const GameEngine &ge) {
     }
 
     Command *command = saveCommand(*cmd);
+    log.AddSubject(*command);
 
     delete cmd;
     return command;
@@ -308,7 +309,7 @@ tuple<bool, string, string> CommandProcessor::validate(const GameEngine &ge, con
 string CommandProcessor::stringToLog() const {
     deque<Command*>::iterator it = commandList->end() - 1;
     string& name = *(*it)->getCommandName();
-    string message = "A new command \"" + name + "\" has been added to the command processor";
+    string message = "A new COMMAND \"" + name + "\" has been added to the COMMAND PROCESSOR";
     return message;
 }
 

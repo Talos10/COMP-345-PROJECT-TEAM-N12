@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <game_engine/game_engine.h>
+#include <game_log/log_observer.h>
 #include "observer/logging_observer.h"
 
 using namespace std;
@@ -137,7 +138,7 @@ public:
 
     // Method which reads a command, saves it in a Command object, and then returns that object by calling the readCommand
     // and saveCommand methods.
-    [[nodiscard]] Command *getCommand(const GameEngine &ge);
+    [[nodiscard]] Command *getCommand(const GameEngine &ge, LogObserver& log);
 
     // Method which validates the given Command object, given the current state of the game. If the method is valid, then
     // it parses the command in order to extract all the keywords from the command and stores it in the command. The method

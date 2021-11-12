@@ -17,6 +17,8 @@ using namespace std;
 // start-up commands will be read (from console or file).
 GameEngine::GameEngine(const string &readMode) {
     // Map and state initializations
+    log = new LogObserver();
+    log->AddSubject(*this);
     currentState = new string("start");
     stateMap = new std::map<string, vector<string> *>{};
     descriptionMap = new std::map<string, tuple<string, int, string>>{};
@@ -29,10 +31,12 @@ GameEngine::GameEngine(const string &readMode) {
     if (*commandReadMode == "-console") {
         cout << "Taking commands from console!" << endl;
         commandProcessor = new CommandProcessor();
+        log->AddSubject(*commandProcessor);
     } else {
         cout << "Taking commands from file!" << endl;
         commandProcessor = new FileCommandProcessorAdapter(
                 readMode.substr(readMode.find(' ') + 1, readMode.size() + 1));
+        log->AddSubject(*commandProcessor);
     }
 
     // Creating the vectors. One vector for each state where a vector contains
@@ -282,7 +286,7 @@ void GameEngine::start() {
         //TODO Change logic here so that commands are retrieved automatically only in two cases: non-stop, but only until
         // 1. From the start state until the arriving in the assignreinforcement state
         // 2. From the win state until either exiting OR until arriving in the assignreinforcement state again
-        command = commandProcessor->getCommand(*this);
+        command = commandProcessor->getCommand(*this, *this->log);
         if (command == nullptr) {
             cout << "\nReached end of the file. Exiting..." << endl;
             break;

@@ -1,15 +1,19 @@
-A DEPLOY order has been placed
-An AIRLIFT order has been placed
-An ADVANCE order has been placed
-A BLOCKADE order has been placed
-A BOMB order has been placed
-A NEGOTIATE order has been placed
-An Order has been added to an OrdersList with an effect of Deploy effect. Deploy Order
-An Order has been added to an OrdersList with an effect of Airlift effect. Airlift Order
-An Order has been added to an OrdersList with an effect of Advance effect. Advance Order
-An Order has been added to an OrdersList with an effect of Blockade effect. Blockade Order
-An Order has been added to an OrdersList with an effect of Bomb effect. Bomb Order
-An Order has been added to an OrdersList with an effect of Negotiate effect. Negotiate Order
-The state of the game engine has been changed, it is now at: bro
-A new command "replay" has been added to the command processor
-The command 'gameStart' has been saved with the following effect: bro
+A new COMMAND "loadmap canada-map.txt" has been added to the COMMAND PROCESSOR
+The command 'loadmap canada-map.txt' has the following effect: Loading map from file with the following name: canada-map.txt
+The state of the game engine has been changed, it is now at: maploaded
+A new COMMAND "validatemap" has been added to the COMMAND PROCESSOR
+The command 'validatemap' has the following effect: Validating the map.
+The state of the game engine has been changed, it is now at: mapvalidated
+A new COMMAND "addplayer talos" has been added to the COMMAND PROCESSOR
+The command 'addplayer talos' has the following effect: Adding a player with the following name: talos
+The state of the game engine has been changed, it is now at: playersadded
+A new COMMAND "addplayer obama" has been added to the COMMAND PROCESSOR
+The command 'addplayer obama' has the following effect: Adding a player with the following name: obama
+The state of the game engine has been changed, it is now at: playersadded
+A new COMMAND "gamestart" has been added to the COMMAND PROCESSOR
+The command 'gamestart' has the following effect: Assigning the countries and starting the game.
+The state of the game engine has been changed, it is now at: assignreinforcement
+A new COMMAND "replay" has been added to the COMMAND PROCESSOR
+The command 'replay' has the following effect: The command replay does not exist in the current state "assignreinforcement".
+A new COMMAND "quit" has been added to the COMMAND PROCESSOR
+The command 'quit' has the following effect: The command quit does not exist in the current state "assignreinforcement".

@@ -8,6 +8,7 @@
 #include "player/player.h"
 #include "map/map.h"
 #include "observer/logging_observer.h"
+#include "game_log/log_observer.h"
 
 using namespace std;
 
@@ -19,6 +20,9 @@ class GameEngine : public Subject, public ILoggable {
     typedef void (GameEngine::*Game_Engine_Mem_Fn)(const string &transitionState, const vector<string *> &commandArgs);
 
 private:
+    // An observer
+    LogObserver* log;
+
     // A string which holds the current state in which the game is (e.g. players added or issue orders).
     string *currentState;
 
