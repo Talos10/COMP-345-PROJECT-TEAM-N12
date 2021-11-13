@@ -615,9 +615,6 @@ void GameEngine::reinforcementPhase(){
     for(auto & player : *players){
 
         player->increasePool(static_cast<int>(floor(static_cast<float>(player->getTerritories()->size())/3.0)));
-
-        cout << "current reinforcementPool for "<< *player->getPName() << " = " << *player->getReinforcementPool() << endl;
-
     }
 
 }
@@ -630,8 +627,6 @@ void GameEngine::issueOrdersPhase(){
 
         //Issue orders related to defend the player's territories
 
-        cout << "Size of toDefend: " << player->toDefend().size() << endl;
-
         vector<tuple<Territory*,Territory*,string>> territoriesToDefend = player->toDefend();
         int numOfDeploys = 0;
         for(auto& territoryTuple: territoriesToDefend){
@@ -640,7 +635,6 @@ void GameEngine::issueOrdersPhase(){
             }
         }
 
-        cout << "numOfDeploys: " << numOfDeploys << endl;
         int currentDeployIndex = 0;
 
         for(auto& territoryTuple: territoriesToDefend){
@@ -649,10 +643,7 @@ void GameEngine::issueOrdersPhase(){
 
             if(get<2>(territoryTuple) == "airlift"){
 
-                cout << "about to do airlift" << endl;
-
-                cout << "Player hand: " << *player->getHand() << endl;
-                cout << "Airlift card index: "<< player->hasCard(3) << endl;
+                cout << "issueOrder Airlift" << endl;
                 player->getHand()->getHandsCards()->at(player->hasCard(3))->play(*deck, *player, new Airlift(*player,*get<0>(territoryTuple),*get<1>(territoryTuple), get<0>(territoryTuple)->getNumberOfArmies()/3));
 
             }
@@ -661,18 +652,14 @@ void GameEngine::issueOrdersPhase(){
                 int reinforcementPool = *player->getReinforcementPool();
                 currentDeployIndex++;
 
-                cout << "&&&&&&&&&&else deploy" << endl;
+                cout << "issueOrder Deploy" << endl;
                 player->issueOrder(new Deploy(*player, *get<0>(territoryTuple), reinforcementPool/numOfDeploys));
-                cout << "did issue order" << endl;
                 player->decreasePool(reinforcementPool/numOfDeploys);
 
             }
             else if(get<2>(territoryTuple) == "negotiate"){
 
-                cout << "about to do negotiate" << endl;
-
-                cout << "Player hand: " << *player->getHand() << endl;
-                cout << "Nagotiate card index: "<< player->hasCard(4) << endl;
+                cout << "issueOrder Negotiate" << endl;
                 player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, new Negotiate(*player,*get<1>(territoryTuple)->getOwner()));
 
             }
@@ -680,20 +667,16 @@ void GameEngine::issueOrdersPhase(){
         }
 
         //Issue the orders related to attack other territories
-        cout << "Size of toAttack: " << player->toAttack().size() << endl;
         for(auto& territoryTuple: player->toAttack()){
 
             cout << "issuing orders for attack" << endl;
 
             if(get<2>(territoryTuple) == "advance"){
-                cout << "about to do advance" << endl;
+                cout << "issueOrder advance" << endl;
                 player->issueOrder(new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()+1));
             }
             else if(get<2>(territoryTuple) == "bomb"){
-                cout << "about to do bomb" << endl;
-
-                cout << "Player hand: " << *player->getHand() << endl;
-                cout << "Bomb card index: "<< player->hasCard(0) << endl;
+                cout << "issueOrder bomb" << endl;
                 player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, new Bomb(*player,*get<1>(territoryTuple)));
 
             }
@@ -706,8 +689,6 @@ void GameEngine::issueOrdersPhase(){
 void GameEngine::executeOrdersPhase(){
 
     cout << "\nExecuting Orders Phase ...\n" << endl;
-
-    cout << "Size orders list: " << players->at(0)->getOrdersList()->getOrders()->size() << " ******************************************" << endl;
 
     for(auto & player : *players){
 

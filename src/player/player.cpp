@@ -205,7 +205,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
                     //75% chance to happen
                     if((rand() % 100 < 75) && neighbor->getNumberOfArmies() < territory->getNumberOfArmies() && territory->getNumberOfArmies() > 0){
 
-                        cout << "doing advance order" << endl;
+                        cout << "toAttack() doing advance order" << endl;
 
                         territories2Attack.emplace_back(territory,neighbor,"advance");
 
@@ -213,7 +213,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
                     //check if the hostile neighbor has a greater number of armies and if the player has a bomb card, 75% chance to play the card
                     else if((rand() % 100 < 75) && tempHand[0] > 0 && neighbor->getNumberOfArmies() > territory->getNumberOfArmies()){
 
-                        cout << "doing bomb order" << endl;
+                        cout << "toAttack() doing bomb order" << endl;
 
                         territories2Attack.emplace_back(territory,neighbor,"bomb");
                         tempHand[0]--;
@@ -226,11 +226,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
         }
 
     }
-
-    cout << "in toAttack, list: " << territories2Attack.size() << endl;
-
     return territories2Attack;
-
 }
 
 //A function which will go through the collection of territories the player owns and
@@ -260,7 +256,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
         //15% chance to happen
         if((rand() % 100 < 15) && tempHand[3] > 0 && !airliftCardPlayed && territory->getNumberOfArmies() >= 7){
             territories2Defend.emplace_back(territory, findWeakestTerritory(), "airlift");
-            cout << "doing airlift" << endl;
+            cout << "toDefend() doing airlift" << endl;
             //doing this so the source territory is not touched by the player if another action was to occur on that territory
             //(I want to have that territory with the same 7+ armies that it had before). And also to prevent the player of doing this action too often
             airliftCardPlayed = true;
@@ -279,11 +275,11 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
 
                         if(territory->getNumberOfArmies() > neighbor->getNumberOfArmies()){
                             territories2Defend.emplace_back(territory, neighbor,"deploy");
-                            cout << "doing deploy1" << endl;
+                            cout << "Todefend() doing deploy1" << endl;
                         }
                         else if((rand() % 100 < 50)){
                             territories2Defend.emplace_back(territory, neighbor,"deploy");
-                            cout << "doing deploy2" << endl;
+                            cout << "Todefend() doing deploy2" << endl;
                         }
 
                     }
@@ -296,7 +292,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
                             //to prevent the player from doing diplomacy too often
                             diplomacyCardPlayed = true;
                             tempHand[4]--;
-                            cout << "doing negotiate" << endl;
+                            cout << "ToDefend() doing negotiate" << endl;
                         }
                     }
 

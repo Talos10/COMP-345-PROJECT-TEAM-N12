@@ -201,15 +201,20 @@ void Advance::execute() {
             this->sourceTerritory->removeArmies(this->numArmies);
             this->setEffect("army units are moved from the source to the target territory.");
         }
+        else if (this->sourceTerritory->getNumberOfArmies() == 0 || this->targetTerritory->getNumberOfArmies() == 0) {
+            return;
+        }
         else {
             if (this->getIssuingPlayer()->isPlayerFriend(this->sourceTerritory->getOwner())) {
                 cout << "You cannot attack this player!" << endl;
                 return;
             }
+            cout << "NUMARMIES ATTRIBUTE: " << this->numArmies << endl;
             int attackingArmies = this->numArmies;
             int defendingArmies = targetTerritory->getNumberOfArmies();
             this->sourceTerritory->removeArmies(attackingArmies);
-
+            cout << "------------------ATTACKING ARMIES" << attackingArmies << endl;
+            cout << "------------------DEFENDING ARMIES" << defendingArmies << endl;
             for (int i = 0; i < attackingArmies; i++) {
                 int chanceOfAttack = rand() % 100 + 1;
                 if (chanceOfAttack <= 60) {
