@@ -87,6 +87,14 @@ void Command::saveEffect(const string &newEffect, bool isCommandValid) {
     } else {
         this->commandEffect = new string(newEffect);
     }
+
+    // Calling the string to log function from the Command class
+    Notify(*this);
+}
+
+string Command::stringToLog() const {
+    string message = "The command '" + string(*commandName) +"' has the following effect: " + string(*commandEffect);
+    return message;
 }
 
 // One param constructor which takes in the name of the file to be read.
@@ -196,7 +204,7 @@ CommandProcessor &CommandProcessor::operator=(CommandProcessor cmdProcessor) {
 
 // Method which reads a command, saves it in a Command object, and then returns that object by calling the readCommand
 // and saveCommand methods.
-Command *CommandProcessor::getCommand(const GameEngine &ge) {
+Command *CommandProcessor::getCommand(const GameEngine &ge, LogObserver& log) {
     string *cmd = readCommand();
 
     if (cmd == nullptr) {
@@ -205,6 +213,7 @@ Command *CommandProcessor::getCommand(const GameEngine &ge) {
     }
 
     Command *command = saveCommand(*cmd);
+    log.AddSubject(*command);
 
     delete cmd;
     return command;
@@ -232,6 +241,9 @@ Command *CommandProcessor::saveCommand(const string &command) {
     commandList->push_back(cmd);
 
     cout << "\nAdding new command.\n\n" << *this << endl;
+
+    // Calling the stringLog method of the Command Processor class
+    Notify(*this);
 
     return cmd;
 }
@@ -292,6 +304,13 @@ tuple<bool, string, string> CommandProcessor::validate(const GameEngine &ge, con
     result = "The command " + command + " does not exist in the current state \"" + *ge.getCurrentState() + "\".";
     cout << "\n" << result << endl;
     return make_tuple(false, command, result);
+}
+
+string CommandProcessor::stringToLog() const {
+    deque<Command*>::iterator it = commandList->end() - 1;
+    string& name = *(*it)->getCommandName();
+    string message = "A new COMMAND \"" + name + "\" has been added to the COMMAND PROCESSOR";
+    return message;
 }
 
 // One param constructor which takes in a commandline string argument that corresponds to the name of the file to be read.

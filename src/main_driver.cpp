@@ -1,6 +1,8 @@
 #include <iostream>
 #include "game_engine/game_engine.h"
 #include "player/player.h"
+#include "game_log/log_observer.h"
+#include <fstream>
 
 using namespace std;
 

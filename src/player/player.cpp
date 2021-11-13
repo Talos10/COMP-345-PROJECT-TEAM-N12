@@ -200,6 +200,8 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
                 //check if the neighbor is owned by a different player
                 if(neighbor->getOwner() != territory->getOwner()){
 
+                    cout << neighbor->getOwner()->getPName() << "VS" << territory->getOwner()->getPName() << endl;
+
                     cout << "!! ATTACK !! Current territory: " << territory->getName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
 
                     //75% chance to happen
@@ -254,7 +256,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
     for(auto & territory : *territories){
 
         //15% chance to happen
-        if((rand() % 100 < 15) && tempHand[3] > 0 && !airliftCardPlayed && territory->getNumberOfArmies() >= 7){
+        if((rand() % 100 < 40) && tempHand[3] > 0 && !airliftCardPlayed && territory->getNumberOfArmies() >= 7){
             territories2Defend.emplace_back(territory, findWeakestTerritory(), "airlift");
             cout << "toDefend() doing airlift" << endl;
             //doing this so the source territory is not touched by the player if another action was to occur on that territory
@@ -286,7 +288,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
                     //Territory is owned by another player
                     else{
                         //check if there is a hostile territory with 2x or more the number of armies and will play the diplomacy card if this is the case
-                        if(!diplomacyCardPlayed && tempHand[4] > 0 && neighbor-> getNumberOfArmies() >= 2*territory->getNumberOfArmies()){
+                        if(!diplomacyCardPlayed && tempHand[4] > 0 && neighbor-> getNumberOfArmies() >= 2*territory->getNumberOfArmies() && neighbor->getOwner() != territory->getOwner()){
 
                             territories2Defend.emplace_back(territory, neighbor,"negotiate");
                             //to prevent the player from doing diplomacy too often

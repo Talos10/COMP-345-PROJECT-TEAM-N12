@@ -7,6 +7,7 @@
 #include <chrono>
 #include <algorithm>
 #include <random>
+#include <string>
 
 using namespace std;
 
@@ -15,6 +16,10 @@ using namespace std;
 // One param constructor which initializes all the maps, the current game state, and the mode in which the game
 // start-up commands will be read (from console or file).
 GameEngine::GameEngine(const string &readMode) {
+    // Add the Observer and attach the game engine
+    log = new LogObserver();
+    log->AddSubject(*this);
+
     // Map and state initializations
     currentState = new string("start");
     stateMap = new std::map<string, vector<string> *>{};
@@ -28,10 +33,12 @@ GameEngine::GameEngine(const string &readMode) {
     if (*commandReadMode == "-console") {
         cout << "Taking commands from console!" << endl;
         commandProcessor = new CommandProcessor();
+        log->AddSubject(*commandProcessor);
     } else {
         cout << "Taking commands from file!" << endl;
         commandProcessor = new FileCommandProcessorAdapter(
                 readMode.substr(readMode.find(' ') + 1, readMode.size() + 1));
+        log->AddSubject(*commandProcessor);
     }
 
     // Creating the vectors. One vector for each state where a vector contains
@@ -179,8 +186,9 @@ string *GameEngine::getCurrentState() const {
 }
 
 // Setter for the currentState.
-void GameEngine::setCurrentState(const string &state) {
+void GameEngine::transition(const string &state) {
     this->currentState = new string(state);
+    Notify(*this);
 }
 
 // Getter for the stateMap.
@@ -280,7 +288,7 @@ void GameEngine::start() {
         //TODO Change logic here so that commands are retrieved automatically only in two cases: non-stop, but only until
         // 1. From the start state until the arriving in the assignreinforcement state
         // 2. From the win state until either exiting OR until arriving in the assignreinforcement state again
-        command = commandProcessor->getCommand(*this);
+        command = commandProcessor->getCommand(*this, *this->log);
         if (command == nullptr) {
             cout << "\nReached end of the file. Exiting..." << endl;
             break;
@@ -324,6 +332,7 @@ void GameEngine::loadMap(const string &transitionState, const vector<string *> &
     cout << "\n****************************************\n" << endl;
     cout << "Inside the load map function! You are loading a map from the file: " << *commandArgs.at(1) << endl;
     cout << "\nThis is the state before the action: " << *currentState << endl;
+
     string filename = *commandArgs.at(1);
 
     // Check that file exists
@@ -336,7 +345,7 @@ void GameEngine::loadMap(const string &transitionState, const vector<string *> &
         // File exists, read the map
         try {
             setMap(filename);
-            setCurrentState(transitionState);
+            transition(transitionState);
         } catch (std::runtime_error &exp) {
             // Catch all exceptions defined as runtime errors
             cerr << exp.what() << endl;
@@ -358,7 +367,7 @@ void GameEngine::validateMap(const string &transitionState, const vector<string 
         gameMap->validate();
         cout << "Map is valid!" << endl;
 
-        setCurrentState(transitionState);
+        transition(transitionState);
     } catch (std::runtime_error &exp) {
         // Catch all exceptions defined as runtime errors
         cerr << "Error: Map is not valid!" << endl;
@@ -390,8 +399,12 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
 
         if (!playerExists) {
             cout << "Adding player " << *commandArgs.at(1) << " to list of players" << endl;
-            players->emplace_back(new Player(*commandArgs.at(1)));
-            setCurrentState(transitionState);
+
+            Player *player = new Player(*commandArgs.at(1));
+            players->emplace_back(player);
+            this->log->AddSubject(*player->getOrdersList());
+
+            transition(transitionState);
         }
     }
 
@@ -472,7 +485,7 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
             cout << *player->getHand() << endl;
         }
 
-        setCurrentState(transitionState);
+        transition(transitionState);
     }
     cout << "\nThis is the state after the action: " << *currentState << endl;
 // TODO: enable call to main game loop
@@ -486,7 +499,9 @@ void GameEngine::issueOrder(const string &transitionState, const vector<string *
     cout << "Inside the issue order function! You are issuing an order!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -497,7 +512,9 @@ void GameEngine::issueOrdersEnd(const string &transitionState, const vector<stri
     cout << "Inside the quit issue orders function! You are ending the order issuing phase!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -508,7 +525,9 @@ void GameEngine::execOrder(const string &transitionState, const vector<string *>
     cout << "Inside the execute order function! You are executing an order!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -519,7 +538,9 @@ void GameEngine::endExecOrders(const string &transitionState, const vector<strin
     cout << "Inside the quit execute orders function! You are ending the order execution phase!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -530,7 +551,9 @@ void GameEngine::win(const string &transitionState, const vector<string *> &comm
     cout << "Inside the win function! You won!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -541,7 +564,9 @@ void GameEngine::replay(const string &transitionState, const vector<string *> &c
     cout << "Inside the replay function! You are starting a new game!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+
+    transition(transitionState);
+
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -552,7 +577,7 @@ void GameEngine::quit(const string &transitionState, const vector<string *> &com
     cout << "Thank you for playing Risk! Shutting down game..." << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    setCurrentState(transitionState);
+    transition(transitionState);
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
@@ -644,8 +669,9 @@ void GameEngine::issueOrdersPhase(){
             if(get<2>(territoryTuple) == "airlift"){
 
                 cout << "issueOrder Airlift" << endl;
-                player->getHand()->getHandsCards()->at(player->hasCard(3))->play(*deck, *player, new Airlift(*player,*get<0>(territoryTuple),*get<1>(territoryTuple), get<0>(territoryTuple)->getNumberOfArmies()/3));
-
+                Order* airlift = new Airlift(*player,*get<0>(territoryTuple),*get<1>(territoryTuple), get<0>(territoryTuple)->getNumberOfArmies()/3);
+                player->getHand()->getHandsCards()->at(player->hasCard(3))->play(*deck, *player, airlift);
+                this->log->AddSubject(*airlift);
             }
             else if(get<2>(territoryTuple) == "deploy"){
 
@@ -653,15 +679,18 @@ void GameEngine::issueOrdersPhase(){
                 currentDeployIndex++;
 
                 cout << "issueOrder Deploy" << endl;
-                player->issueOrder(new Deploy(*player, *get<0>(territoryTuple), reinforcementPool/numOfDeploys));
+                Order* deploy = new Deploy(*player, *get<0>(territoryTuple), reinforcementPool/numOfDeploys);
+                player->issueOrder(deploy);
+                this->log->AddSubject(*deploy);
                 player->decreasePool(reinforcementPool/numOfDeploys);
 
             }
             else if(get<2>(territoryTuple) == "negotiate"){
 
                 cout << "issueOrder Negotiate" << endl;
-                player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, new Negotiate(*player,*get<1>(territoryTuple)->getOwner()));
-
+                Order* negotiate = new Negotiate(*player,*get<1>(territoryTuple)->getOwner());
+                player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, negotiate);
+                this->log->AddSubject(*negotiate);
             }
 
         }
@@ -672,13 +701,18 @@ void GameEngine::issueOrdersPhase(){
             cout << "issuing orders for attack" << endl;
 
             if(get<2>(territoryTuple) == "advance"){
+
                 cout << "issueOrder advance" << endl;
-                player->issueOrder(new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()+1));
+
+                Order* advance = new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()+1);
+                player->issueOrder(advance);
+                this->log->AddSubject(*advance);
             }
             else if(get<2>(territoryTuple) == "bomb"){
                 cout << "issueOrder bomb" << endl;
-                player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, new Bomb(*player,*get<1>(territoryTuple)));
-
+                Order* bomb = new Bomb(*player,*get<1>(territoryTuple));
+                player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, bomb);
+                this->log->AddSubject(*bomb);
             }
         }
 
@@ -724,7 +758,7 @@ bool GameEngine:: checkForWin(){
 
 void GameEngine::startupPhase() {
     // Initial state at startup
-    setCurrentState("start");
+    transition("start");
 
     cout << "\nStartup phase\n" << endl;
 
@@ -733,7 +767,7 @@ void GameEngine::startupPhase() {
 
     while (*currentState != "assignreinforcement") {
         // Get next command from command processor
-        nextCommand = commandProcessor->getCommand(*this);
+        nextCommand = commandProcessor->getCommand(*this, *this->log);
 
         // Validate against current state
         commandProcessorResult = commandProcessor->validate(*this, *nextCommand);
@@ -760,4 +794,9 @@ void GameEngine::startupPhase() {
     }
 
 
+}
+
+string GameEngine::stringToLog() const {
+    std::string message =  std::string("The state of the game engine has been changed, it is now at: ") + std::string(*currentState);
+    return message;
 }
