@@ -200,7 +200,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
                 //check if the neighbor is owned by a different player
                 if(neighbor->getOwner() != territory->getOwner()){
 
-                    cout << neighbor->getOwner()->getPName() << "VS" << territory->getOwner()->getPName() << endl;
+                    cout << *neighbor->getOwner()->getPName() << " VS " << *territory->getOwner()->getPName() << endl;
 
                     cout << "!! ATTACK !! Current territory: " << territory->getName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
 
