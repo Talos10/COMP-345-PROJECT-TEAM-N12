@@ -88,7 +88,6 @@ void LogObserver::Update(const ILoggable& log) {
 
 void LogObserver::writeLog(const string& text) {
     os << text << endl;
-    cout << text << endl;
 }
 
 list<Subject*>* LogObserver::getAllSubjects() const {
