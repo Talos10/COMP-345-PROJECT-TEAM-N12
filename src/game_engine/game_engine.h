@@ -192,6 +192,9 @@ public:
     //Function that will check if there is a player that has won the game
     bool checkForWin();
 
+    //Will return the neutral player in the list of players
+    Player* getNeutralPlayer();
+
     // Override class from ILoggable
     string stringToLog() const override;
 };

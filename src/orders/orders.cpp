@@ -204,12 +204,10 @@ void Advance::execute() {
         Notify(*this);
         bool bothTerritoriesBelongToTheIssuingPlayer = this->sourceTerritory->getOwner() == this->getIssuingPlayer() && this->targetTerritory->getOwner() == this->getIssuingPlayer();
         if (bothTerritoriesBelongToTheIssuingPlayer) {
+            cout << "bothTerritoriesBelongToTheIssuingPlayer" << endl;
             this->targetTerritory->addArmies(this->numArmies);
             this->sourceTerritory->removeArmies(this->numArmies);
             this->setEffect("army units are moved from the source to the target territory.");
-        }
-        else if (this->sourceTerritory->getNumberOfArmies() == 0 || this->targetTerritory->getNumberOfArmies() == 0) {
-            return;
         }
         else {
             if (this->getIssuingPlayer()->isPlayerFriend(this->sourceTerritory->getOwner())) {
@@ -220,8 +218,8 @@ void Advance::execute() {
             int attackingArmies = this->numArmies;
             int defendingArmies = targetTerritory->getNumberOfArmies();
             this->sourceTerritory->removeArmies(attackingArmies);
-            cout << "------------------ATTACKING ARMIES" << attackingArmies << endl;
-            cout << "------------------DEFENDING ARMIES" << defendingArmies << endl;
+            cout << "------------------ATTACKING ARMIES" << attackingArmies << " from source " << this->sourceTerritory << endl;
+            cout << "------------------DEFENDING ARMIES" << defendingArmies << "to target " << this->targetTerritory << endl;
             for (int i = 0; i < attackingArmies; i++) {
                 int chanceOfAttack = rand() % 100 + 1;
                 if (chanceOfAttack <= 60) {
@@ -244,6 +242,8 @@ void Advance::execute() {
             cout << "Attacking armies: " << attackingArmies << " | Defending armies: " << defendingArmies << endl;
             //All enemies dead and you still have attacking armies
             if (attackingArmies > 0 && defendingArmies == 0) {
+
+                this->targetTerritory->getOwner()->removeTerritory(*targetTerritory);
                 this->getIssuingPlayer()->acquireTerritory(targetTerritory);
                 targetTerritory->setNumberOfArmies(attackingArmies);
                 this->getIssuingPlayer()->setConqueredTerritoryInTurn(true);
@@ -365,12 +365,14 @@ string Bomb::stringToLog() const {
 //Default constructor
 Blockade::Blockade(): Order("A blockade order targets a territory that belongs to the player issuing the order", "double  the  number of  armies on the territory  and to  transfer the ownership  of  the  territory to the Neutral player.") {
     this->targetTerritory = nullptr;
+    this->neutralPlayer = nullptr;
 }
 
 //Parameterized Constructor
-Blockade::Blockade(Player& issuingPlayer, Territory& targetTerritory): Blockade() {
+Blockade::Blockade(Player& issuingPlayer, Player& neutralPlayer,Territory& targetTerritory): Blockade() {
     setIssuingPlayer(issuingPlayer);
     this->targetTerritory = &targetTerritory;
+    this->neutralPlayer = &neutralPlayer;
 }
 
 //Copy constructor
@@ -403,7 +405,7 @@ void Blockade::execute() {
         this->getIssuingPlayer()->removeTerritory(*this->targetTerritory);
 
         //Neutral player owner
-        this->targetTerritory->setOwner(nullptr);
+        neutralPlayer->acquireTerritory(targetTerritory);
         this->getEffect();
     }
 }

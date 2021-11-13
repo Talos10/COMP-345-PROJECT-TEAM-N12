@@ -49,6 +49,9 @@ private:
     //Name of the player
     string* pname;
 
+    //Neutral player or not
+    bool* isNeutral;
+
 public:
     // Default constructor which initializes all the maps and the current game state.
     Player();
@@ -140,6 +143,12 @@ public:
 
     //Setter for the conqueredTerritoryInTurn boolean
     void setConqueredTerritoryInTurn(const bool conqueredTerritoryInTurn);
+
+    // Getter for the isNeutral status
+    [[nodiscard]] bool* getIsNeutral() const;
+
+    // Setter for the isNeutral status.
+    void setIsNeutral(const bool &isNeutral);
 };
 
 // Free function in order to test the functionality of the Player for assignment #1.

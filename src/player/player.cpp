@@ -16,15 +16,24 @@ Player::Player(){
     this->conqueredTerritoryInTurn = false;
     reinforcementPool = new int();
     pname = new string("Default Player Name");
+    bool isNeutral = new bool();
 };
 
 // Parameterized constructor to create a player with a name
 Player::Player(const string& pname){
+
+
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
     this->pname = new string(pname);
     this->reinforcementPool = new int();
+    if(pname == "Neutral"){
+        this->isNeutral = new bool(true);
+    }else{
+        this->isNeutral = new bool(false);
+    }
+
 }
 
 // Copy constructor.
@@ -38,6 +47,7 @@ Player::Player(const Player &pl) {
     this->conqueredTerritoryInTurn = pl.conqueredTerritoryInTurn;
     this->pname = new string(*pl.pname);
     this->reinforcementPool = new int();
+    this->isNeutral = new bool(false);
 }
 
 // Swaps the member data between two Player objects.
@@ -59,6 +69,7 @@ Player::~Player() {
     }
     delete pname;
     delete reinforcementPool;
+    delete isNeutral;
 }
 
 //Implementing the output operator
@@ -171,6 +182,17 @@ int* Player::getReinforcementPool() const {
     return reinforcementPool;
 }
 
+// Getter for the isNeutral status
+bool* Player::getIsNeutral() const{
+    return isNeutral;
+}
+
+// Setter for the isNeutral status.
+void Player::setIsNeutral(const bool& isNeutral) {
+    delete this->isNeutral;
+    this->isNeutral = new bool(isNeutral);
+}
+
 //A function which will go through the collection of territories the player owns and
 //check if that territory has the attribute "defend". If it does, it is added to a temporary
 //list which is then returned. This list will contain all the territories to be defended.
@@ -200,9 +222,9 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
                 //check if the neighbor is owned by a different player
                 if(neighbor->getOwner() != territory->getOwner()){
 
-                    cout << *neighbor->getOwner()->getPName() << " VS " << *territory->getOwner()->getPName() << endl;
+                    //cout << *neighbor->getOwner()->getPName() << " VS " << *territory->getOwner()->getPName() << endl;
 
-                    cout << "!! ATTACK !! Current territory: " << territory->getName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
+                    //cout << "!! ATTACK !! Current territory: " << territory->getName() << " of "<< *territory->getOwner()->getPName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " of "<< *neighbor->getOwner()->getPName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
 
                     //75% chance to happen
                     if((rand() % 100 < 75) && neighbor->getNumberOfArmies() < territory->getNumberOfArmies() && territory->getNumberOfArmies() > 0){
@@ -273,13 +295,9 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
                     //check if the neighbor is owned by the same player
                     if(neighbor->getOwner() == territory->getOwner()){
 
-                        cout << "!! DEFEND !! Current territory: " << territory->getName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
+                        //cout << "!! DEFEND !! Current territory: " << territory->getName() << " of "<< *territory->getOwner()->getPName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " of "<< *neighbor->getOwner()->getPName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
 
-                        if(territory->getNumberOfArmies() > neighbor->getNumberOfArmies()){
-                            territories2Defend.emplace_back(territory, neighbor,"deploy");
-                            cout << "Todefend() doing deploy1" << endl;
-                        }
-                        else if((rand() % 100 < 50)){
+                        if((rand() % 100 < 15)){
                             territories2Defend.emplace_back(territory, neighbor,"deploy");
                             cout << "Todefend() doing deploy2" << endl;
                         }

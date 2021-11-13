@@ -538,7 +538,12 @@ std::ostream &operator<<(std::ostream &out, Map* map) {
     // output the list of territories of the map
     out << ", with countries :[";
     for (const auto &territory : map->territories) {
-        out << territory << endl;
+        if(territory->getOwner() == nullptr){
+            out << territory << " with " << territory->getNumberOfArmies() << " armies and owned by no one" << endl;
+        }else{
+            out << territory << " with " << territory->getNumberOfArmies() << " armies and owned by " << *territory->getOwner()->getPName() << endl;
+        }
+
     }
 
     // output the list of continents of the map

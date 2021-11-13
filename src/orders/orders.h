@@ -182,13 +182,14 @@ public:
 class Blockade : public Order {
 private:
     Territory* targetTerritory;
+    Player* neutralPlayer;
     Order* clone() const override;
 public:
     //Default constructor
     Blockade();
 
     //Parameterized Constructor
-    Blockade(Player& issuingPlayer, Territory& targetTerritory);
+    Blockade(Player& issuingPlayer, Player& neutralPlayer,Territory& targetTerritory);
 
     //Copy constructor
     Blockade(const Blockade& order);
