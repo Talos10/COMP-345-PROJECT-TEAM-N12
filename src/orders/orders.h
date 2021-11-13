@@ -1,11 +1,18 @@
 #pragma once
+#include "observer/logging_observer.h"
+#include "game_log/log_observer.h"
 #include <vector>
 #include <iostream>
 #include <string>
+#include "map/map.h"
 using namespace std;
 
+//Forward declaration
+class Player;
+class Territory;
+
 // This class implements a generic order.
-class Order {
+class Order : public Subject, public ILoggable {
 private:
     //A string which describes the order.
     string *description;
@@ -13,24 +20,33 @@ private:
     //A string which contains the effect of the order.
     string *effect;
 
+    //Player that issues the order
+    Player* issuingPlayer;
+
 public:
     //Default constructor which initializes a generic order.
     Order();
 
-    //A parameterized constructor which initializes an order with the provided description and effect.
+    //A parameterized constructor which initializes an order with the provided description and effect
     Order(const string& description, const string& effect);
+
+    //A parameterized constructor which initializes an order with the provided description, effect and issuing player
+    Order(const string& description, const string& effect, Player& issuingPlayer);
 
     //Copy constructor
     Order(const Order& order);
 
     //Desctructor
-    ~Order();
+    virtual ~Order();
 
     //Checks if an order is valid.
-    virtual bool validate();
+    virtual bool validate() = 0;
 
     //Executes an order if it is valid.
-    virtual void execute();
+    virtual void execute() = 0;
+
+    //clones an Order instance
+    virtual Order* clone() const = 0;
 
     //Getter for the description of the order
     string* getDescription() const;
@@ -38,11 +54,17 @@ public:
     //Getter for the effect of the order
     string* getEffect() const;
 
+    //Getter for the issuing player of the order
+    Player* getIssuingPlayer() const;
+
     //Setter for the description of the order
     void setDescription(const string& description);
 
     //Setter for the effect of the order
     void setEffect(const string& effect);
+
+    //Setter for the issuing player of the order
+    void setIssuingPlayer(Player& issuingPlayer);
 
     //Defining the output operator
     friend ostream & operator<<(ostream& out, const Order& order);
@@ -53,9 +75,16 @@ public:
 
 // This class implements a Deploy order.
 class Deploy : public Order {
+private:
+    Territory* targetTerritory;
+    int numArmies;
+    Order* clone() const override;
 public:
     //Default constructor
     Deploy();
+
+    //Parameterized Constructor
+    Deploy(Player& issuingPlayer, Territory& targetTerritory, int numArmies);
 
     //Copy constructor
     Deploy(const Deploy& order);
@@ -74,13 +103,24 @@ public:
 
     //Defining the assignment operator
     Deploy& operator=(const Deploy& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements an Advance order.
 class Advance : public Order {
+private:
+    Territory* sourceTerritory;
+    Territory* targetTerritory;
+    int numArmies;
+    Order* clone() const override;
 public:
     //Default constructor
     Advance();
+
+    //Parameterized Constructor
+    Advance(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies);
 
     //Copy constructor
     Advance(const Advance& order);
@@ -99,13 +139,22 @@ public:
 
     //Defining the assignment operator
     Advance& operator=(const Advance& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements a Bomb order.
 class Bomb : public Order {
+private:
+    Territory* targetTerritory;
+    Order* clone() const override;
 public:
     //Default constructor
     Bomb();
+
+    //Parameterized Constructor
+    Bomb(Player& issuingPlayer, Territory& targetTerritory);
 
     //Copy constructor
     Bomb(const Bomb& order);
@@ -124,13 +173,23 @@ public:
 
     //Defining the assignment operator
     Bomb& operator=(const Bomb& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements a Blockade order.
 class Blockade : public Order {
+private:
+    Territory* targetTerritory;
+    Player* neutralPlayer;
+    Order* clone() const override;
 public:
     //Default constructor
     Blockade();
+
+    //Parameterized Constructor
+    Blockade(Player& issuingPlayer, Player& neutralPlayer,Territory& targetTerritory);
 
     //Copy constructor
     Blockade(const Blockade& order);
@@ -149,13 +208,24 @@ public:
 
     //Defining the assignment operator
     Blockade& operator=(const Blockade& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements an Airlift order.
 class Airlift : public Order {
+private:
+    Territory* sourceTerritory;
+    Territory* targetTerritory;
+    int numArmies;
+    Order* clone() const override;
 public:
     //Default constructor
     Airlift();
+
+    //Parameterized Constructor
+    Airlift(Player& issuingPlayer, Territory& sourceTerritory, Territory& targetTerritory, int numArmies);
 
     //Copy constructor
     Airlift(const Airlift& order);
@@ -174,13 +244,22 @@ public:
 
     //Defining the assignment operator
     Airlift& operator=(const Airlift& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements a Negotiate order.
 class Negotiate : public Order {
+private:
+    Player* enemyPlayer;
+    Order* clone() const override;
 public:
     //Default constructor
     Negotiate();
+
+    //Parameterized Constructor
+    Negotiate(Player& issuingPlayer, Player& enemyPlayer);
 
     //Copy constructor
     Negotiate(const Negotiate& order);
@@ -199,10 +278,13 @@ public:
 
     //Defining the assignment operator
     Negotiate& operator=(const Negotiate& order);
+
+    // Override class from Order
+    string stringToLog() const override;
 };
 
 // This class implements an OrdersList which contains the orders created.
-class OrdersList {
+class OrdersList : public Subject, public ILoggable {
 private:
     vector<Order*>* orders;
 public:
@@ -235,6 +317,9 @@ public:
 
     //Defining the addition operator
     void operator+(Order* order);
+
+    // Override pure virtual method from IlLoggable
+    string stringToLog() const override;
 };
 
 // Free function in order to test the functionality of the Orders.cpp for assignment #1.

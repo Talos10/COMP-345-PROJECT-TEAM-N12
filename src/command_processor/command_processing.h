@@ -5,6 +5,8 @@
 #include <string>
 #include <fstream>
 #include <game_engine/game_engine.h>
+#include <game_log/log_observer.h>
+#include "observer/logging_observer.h"
 
 using namespace std;
 
@@ -13,7 +15,7 @@ class GameEngine;
 
 // This class represents an object that represents an action or command from the user which will be validated before
 // being executed if valid. These commands dictate the flow of the game.
-class Command {
+class Command : public Subject, public ILoggable {
 private:
     // A string which holds the entire command entered by the user or read from the file.
     string *commandName;
@@ -57,6 +59,9 @@ public:
 
     // Method which saves the effect of the command given a certain effect and given whether the command is valid or not.
     void saveEffect(const string &newEffect, bool isCommandValid);
+
+    // Override class from ILoggable
+    string stringToLog() const override;
 };
 
 // An object which reads from a file line by line.
@@ -99,7 +104,7 @@ public:
 };
 
 // This class handles the storage and retrieval of all the user commands that relate to the setup of the game.
-class CommandProcessor {
+class CommandProcessor : public Subject, public ILoggable {
 private:
     // A list which stores the given commands by the user throughout the game which relate to the setup of the game.
     deque<Command *> *commandList;
@@ -133,7 +138,7 @@ public:
 
     // Method which reads a command, saves it in a Command object, and then returns that object by calling the readCommand
     // and saveCommand methods.
-    [[nodiscard]] Command *getCommand(const GameEngine &ge);
+    [[nodiscard]] Command *getCommand(const GameEngine &ge, LogObserver& log);
 
     // Method which validates the given Command object, given the current state of the game. If the method is valid, then
     // it parses the command in order to extract all the keywords from the command and stores it in the command. The method
@@ -142,6 +147,9 @@ public:
     // <1> A string corresponding to the command keyword without arguments
     // <2> A string saying that the command is valid or why the command is invalid
     tuple<bool, string, string> validate(const GameEngine &ge, const Command &cmd);
+
+    // Override class from ILoggable
+    virtual string stringToLog() const override;
 };
 
 // An object following the adapter pattern where we adapt the CommandProcessor in order for it to be able to read user

@@ -1,6 +1,5 @@
 #include "player.h"
-
-
+#include <ctime>
 
 using namespace std;
 
@@ -13,18 +12,28 @@ Player::Player(){
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
+    this->friendPlayers = vector<Player*>();
+    this->conqueredTerritoryInTurn = false;
     reinforcementPool = new int();
     pname = new string("Default Player Name");
+    bool isNeutral = new bool();
 };
 
 // Parameterized constructor to create a player with a name
 Player::Player(const string& pname){
+
+
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
-    reinforcementPool = new int();
-
     this->pname = new string(pname);
+    this->reinforcementPool = new int();
+    if(pname == "Neutral"){
+        this->isNeutral = new bool(true);
+    }else{
+        this->isNeutral = new bool(false);
+    }
+
 }
 
 // Copy constructor.
@@ -32,7 +41,13 @@ Player::Player(const Player &pl) {
     this->territories = new std::vector<Territory*>(*pl.territories);
     this->hand = new Hand(*pl.hand);
     this->ordersList = new OrdersList(*pl.ordersList);
+    for (Player* player : pl.friendPlayers) {
+        this->friendPlayers.push_back(new Player(*player));
+    }
+    this->conqueredTerritoryInTurn = pl.conqueredTerritoryInTurn;
     this->pname = new string(*pl.pname);
+    this->reinforcementPool = new int();
+    this->isNeutral = new bool(false);
 }
 
 // Swaps the member data between two Player objects.
@@ -41,6 +56,7 @@ void Player::swap(Player &first, Player &second) {
     std::swap(first.hand, second.hand);
     std::swap(first.ordersList, second.ordersList);
     std::swap(first.pname, second.pname);
+    std::swap(first.reinforcementPool, second.reinforcementPool);
 }
 
 // Destructor.
@@ -48,7 +64,12 @@ Player::~Player() {
     delete territories;
     delete hand;
     delete ordersList;
+    for (Player* player : this->friendPlayers) {
+        delete player;
+    }
     delete pname;
+    delete reinforcementPool;
+    delete isNeutral;
 }
 
 //Implementing the output operator
@@ -60,10 +81,9 @@ ostream& operator<<(ostream& out, const Player &pl)
         out << territory << endl;
     }
 
-    out << "\nHand: \n" << *pl.getHand() << "\nOrdersList: \n" << *pl.getOrders();
+    out << "\nHand: \n" << *pl.getHand() << "\nOrdersList: \n" << *pl.getOrdersList();
     return out;
 }
-
 
 // The way this method works is that it first creates a local temporary copy of the given object (called pl)
 // and method calls the swap function on the caller object (which is a Player obj that was created
@@ -84,6 +104,17 @@ std::vector<Territory*>* Player::getTerritories() const {
 void Player::setTerritories(const std::vector<Territory*> &territories) {
     delete this->territories;
     this->territories = new std::vector(territories);
+}
+
+// Removes a territory from the Player's collection of territories
+void Player::removeTerritory(const Territory& territory) {
+    // Create an iterator that will point to the same territory owned by the player as the territory to be removed
+    vector<Territory*>::iterator it = std::find(this->territories->begin(), this->territories->end(), &territory);
+
+    // If the territory is found, delete the reference to the territory in the collection of the player
+    if(it != this->territories->end()){
+        this->territories->erase(it);       //deleting pointer causing memory leak???? I dont think so cuz the passed territory still holds the reference
+    }
 }
 
 //Defining the output operator
@@ -125,12 +156,12 @@ void Player::setHand(const Hand &hand) {
 }
 
 // Getter for the orders list.
-OrdersList* Player:: getOrders() const {
+OrdersList* Player:: getOrdersList() const {
     return ordersList;
 }
 
 // Setter for the orders list.
-void Player::setOrders(const OrdersList &ordersList) {
+void Player::setOrdersList(const OrdersList &ordersList) {
     delete this->ordersList;
     this->ordersList = new OrdersList(ordersList);
 }
@@ -151,31 +182,151 @@ int* Player::getReinforcementPool() const {
     return reinforcementPool;
 }
 
+// Getter for the isNeutral status
+bool* Player::getIsNeutral() const{
+    return isNeutral;
+}
+
+// Setter for the isNeutral status.
+void Player::setIsNeutral(const bool& isNeutral) {
+    delete this->isNeutral;
+    this->isNeutral = new bool(isNeutral);
+}
+
 //A function which will go through the collection of territories the player owns and
 //check if that territory has the attribute "defend". If it does, it is added to a temporary
 //list which is then returned. This list will contain all the territories to be defended.
-vector<Territory*> Player:: toAttack(){
+vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
 
-    std::vector<Territory*> territories2Attack;
-    //territories2Attack.push_back();
+    srand(time(nullptr)); //Initialize random seed
 
+    //vector of territories with an action giving a reason why that territory was added to the list
+    std::vector<tuple<Territory*,Territory*,string>> territories2Attack;
 
+    // Copy of the player's hand to keep track of which cards are going to be played
+    std::map<int,int> tempHand;
+    tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
+
+    //Counts the number of cards for each type
+    for(Card *card: *hand->getHandsCards()){
+        tempHand[*card->getType()] += 1;
+    }
+
+    for(auto & territory : *territories){
+
+        for(Territory* neighbor: territory->getNeighbours()) { //for each neighbor of a territory
+
+            //check if the neighbor has an owner
+            if(neighbor->getOwner() != nullptr){
+
+                //check if the neighbor is owned by a different player
+                if(neighbor->getOwner() != territory->getOwner()){
+
+                    //cout << *neighbor->getOwner()->getPName() << " VS " << *territory->getOwner()->getPName() << endl;
+
+                    //cout << "!! ATTACK !! Current territory: " << territory->getName() << " of "<< *territory->getOwner()->getPName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " of "<< *neighbor->getOwner()->getPName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
+
+                    //75% chance to happen
+                    if((rand() % 100 < 75) && neighbor->getNumberOfArmies() < territory->getNumberOfArmies() && territory->getNumberOfArmies() > 0){
+
+                        cout << "toAttack() doing advance order" << endl;
+
+                        territories2Attack.emplace_back(territory,neighbor,"advance");
+
+                    }
+                    //check if the hostile neighbor has a greater number of armies and if the player has a bomb card, 75% chance to play the card
+                    else if((rand() % 100 < 75) && tempHand[0] > 0 && neighbor->getNumberOfArmies() > territory->getNumberOfArmies()){
+
+                        cout << "toAttack() doing bomb order" << endl;
+
+                        territories2Attack.emplace_back(territory,neighbor,"bomb");
+                        tempHand[0]--;
+
+                    }
+                }
+
+            }
+
+        }
+
+    }
     return territories2Attack;
-
 }
 
 //A function which will go through the collection of territories the player owns and
 //check if that territory has the attribute "attack". If it does, it is added to a temporary
 //list which is then returned. This list will contain all the territories to be attacked.
-vector<Territory*> Player::toDefend() {
+vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
 
-    std::vector<Territory*> territories2Defend;
-    //territories2Defend.push_back();
+    srand(time(nullptr)); //Initialize random seed
 
-    for(auto & territory : *territories){
+    std::vector<tuple<Territory*,Territory*,string>> territories2Defend;
+    bool airliftCardPlayed = false;
+    bool diplomacyCardPlayed = false;
 
+    // Copy of the player's hand to keep track of which cards are going to be played
+    std::map<int,int> tempHand;
+    tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
+
+    //Counts the number of cards for each type
+    for(Card *card: *hand->getHandsCards()){
+        tempHand[*card->getType()] += 1;
     }
 
+
+    //for each territory
+    for(auto & territory : *territories){
+
+        //15% chance to happen
+        if((rand() % 100 < 40) && tempHand[3] > 0 && !airliftCardPlayed && territory->getNumberOfArmies() >= 7){
+            territories2Defend.emplace_back(territory, findWeakestTerritory(), "airlift");
+            cout << "toDefend() doing airlift" << endl;
+            //doing this so the source territory is not touched by the player if another action was to occur on that territory
+            //(I want to have that territory with the same 7+ armies that it had before). And also to prevent the player of doing this action too often
+            airliftCardPlayed = true;
+            tempHand[3]--;
+        }else{
+            //for each neighbor of a territory
+            for(Territory* neighbor: territory->getNeighbours()) {
+
+                //check if the neighbor has an owner
+                if(neighbor->getOwner() != nullptr){
+
+                    //check if the neighbor is owned by the same player
+                    if(neighbor->getOwner() == territory->getOwner()){
+
+                        //cout << "!! DEFEND !! Current territory: " << territory->getName() << " of "<< *territory->getOwner()->getPName() << " with " << territory->getNumberOfArmies() << " armies" << "| Neighbor: " << neighbor->getName() << " of "<< *neighbor->getOwner()->getPName() << " with " << neighbor->getNumberOfArmies() << " armies" << endl;
+
+                        if((rand() % 100 < 15)){
+                            territories2Defend.emplace_back(territory, neighbor,"deploy");
+                            cout << "Todefend() doing deploy2" << endl;
+                        }
+
+                    }
+                    //Territory is owned by another player
+                    else{
+                        //check if there is a hostile territory with 2x or more the number of armies and will play the diplomacy card if this is the case
+                        if(!diplomacyCardPlayed && tempHand[4] > 0 && neighbor-> getNumberOfArmies() >= 2*territory->getNumberOfArmies() && neighbor->getOwner() != territory->getOwner()){
+
+                            territories2Defend.emplace_back(territory, neighbor,"negotiate");
+                            //to prevent the player from doing diplomacy too often
+                            diplomacyCardPlayed = true;
+                            tempHand[4]--;
+                            cout << "ToDefend() doing negotiate" << endl;
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+//        if((rand() % 100 < 5) && tempHand[2] > 0){
+//            territories2Defend.emplace_back(territory, territory, "blockade");
+//            tempHand[2]--;
+//        }
+
+    }
 
     return territories2Defend;
 }
@@ -183,6 +334,69 @@ vector<Territory*> Player::toDefend() {
 //A function which creates an Order object and adds it to the list of Orders.
 void Player::issueOrder(Order* order){
     ordersList->addOrder(order);
+}
+
+int Player::hasCard(int cardType){
+
+    int i = 0;
+
+    for(Card* card: *hand->getHandsCards()) { //for each neighbor of a territory
+
+        if(*card->getType() == cardType){
+
+            return i;
+
+        }
+
+        i++;
+
+    }
+
+    return -255;
+
+}
+
+Territory* Player::findWeakestTerritory() {
+    Territory *weakest = territories->at(0);
+
+    for (auto territory: *territories) {
+        if (territory->getNumberOfArmies() < weakest->getNumberOfArmies()) {
+            weakest = territory;
+        }
+    }
+
+    return weakest;
+}
+
+//Adds a friend player that cannot be attacked.
+void Player::addFriendPlayer(Player* player){
+    this->friendPlayers.push_back(player);
+}
+
+//Check if player is a friend
+bool Player::isPlayerFriend(Player* player){
+    //Can I just check the address?????????? what if copy constructor is used????????
+    if (find(this->friendPlayers.begin(), this->friendPlayers.end(), player) != this->friendPlayers.end()) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+//Removes all players from the friends player vector
+void Player::clearPlayerFriends() {
+    this->friendPlayers.clear();
+}
+
+//Check if the Player has conquered a territory during their turn.
+bool Player::hasConqueredTerritoryInTurn() const {
+    return this->conqueredTerritoryInTurn;
+}
+
+//Setter for the conqueredTerritoryInTurn boolean
+void Player::setConqueredTerritoryInTurn(bool conqueredTerritoryInTurn) {
+    this->conqueredTerritoryInTurn = conqueredTerritoryInTurn;
 }
 
 // Free function in order to test the functionality of the Player for assignment #1.
@@ -218,18 +432,17 @@ void player_driver(const string &filename) {
     Hand* hand = new Hand(*cards);
     player1->setHand(*hand);
 
-
     //Output territories to attack
     cout << "\nTerritories to attack:" << endl;
     for(auto i = 0; i < player1->toAttack().size(); i++){
-        cout << "\n" << player1->toAttack().at(i);
+        cout << "\n" << get<0>(player1->toAttack().at(i));
     }
     cout << endl;
 
     //Output territories to defend
     cout << "\nTerritories to defend:" << endl;
     for(auto i = 0; i < player1->toDefend().size(); i++){
-        cout << "\n" << player1->toDefend().at(i);
+        cout << "\n" << get<0>(player1->toDefend().at(i));
     }
     cout << "\n" << endl;
 
@@ -237,17 +450,16 @@ void player_driver(const string &filename) {
     player1->issueOrder(new Deploy());
 
     //Output the list of orders
-    cout << "Issued orders: \n" << *player1->getOrders() << endl;
+    cout << "Issued orders: \n" << *player1->getOrdersList() << endl;
 
     //Issue an additional order
     player1->issueOrder(new Advance());
 
     //Output the list of orders with the 2 orders
-    cout << "Issued orders after adding a 2nd order: \n" << *player1->getOrders() << endl;
+    cout << "Issued orders after adding a 2nd order: \n" << *player1->getOrdersList() << endl;
 
     //Testing copy constructor
     Player* player2 = new Player(*player1);
-
 
     //Proof that the copy constructor does a deep copy
     cout << "Printing player1 object... \n" << *player1 << endl;

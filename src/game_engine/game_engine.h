@@ -7,16 +7,22 @@
 #include "command_processor/command_processing.h"
 #include "player/player.h"
 #include "map/map.h"
+#include "observer/logging_observer.h"
+#include "game_log/log_observer.h"
 
 using namespace std;
 
 // This class implements the flow of the game (i.e. the different phases of the game like
 // reinforcement deployment or order execution) so that it can be played.
-class GameEngine {
+
+class GameEngine : public Subject, public ILoggable {
 // Defining a type of pointer to any void and two params (the transition state and the arguments of the command to be executed).
     typedef void (GameEngine::*Game_Engine_Mem_Fn)(const string &transitionState, const vector<string *> &commandArgs);
 
 private:
+    // An observer
+    LogObserver* log;
+
     // A string which holds the current state in which the game is (e.g. players added or issue orders).
     string *currentState;
 
@@ -117,8 +123,8 @@ public:
     // Getter for currentState.
     [[nodiscard]] string *getCurrentState() const;
 
-    // Setter for currentState.
-    void setCurrentState(const string &state);
+    // Setter for currentState
+    void transition(const string &state);
 
     // Getter for stateMap.
     [[nodiscard]] map<string, vector<string> *> *getStateMap() const;
@@ -185,6 +191,12 @@ public:
 
     //Function that will check if there is a player that has won the game
     bool checkForWin();
+
+    //Will return the neutral player in the list of players
+    Player* getNeutralPlayer();
+
+    // Override class from ILoggable
+    string stringToLog() const override;
 };
 
 // Free function in order to test the functionality of the GameEngine for assignment #2. Takes in a commandline argument

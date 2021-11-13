@@ -10,6 +10,8 @@
 #include "cards/cards.h"
 #include "orders/orders.h"
 #include "map/map.h"
+#include <algorithm>
+#include <map>
 
 
 using namespace std;
@@ -17,6 +19,8 @@ using namespace std;
 //Forward declaration
 class Hand;
 class Territory;
+class OrdersList;
+class Order;
 
 // This class implements the player of the game (who will carry certain information about the territories,
 // the hand with cards and the list of orders).
@@ -33,11 +37,20 @@ private:
     //An OrdersList object containing Order objects the player has issued.
     OrdersList* ordersList;
 
+    //A collection of players for which this Player cannot attack for the remainder of the turn
+    vector<Player*> friendPlayers;
+
+    //True if the player conquered a territory during their turn. Otherwise, false.
+    bool conqueredTerritoryInTurn;
+
     //The reinforcement pool of the player that has armies that can be distributed to territories
     int* reinforcementPool;
 
     //Name of the player
     string* pname;
+
+    //Neutral player or not
+    bool* isNeutral;
 
 public:
     // Default constructor which initializes all the maps and the current game state.
@@ -59,18 +72,25 @@ public:
     friend ostream& operator<<(ostream& out, const Player& pl);
 
     //A function that will return the territories to be defended.
-    std::vector<Territory*> toDefend();
+    vector<tuple<Territory*,Territory*,string>> toDefend();
 
     //A function that will return the territories to be attacked.
-    std::vector<Territory*> toAttack();
+    vector<tuple<Territory*,Territory*,string>> toAttack();
 
     //Claim ownership of a territory
     void acquireTerritory(Territory* territory);
 
-    //Increases the number of armies in the player's reinforcement pool
+    //Increases the number of armies in the player's reinforcement pool.
     void increasePool(int numOfArmies);
 
+    //Decreases the number of armies in the player's reinforcement pool.
     void decreasePool(int numOfArmies);
+
+    //Check if the player has a specific card type in their hand.
+    int hasCard(int cardType);
+
+    // Returns the first territory with the smallest number of armies
+    Territory* findWeakestTerritory();
 
     //A function that will create an Order object and add it to the list of Orders.
     void issueOrder(Order* order);
@@ -81,6 +101,9 @@ public:
     // Setter for the territories.
     void setTerritories(const std::vector<Territory*> &territories);
 
+    // Removes a territory from the Player's collection of territories
+    void removeTerritory(const Territory& territory);
+
     // Getter for the hand.
     [[nodiscard]] Hand* getHand() const;
 
@@ -88,14 +111,26 @@ public:
     void setHand(const Hand &hand);
 
     // Getter for the orders list.
-    [[nodiscard]] OrdersList* getOrders() const;
+    [[nodiscard]] OrdersList* getOrdersList() const;
 
     // Setter for the orders list.
-    void setOrders(const OrdersList &ordersList);
+    void setOrdersList(const OrdersList &ordersList);
 
     // A function used in the assignment operator definition which swaps the member data
     // between two Player objects.
     void swap(Player &first, Player &second);
+
+    //Adds a friend player that cannot be attacked.
+    void addFriendPlayer(Player* player);
+
+    //Check if player is a friend
+    bool isPlayerFriend(Player* player);
+
+    //Removes all players from the friends player vector
+    void clearPlayerFriends();
+
+    //Check if the Player has conquered a territory during their turn.
+    bool hasConqueredTerritoryInTurn() const;
 
     // Getter for the player name.
     [[nodiscard]] string* getPName() const;
@@ -106,6 +141,14 @@ public:
     // Getter for the Reinforcement Pool
     [[nodiscard]] int* getReinforcementPool() const;
 
+    //Setter for the conqueredTerritoryInTurn boolean
+    void setConqueredTerritoryInTurn(const bool conqueredTerritoryInTurn);
+
+    // Getter for the isNeutral status
+    [[nodiscard]] bool* getIsNeutral() const;
+
+    // Setter for the isNeutral status.
+    void setIsNeutral(const bool &isNeutral);
 };
 
 // Free function in order to test the functionality of the Player for assignment #1.

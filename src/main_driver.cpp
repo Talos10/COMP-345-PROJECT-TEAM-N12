@@ -1,13 +1,15 @@
 #include <iostream>
 #include "game_engine/game_engine.h"
 #include "player/player.h"
+#include "game_log/log_observer.h"
+#include <fstream>
 
 using namespace std;
 
 int main(int argc, char const *argv[]) {
     cout << "Running main driver!" << endl;
 
-    int classDemo = 4;
+    int classDemo = 5;
 
     string filename1 = "canada-map.txt";
     string filename2 = "demo-map.txt";
