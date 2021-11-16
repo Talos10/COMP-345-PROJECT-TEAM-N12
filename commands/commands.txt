@@ -1,4 +1,4 @@
-loadmap canada-map.txt
+loadmap earthbound-map.txt
 validatemap
 addplayer talos
 addplayer obama
