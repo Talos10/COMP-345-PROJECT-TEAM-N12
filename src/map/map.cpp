@@ -67,26 +67,15 @@ const string &Continent::getColour() const {
  * Checks if all territories in the continent are owned by the same player
  * @return true if all territories in the continent are owned by the same player
  */
-bool Continent::isCompletelyOwned() const {
+bool Continent::isCompletelyOwned(Player& player) const {
     // Empty case: a continent with no territories has no owner
     if (territories.empty()) return false;
 
-    Player* owner;
-
     for (const auto &territory : territories) {
-        Player* nextOwner = territory->getOwner();
+        Player* currentOwner = territory->getOwner();
 
-        // In first iteration of loop, owner is not set
-        if (owner == nullptr) {
-            // If the first owner is not set, continent is not completely owned
-            if (nextOwner == nullptr) {
-                return false;
-            } else {
-                // Set the first owner as the owner to be compared against
-                owner = nextOwner;
-            }
         // If subsequent territories don't have the same owner as the first, continent is not fully owned
-        } else if (nextOwner != owner) {
+        if (currentOwner != &player) {
             return false;
         }
     }
@@ -156,8 +145,7 @@ Continent &Continent::operator=(Continent other) {
  * @param continent a pointer to the continent belonging to the territory
  */
 Territory::Territory(const int id, const string &name, const int x, const int y, int continentId)
-        : id(id), name(name), x(x), y(y), continentId(continentId) {
-    numberOfArmies = 0;
+        : id(id), name(name), x(x), y(y), continentId(continentId), owner(nullptr), numberOfArmies(0) {
 }
 
 /**
@@ -536,7 +524,7 @@ std::ostream &operator<<(std::ostream &out, Map* map) {
     out << "Map of name " << map->name;
 
     // output the list of territories of the map
-    out << ", with countries :[";
+    out << ", with countries :[\n";
     for (const auto &territory : map->territories) {
         if(territory->getOwner() == nullptr){
             out << territory << " with " << territory->getNumberOfArmies() << " armies and owned by no one" << endl;

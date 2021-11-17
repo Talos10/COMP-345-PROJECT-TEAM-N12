@@ -600,6 +600,11 @@ void game_engine_driver(const string &cmdArg) {
 void GameEngine::mainGameLoop(){
     bool gameOver = false;
     while(!gameOver){
+
+        reinforcementPhase();
+        issueOrdersPhase();
+        executeOrdersPhase();
+
         //Check if a player owns at least 1 territory, remove this player if the player does not own any territory
         for(auto i = 0; i < players->size(); i++){
             if(players->at(i)->getTerritories()->empty()){
@@ -607,9 +612,7 @@ void GameEngine::mainGameLoop(){
                 players->erase(players->begin() + i);
             }
         }
-        reinforcementPhase();
-        issueOrdersPhase();
-        executeOrdersPhase();
+
         gameOver = checkForWin();
         for(Player* player: *players){
             player->clearPlayerFriends();
@@ -626,10 +629,26 @@ void GameEngine::reinforcementPhase(){
     cout << "\n*****************************Assigning Reinforcement Phase ...*****************************\n" << endl;
 
     for(auto & player : *players){
-        int currentNumberToGive = static_cast<int>(floor(static_cast<float>(player->getTerritories()->size())/3.0));
-        cout << "player->getTerritories()->size(): " << player->getTerritories()->size() << endl;
-        cout << "\nGiving " << currentNumberToGive << " armies to " << *player->getPName() << endl;
+
+        //Give player an amount of armies depending on their number of territories, minimum that can be given is 3
+        int currentNumberToGive = max(3, static_cast<int>(floor(static_cast<float>(player->getTerritories()->size())/3.0)));
+
+        //Give to player an amount of armies depending of the continents they own (owning a continent means having all territories on that continent)
+        for(auto i = 1; i <= gameMap->getContinentsSize(); i++){
+
+            if(gameMap->getContinentByID(i)->isCompletelyOwned(*player)){
+                currentNumberToGive += gameMap->getContinentByID(i)->getArmyBonusNumber();
+            }
+
+        }
+
+        cout << "\nplayer->getTerritories()->size(): " << player->getTerritories()->size() << endl;
+        cout << "Giving " << currentNumberToGive << " armies to " << *player->getPName() << endl;
+
+        //Increasing the reinforcement pool of the player with the amounts calculated above
         player->increasePool(currentNumberToGive);
+
+        cout << "Current number of armies: " << *player->getReinforcementPool() << endl;
     }
 }
 
@@ -676,11 +695,19 @@ void GameEngine::issueOrdersPhase(){
                 else if(get<2>(territoryTuple) == "blockade"){
                     if(this->getNeutralPlayer() == nullptr){
                         players->emplace_back(new Player("Neutral"));
+                        cout << "Created new Neutral player" << endl;
                     }
+
                     Order* blockade = new Blockade(*player,*this->getNeutralPlayer(),*get<1>(territoryTuple));
                     player->getHand()->getHandsCards()->at(player->hasCard(2))->play(*deck, *player, blockade);
-                    cout << "**issueOrder Blockade | Player: " << *player->getPName() << " | Neutral player: TODO" << " | Target territory: " << get<1>(territoryTuple)->getName() << endl;
+                    cout << "**issueOrder Blockade | Player: " << *player->getPName() << " | Neutral player: " << *this->getNeutralPlayer()->getPName() << " | Target territory: " << get<1>(territoryTuple)->getName() << endl;
                     this->log->AddSubject(*blockade);
+                }
+                else if(get<2>(territoryTuple) == "advance"){
+                    Order* advance = new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<0>(territoryTuple)->getNumberOfArmies()/3);
+                    player->issueOrder(advance);
+                    cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: "<< get<1>(territoryTuple)->getNumberOfArmies()+1 << endl;
+                    this->log->AddSubject(*advance);
                 }
             }
             //Issue the orders related to attack other territories
@@ -723,13 +750,26 @@ void GameEngine::executeOrdersPhase(){
                     loopIndex++;
                 }
             }
-            //execute the other orders after
-            loopIndex = 0;
-            while(loopIndex < player->getOrdersList()->getOrders()->size()){
+    }
+    //execute the other orders after in a round-robin fashion
+    int loopIndex = 0;
+    int maxOrderToExecute = 0;
+    for(Player* player: *players){
+        int sizeOfOrdersList = player->getOrdersList()->getOrders()->size();
+        if(sizeOfOrdersList > maxOrderToExecute){
+            maxOrderToExecute = sizeOfOrdersList;
+        }
+    }
+    //Number of round-robins to do
+    for(int i = 0; i < maxOrderToExecute; i++){
+        for(Player* player: *players){
+            //Checks if the player has any order left in their orders list
+            if(player->getOrdersList()->getOrders()->size() != 0){
                 player->getOrdersList()->getOrders()->at(loopIndex)->execute();
                 delete player->getOrdersList()->getOrders()->at(loopIndex);
-                player->getOrdersList()->getOrders()->erase(player->getOrdersList()->getOrders()->begin()+loopIndex);
+                player->getOrdersList()->getOrders()->erase(player->getOrdersList()->getOrders()->begin());
             }
+        }
     }
     cout << "\n%%% Map After Execution %%%" << endl;
     cout << gameMap << endl;

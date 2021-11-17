@@ -21,19 +21,18 @@ Player::Player(){
 
 // Parameterized constructor to create a player with a name
 Player::Player(const string& pname){
-
-
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
     this->pname = new string(pname);
-    this->reinforcementPool = new int();
+    reinforcementPool = new int();
+    friendPlayers = vector<Player*>();
+    conqueredTerritoryInTurn = false;
     if(pname == "Neutral"){
-        this->isNeutral = new bool(true);
+        isNeutral = new bool(true);
     }else{
-        this->isNeutral = new bool(false);
+        isNeutral = new bool(false);
     }
-
 }
 
 // Copy constructor.
@@ -261,6 +260,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
     std::vector<tuple<Territory*,Territory*,string>> territories2Defend;
     bool airliftCardPlayed = false;
     bool diplomacyCardPlayed = false;
+    int countOfDeploys = 0;
 
     // Copy of the player's hand to keep track of which cards are going to be played
     std::map<int,int> tempHand;
@@ -272,6 +272,14 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
     }
     //for each territory
     for(auto & territory : *territories){
+
+        //40% chance to do a deploy
+        if((rand() % 100 < 40) && countOfDeploys <= *reinforcementPool){
+            territories2Defend.emplace_back(territory, territory,"deploy");
+            cout << "toDefend() adding deploy" << endl;
+            countOfDeploys++;
+        }
+
         //15% chance to happen
         if((rand() % 100 < 40) && tempHand[3] > 0 && !airliftCardPlayed && territory->getNumberOfArmies() >= 7){
             territories2Defend.emplace_back(territory, findWeakestTerritory(), "airlift");
@@ -287,10 +295,12 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
                 if(neighbor->getOwner() != nullptr){
                     //check if the neighbor is owned by the same player
                     if(neighbor->getOwner() == territory->getOwner()){
-//                        if((rand() % 100 < 15)){
-                            territories2Defend.emplace_back(territory, neighbor,"deploy");
-                            cout << "toDefend() adding deploy" << endl;
-//                        }
+
+                        if((rand() % 100 < 15) && territory->getNumberOfArmies() >= 3){
+                            territories2Defend.emplace_back(territory, territory,"advance");
+                            cout << "toDefend() adding advance" << endl;
+                        }
+
                     }
                     //Territory is owned by another player
                     else{
@@ -306,10 +316,11 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
                 }
             }
         }
-//        if((rand() % 100 < 5) && tempHand[2] > 0){
-//            territories2Defend.emplace_back(territory, territory, "blockade");
-//            tempHand[2]--;
-//        }
+        if((rand() % 100 < 5) && tempHand[2] > 0){
+            territories2Defend.emplace_back(territory, territory, "blockade");
+            tempHand[2]--;
+            cout << "ToDefend() adding blockade" << endl;
+        }
     }
     return territories2Defend;
 }

@@ -33,7 +33,7 @@ public:
 
     const string &getColour() const;
 
-    bool isCompletelyOwned() const;
+    bool isCompletelyOwned(Player& player) const;
     bool isEmpty() const;
     void addTerritory(Territory* territory);
 
