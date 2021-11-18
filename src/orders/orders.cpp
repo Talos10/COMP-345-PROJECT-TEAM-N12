@@ -191,6 +191,10 @@ bool Advance::validate() {
         cout << "INVALID: source territory does not belong to player issuing the order!" << endl;
         return false;
     }
+    else if (this->sourceTerritory->getNumberOfArmies() < this->numArmies) {
+        cout << "INVALID: The source territory (" << this->sourceTerritory->getName() << ") has " << this->sourceTerritory->getNumberOfArmies() << " armies, but you wish to Advance with " << this->numArmies << " armies." << endl;
+        return false;
+    }
 //    else if (find(sourceTerritory->getNeighbours().begin(), sourceTerritory->getNeighbours().end(), targetTerritory) != sourceTerritory->getNeighbours().end()) {
 //        cout << "INVALID: target territory is not adjacent to the source territory!" << endl;
 //        return false;
@@ -219,6 +223,7 @@ void Advance::execute() {
             int attackingArmies = this->numArmies;
             int defendingArmies = targetTerritory->getNumberOfArmies();
             this->sourceTerritory->removeArmies(attackingArmies);
+            cout << "Advance::execute() BEFORE BATTLE | Attacking armies: " << attackingArmies << " | Defending armies: " << defendingArmies << endl;
             for (int i = 0; i < attackingArmies; i++) {
                 int chanceOfAttack = rand() % 100 + 1;
                 if (chanceOfAttack <= 60) {
@@ -238,7 +243,7 @@ void Advance::execute() {
                     attackingArmies--;
                 }
             }
-            cout << "Advance::execute() | Attacking armies: " << attackingArmies << " | Defending armies: " << defendingArmies << endl;
+            cout << "Advance::execute() AFTER BATTLE | Attacking armies: " << attackingArmies << " | Defending armies: " << defendingArmies << endl;
             //All enemies dead and you still have attacking armies
             if (attackingArmies > 0 && defendingArmies == 0) {
 
@@ -471,6 +476,10 @@ bool Airlift::validate() {
     }
     else if (this->targetTerritory->getOwner() != this->getIssuingPlayer()) {
         cout << "INVALID: Target territory does not belong to the issuing player!" << endl;
+        return false;
+    }
+    else if (this->sourceTerritory->getNumberOfArmies() < this->numArmies) {
+        cout << "INVALID: The source territory (" << this->sourceTerritory->getName() << ") has " << this->sourceTerritory->getNumberOfArmies() << " armies, but you wish to Airlift with " << this->numArmies << " armies." << endl;
         return false;
     }
     return true;
