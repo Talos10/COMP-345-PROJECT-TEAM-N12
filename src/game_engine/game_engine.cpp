@@ -609,16 +609,18 @@ void GameEngine::mainGameLoop(){
         for(auto i = 0; i < players->size(); i++){
             if(players->at(i)->getTerritories()->empty()){
                 cout << "Player "<< *players->at(i)->getPName() << " has no territories left. Player is therefore eliminated." << endl;
+                delete players->at(i);
                 players->erase(players->begin() + i);
             }
         }
-
         gameOver = checkForWin();
-        for(Player* player: *players){
-            player->clearPlayerFriends();
-            if(player->hasConqueredTerritoryInTurn()){
-                deck->draw(*player->getHand());
-                player->setConqueredTerritoryInTurn(false);
+        if(!gameOver){
+            for(Player* player: *players){
+                player->clearPlayerFriends();
+                if(player->hasConqueredTerritoryInTurn()){
+                    deck->draw(*player->getHand());
+                    player->setConqueredTerritoryInTurn(false);
+                }
             }
         }
     }
@@ -706,7 +708,7 @@ void GameEngine::issueOrdersPhase(){
                 else if(get<2>(territoryTuple) == "advance"){
                     Order* advance = new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<0>(territoryTuple)->getNumberOfArmies()/3);
                     player->issueOrder(advance);
-                    cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: "<< get<1>(territoryTuple)->getNumberOfArmies()+1 << endl;
+                    cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: "<< get<0>(territoryTuple)->getNumberOfArmies()/3 << endl;
                     this->log->AddSubject(*advance);
                 }
             }
@@ -780,6 +782,8 @@ bool GameEngine::checkForWin(){
     for(auto i = 0; i < players->size(); i++){
         if(players->at(i)->getTerritories()->size() == gameMap->getSize()){
             cout << "Player "<< *players->at(i)->getPName() << " has captured all territories and won!" << endl;
+            delete players->at(i);
+            players->erase(players->begin() + i);
             return true;
         }
     }

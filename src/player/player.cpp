@@ -63,9 +63,7 @@ Player::~Player() {
     delete territories;
     delete hand;
     delete ordersList;
-    for (Player* player : this->friendPlayers) {
-        delete player;
-    }
+    clearPlayerFriends();
     delete pname;
     delete reinforcementPool;
     delete isNeutral;
@@ -297,7 +295,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
                     if(neighbor->getOwner() == territory->getOwner()){
 
                         if((rand() % 100 < 15) && territory->getNumberOfArmies() >= 3){
-                            territories2Defend.emplace_back(territory, territory,"advance");
+                            territories2Defend.emplace_back(territory, neighbor,"advance");
                             cout << "toDefend() adding advance" << endl;
                         }
 

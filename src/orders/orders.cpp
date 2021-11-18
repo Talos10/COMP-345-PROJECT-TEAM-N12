@@ -195,11 +195,14 @@ bool Advance::validate() {
         cout << "INVALID: The source territory (" << this->sourceTerritory->getName() << ") has " << this->sourceTerritory->getNumberOfArmies() << " armies, but you wish to Advance with " << this->numArmies << " armies." << endl;
         return false;
     }
-//    else if (find(sourceTerritory->getNeighbours().begin(), sourceTerritory->getNeighbours().end(), targetTerritory) != sourceTerritory->getNeighbours().end()) {
-//        cout << "INVALID: target territory is not adjacent to the source territory!" << endl;
-//        return false;
-//    }
-    return true;
+    //Checks if the owner of the target territory is also the owner of
+    //one of the neighboring territories of the source territory.
+    for(Territory* neighbor: this->sourceTerritory->getNeighbours()){
+        if(this->sourceTerritory->getOwner() == neighbor->getOwner()){
+            return true;
+        }
+    }
+    return false;
 }
 
 //Executes an Advance order
