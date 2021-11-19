@@ -263,54 +263,54 @@ void GameEngine::setMap(const string &filename) {
     this->gameMap = MapLoader::load(filename);
 }
 
-// TODO Change the description of the start method once A2 is finished.
-// Contains the main while loop of the game which creates the game flow. Based on the current state,
-// a list of actions are fetched from the stateMap, then for each action fetched, a description and
-// trigger keyword are fetched from the description map. Then finally, based on the trigger keyword
-// entered by the user, the corresponding handler method is fetched from the function map which will
-// be executed in order to execute the action wanted by the user.
-void GameEngine::start() {
-    // <0> A boolean indicating if the command is valid or not
-    // <1> A string corresponding to the command keyword without arguments
-    // <2> A string saying that the command is valid or why the command is invalid
-    tuple<bool, string, string> optionInfo;
-    Command *command;
-
-    cout << "\n********************************************\n" << endl;
-    cout << "*************Welcome to Warzone!************" << endl;
-    cout << "\n********************************************\n" << endl;
-
-    while (*currentState != "end") {
-        printActionsIfNeeded();
-
-        //////////////////
-
-        //TODO Change logic here so that commands are retrieved automatically only in two cases: non-stop, but only until
-        // 1. From the start state until the arriving in the assignreinforcement state
-        // 2. From the win state until either exiting OR until arriving in the assignreinforcement state again
-        command = commandProcessor->getCommand(*this, *this->log);
-        if (command == nullptr) {
-            cout << "\nReached end of the file. Exiting..." << endl;
-            break;
-        }
-
-        /////////////////
-
-        optionInfo = commandProcessor->validate(*this, *command);
-
-        if (get<0>(optionInfo)) {
-            cout << "\nExecuting valid command!" << endl;
-            command->saveEffect(get<2>(descriptionMap->at(get<1>(optionInfo))), true);
-            std::invoke(functionMap->at(get<1>(optionInfo)).first, this, functionMap->at(get<1>(optionInfo)).second,
-                        *command->getCommandArgs());
-        } else {
-            cout << "\nCommand is not valid and will not be executed!" << endl;
-            command->saveEffect(get<2>(optionInfo), false);
-        }
-
-        cout << "\nRe-printing current command:\n" << *command << endl;
-    }
-}
+//// TODO Change the description of the start method once A2 is finished.
+//// Contains the main while loop of the game which creates the game flow. Based on the current state,
+//// a list of actions are fetched from the stateMap, then for each action fetched, a description and
+//// trigger keyword are fetched from the description map. Then finally, based on the trigger keyword
+//// entered by the user, the corresponding handler method is fetched from the function map which will
+//// be executed in order to execute the action wanted by the user.
+//void GameEngine::start() {
+//    // <0> A boolean indicating if the command is valid or not
+//    // <1> A string corresponding to the command keyword without arguments
+//    // <2> A string saying that the command is valid or why the command is invalid
+//    tuple<bool, string, string> optionInfo;
+//    Command *command;
+//
+//    cout << "\n********************************************\n" << endl;
+//    cout << "*************Welcome to Warzone!************" << endl;
+//    cout << "\n********************************************\n" << endl;
+//
+//    while (*currentState != "end") {
+//        printActionsIfNeeded();
+//
+//        //////////////////
+//
+//        //TODO Change logic here so that commands are retrieved automatically only in two cases: non-stop, but only until
+//        // 1. From the start state until the arriving in the assignreinforcement state
+//        // 2. From the win state until either exiting OR until arriving in the assignreinforcement state again
+//        command = commandProcessor->getCommand(*this, *this->log);
+//        if (command == nullptr) {
+//            cout << "\nReached end of the file. Exiting..." << endl;
+//            break;
+//        }
+//
+//        /////////////////
+//
+//        optionInfo = commandProcessor->validate(*this, *command);
+//
+//        if (get<0>(optionInfo)) {
+//            cout << "\nExecuting valid command!" << endl;
+//            command->saveEffect(get<2>(descriptionMap->at(get<1>(optionInfo))), true);
+//            std::invoke(functionMap->at(get<1>(optionInfo)).first, this, functionMap->at(get<1>(optionInfo)).second,
+//                        *command->getCommandArgs());
+//        } else {
+//            cout << "\nCommand is not valid and will not be executed!" << endl;
+//            command->saveEffect(get<2>(optionInfo), false);
+//        }
+//
+//        cout << "\nRe-printing current command:\n" << *command << endl;
+//    }
+//}
 
 // A function that prints the actions available for the user if setting up the game from the console.
 void GameEngine::printActionsIfNeeded() {
@@ -594,21 +594,39 @@ void game_engine_driver(const string &cmdArg) {
 
 
 
-    gameEngine.startupPhase();
+//    gameEngine.startupPhase();
+
+    cout << "\n********************************************\n" << endl;
+    cout << "*************Welcome to Warzone!************" << endl;
+    cout << "\n********************************************\n" << endl;
+
+    gameEngine.start();
 }
 
-void GameEngine::mainGameLoop(){
+void GameEngine::start() {
+    while (*currentState != "end") {
+        startupPhase();
+        mainGameLoop();
+
+        //TODO Remove this and include this logic in the mainGameLoop
+        transition("end");
+    }
+}
+
+
+void GameEngine::mainGameLoop() {
     bool gameOver = false;
-    while(!gameOver){
+    while (!gameOver) {
 
         reinforcementPhase();
         issueOrdersPhase();
         executeOrdersPhase();
 
         //Check if a player owns at least 1 territory, remove this player if the player does not own any territory
-        for(auto i = 0; i < players->size(); i++){
-            if(players->at(i)->getTerritories()->empty()){
-                cout << "Player "<< *players->at(i)->getPName() << " has no territories left. Player is therefore eliminated." << endl;
+        for (auto i = 0; i < players->size(); i++) {
+            if (players->at(i)->getTerritories()->empty()) {
+                cout << "Player " << *players->at(i)->getPName()
+                     << " has no territories left. Player is therefore eliminated." << endl;
                 delete players->at(i);
                 players->erase(players->begin() + i);
             }
