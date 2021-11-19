@@ -4,4 +4,9 @@ addplayer talos
 addplayer obama
 gamestart
 replay
+loadmap foggychommo-map.txt
+validatemap
+addplayer mario
+addplayer luigi
+gamestart
 quit

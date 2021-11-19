@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <random>
 #include <string>
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
@@ -622,6 +624,8 @@ void GameEngine::mainGameLoop() {
         issueOrdersPhase();
         executeOrdersPhase();
 
+        cout << "Player array size " << players->size() << " | Game over status " << gameOver << endl;
+
         //Check if a player owns at least 1 territory, remove this player if the player does not own any territory
         for (auto i = 0; i < players->size(); i++) {
             if (players->at(i)->getTerritories()->empty()) {
@@ -642,6 +646,9 @@ void GameEngine::mainGameLoop() {
             }
         }
     }
+
+    transition("win");
+    std::this_thread::sleep_for(std::chrono::seconds (10));
 }
 
 void GameEngine::reinforcementPhase(){
@@ -800,8 +807,8 @@ bool GameEngine::checkForWin(){
     for(auto i = 0; i < players->size(); i++){
         if(players->at(i)->getTerritories()->size() == gameMap->getSize()){
             cout << "Player "<< *players->at(i)->getPName() << " has captured all territories and won!" << endl;
-            delete players->at(i);
-            players->erase(players->begin() + i);
+            //delete players->at(i);
+            //players->erase(players->begin() + i);
             return true;
         }
     }
