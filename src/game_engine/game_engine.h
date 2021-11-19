@@ -160,7 +160,7 @@ public:
     [[nodiscard]] std::vector<Player*>* getPlayers() const;
 
     // Setter for the players.
-    void setPlayers(const std::vector<Player*> &players);
+    void setPlayers(std::vector<Player *> &newPlayers);
 
     // Getter for the Map.
     [[nodiscard]] Map *getMap() const;
@@ -172,7 +172,7 @@ public:
     void start();
 
     // A function to execute the startup phase of the game
-    void startupPhase();
+    bool startupPhase();
 
     // A function that prints the actions available for the user if setting up the game from the console.
     void printActionsIfNeeded();
@@ -193,10 +193,12 @@ public:
     bool checkForWin();
 
     //Will return the neutral player in the list of players
-    Player* getNeutralPlayer();
+    Player *getNeutralPlayer();
 
     // Override class from ILoggable
     string stringToLog() const override;
+
+    bool readingCommands(const vector<string> &states);
 };
 
 // Free function in order to test the functionality of the GameEngine for assignment #2. Takes in a commandline argument

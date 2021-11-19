@@ -112,19 +112,21 @@ public:
     Deck& operator=(const Deck& deck);
 
     // Insertion operator
-    friend ostream& operator << (ostream& os, const Deck& d);
+    friend ostream &operator<<(ostream &os, const Deck &d);
 
     //Destructor
     ~Deck();
 
     // Getter for warzone cards
-    [[nodiscard]] vector<Card*>* getWarzoneCards() const;
+    [[nodiscard]] vector<Card *> *getWarzoneCards() const;
 
     // Setter for warzone cards
-    void setDeckCards(const vector<Card*> &cards);
+    void setDeckCards(const vector<Card *> &cards);
+
+    void setDeck(const Deck &deck);
 
     // A function which lets a player draw a card from the deck and places it in their hand
-    void draw(const Hand& hand);
+    void draw(const Hand &hand);
 };
 
 void card_driver();

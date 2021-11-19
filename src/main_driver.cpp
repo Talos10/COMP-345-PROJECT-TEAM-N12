@@ -32,7 +32,16 @@ int main(int argc, char const *argv[]) {
             game_engine_driver(argv[1]); // Read commands from console.
             break;
         case 5:
-            game_engine_driver(argv[2]); // Read commands from file commands.txt.
+            game_engine_driver(argv[2]); // Read commands from file commands_play_1.txt.
+            break;
+        case 6:
+            game_engine_driver(argv[3]); // Read commands from file commands_play_2.txt.
+            break;
+        case 7:
+            game_engine_driver(argv[4]); // Read commands from file commands_play_fail_1.txt.
+            break;
+        case 8:
+            game_engine_driver(argv[5]); // Read commands from file commands_play_fail_2.txt.
             break;
         default:
             break;
