@@ -249,9 +249,9 @@ std::vector<Player*>* GameEngine::getPlayers() const {
 }
 
 // Setter for the players.
-void GameEngine::setPlayers(const std::vector<Player*> &players) {
+void GameEngine::setPlayers(std::vector<Player *> &newPlayers) {
     delete this->players;
-    this->players = new std::vector(players);
+    this->players = &newPlayers;
 }
 
 // Getter for the Map.
@@ -492,8 +492,6 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
         transition(transitionState);
     }
     cout << "\nThis is the state after the action: " << *currentState << endl;
-// TODO: enable call to main game loop
-    mainGameLoop();
 }
 
 // A function which will allow the issuing of an order using the orders_list class.
@@ -607,11 +605,23 @@ void game_engine_driver(const string &cmdArg) {
 
 void GameEngine::start() {
     while (*currentState != "end") {
+        // Initial state at startup
+
+        setPlayers(*(new vector<Player *>{}));
+
+        deck->setDeck(*(new Deck(20)));
+
+        transition("start");
+
         startupPhase();
         mainGameLoop();
 
-        //TODO Remove this and include this logic in the mainGameLoop
-        transition("end");
+        vector<string> states = vector{string("end"), string("start")};
+
+        readingCommands(states);
+
+//        //TODO Remove this and include this logic in the mainGameLoop
+//        transition("end");
     }
 }
 
@@ -633,13 +643,17 @@ void GameEngine::mainGameLoop() {
                      << " has no territories left. Player is therefore eliminated." << endl;
                 delete players->at(i);
                 players->erase(players->begin() + i);
+
+                cout << "Waiting for input before continuing (enter 0)..." << endl;
+                int val;
+                cin >> val;
             }
         }
         gameOver = checkForWin();
         if(!gameOver){
             for(Player* player: *players){
                 player->clearPlayerFriends();
-                if(player->hasConqueredTerritoryInTurn()){
+                if (player->hasConqueredTerritoryInTurn()) {
                     deck->draw(*player->getHand());
                     player->setConqueredTerritoryInTurn(false);
                 }
@@ -648,7 +662,13 @@ void GameEngine::mainGameLoop() {
     }
 
     transition("win");
-    std::this_thread::sleep_for(std::chrono::seconds (10));
+
+    cout << "Waiting for input before continuing (enter 0)..." << endl;
+    int val;
+    cin >> val;
+
+//    cout << "Waiting 10 seconds before continuing..." << endl;
+//    std::this_thread::sleep_for(std::chrono::seconds (10));
 }
 
 void GameEngine::reinforcementPhase(){
@@ -817,7 +837,7 @@ bool GameEngine::checkForWin(){
 
 Player* GameEngine::getNeutralPlayer(){
     for(Player* player: *players){
-        if(*player->getIsNeutral()){
+        if (*player->getIsNeutral()) {
             return player;
         }
     }
@@ -825,17 +845,24 @@ Player* GameEngine::getNeutralPlayer(){
 }
 
 void GameEngine::startupPhase() {
-    // Initial state at startup
-    transition("start");
-
     cout << "\nStartup phase\n" << endl;
 
-    Command *nextCommand;
+    vector<string> states = vector{string("assignreinforcement")};
+
+    readingCommands(states);
+}
+
+void GameEngine::readingCommands(const vector<string> &states) {
+    Command *nextCommand = commandProcessor->getCommand(*this, *log);;
     tuple<bool, string, string> commandProcessorResult;
 
-    while (*currentState != "assignreinforcement") {
-        // Get next command from command processor
-        nextCommand = commandProcessor->getCommand(*this, *this->log);
+    while (true) {
+        printActionsIfNeeded();
+
+        if (nextCommand == nullptr) {
+            cerr << "\nReached end of the file. Exiting..." << endl;
+            break;
+        }
 
         // Validate against current state
         commandProcessorResult = commandProcessor->validate(*this, *nextCommand);
@@ -859,9 +886,20 @@ void GameEngine::startupPhase() {
             cerr << "BAD INPUT! " << get<2>(commandProcessorResult) << endl;
             cerr << "Remaining in state " << *getCurrentState() << endl;
         }
+
+        for (const string &state: states) {
+            cout << "currentState " << *currentState << " | comparing to " << state << endl;
+            if (*currentState == state) {
+                cout << "Waiting for input before continuing (enter 0)..." << endl;
+                int val;
+                cin >> val;
+                return;
+            }
+        }
+
+        // Get next command from command processor
+        nextCommand = commandProcessor->getCommand(*this, *log);
     }
-
-
 }
 
 string GameEngine::stringToLog() const {

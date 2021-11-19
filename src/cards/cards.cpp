@@ -155,23 +155,28 @@ void Deck::setDeckCards(const vector<Card*> &cards) {
 }
 
 // This function allows a player to draw a card from the deck and to put it in their hand
-void Deck::draw(const Hand& hand) {
+void Deck::draw(const Hand &hand) {
     int lastElementPosition = this->warzoneCards->size() - 1;
-    Card* card = this->warzoneCards->back();
+    Card *card = this->warzoneCards->back();
 
     hand.getHandsCards()->emplace_back(card); // put deck card in hand
     this->warzoneCards->erase(this->warzoneCards->begin() + lastElementPosition); // erase last pointer
+}
+
+void Deck::setDeck(const Deck &deck) {
+    delete warzoneCards;
+    warzoneCards = deck.warzoneCards;
 }
 
 //---Implementation of the Hand class---
 
 // Default constructor for the Hand method which initializes an empty vector of Card
 Hand::Hand() {
-    handsCards = new vector<Card*>();
+    handsCards = new vector<Card *>();
 }
 
 // Constructor with a vector of Card as the only parameter
-Hand::Hand(const vector<Card*>& cards) {
+Hand::Hand(const vector<Card *> &cards) {
     handsCards = new vector<Card*>(cards);
 }
 
