@@ -1,0 +1,4 @@
+loadmap canada-map.txt
+validatemap
+addplayer
+addplayer obama

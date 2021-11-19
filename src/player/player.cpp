@@ -272,7 +272,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
     for(auto & territory : *territories){
 
         //40% chance to do a deploy
-        if((rand() % 100 < 40) && countOfDeploys <= *reinforcementPool){
+        if((rand() % 100 < 40) && countOfDeploys <= *reinforcementPool && territories->size() > 1){
             territories2Defend.emplace_back(territory, territory,"deploy");
             cout << "toDefend() adding deploy" << endl;
             countOfDeploys++;
@@ -294,7 +294,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
                     //check if the neighbor is owned by the same player
                     if(neighbor->getOwner() == territory->getOwner()){
 
-                        if((rand() % 100 < 15) && territory->getNumberOfArmies() >= 3){
+                        if((rand() % 100 < 15) && territory->getNumberOfArmies() >= 3 && territories->size() > 1){
                             territories2Defend.emplace_back(territory, neighbor,"advance");
                             cout << "toDefend() adding advance" << endl;
                         }

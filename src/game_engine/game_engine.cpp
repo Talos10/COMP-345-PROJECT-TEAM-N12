@@ -492,6 +492,7 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
         transition(transitionState);
     }
     cout << "\nThis is the state after the action: " << *currentState << endl;
+    cout << "\nGame is about to start!" << endl;
 }
 
 // A function which will allow the issuing of an order using the orders_list class.
@@ -576,11 +577,12 @@ void GameEngine::replay(const string &transitionState, const vector<string *> &c
 // Currently just changes the current state of the game to quit.
 void GameEngine::quit(const string &transitionState, const vector<string *> &commandArgs) {
     cout << "\n****************************************\n" << endl;
-    cout << "Thank you for playing Risk! Shutting down game..." << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
     transition(transitionState);
     cout << "\nThis is the state after the action: " << *currentState << endl;
+
+    cout << "\nThank you for playing Risk! Shutting down game..." << endl;
 }
 
 // Free function in order to test the functionality of the GameEngine for assignment #1.
@@ -592,9 +594,6 @@ void game_engine_driver(const string &cmdArg) {
 
     cout << "\nRunning game engine driver!" << endl;
 
-
-
-//    gameEngine.startupPhase();
 
     cout << "\n********************************************\n" << endl;
     cout << "*************Welcome to Warzone!************" << endl;
@@ -613,15 +612,17 @@ void GameEngine::start() {
 
         transition("start");
 
-        startupPhase();
+        if(startupPhase()){
+            break;
+        }
+
         mainGameLoop();
 
         vector<string> states = vector{string("end"), string("start")};
 
-        readingCommands(states);
-
-//        //TODO Remove this and include this logic in the mainGameLoop
-//        transition("end");
+        if(readingCommands(states)){
+            break;
+        }
     }
 }
 
@@ -701,6 +702,7 @@ void GameEngine::reinforcementPhase(){
 
 void GameEngine::issueOrdersPhase(){
     cout << "\n*****************************Starting Issuing Phase ...*****************************\n" << endl;
+    vector<int> multipliers = {1000,100,10,9,8,7,6,5,4,3,2};
     for(auto & player : *players){ //for each player
             cout << "issueOrdersPhase() for player " << *player->getPName() << endl;
             //Issue orders related to defend the player's territories
@@ -762,9 +764,25 @@ void GameEngine::issueOrdersPhase(){
             for(auto& territoryTuple: player->toAttack()){
                 if(get<2>(territoryTuple) == "advance"){
                     cout << "issueOrder advance" << endl;
-                    Order* advance = new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()+1);
+                    Order* advance = nullptr;
+                    for(int multiplier:multipliers){
+                        cout << "Comparing " << get<0>(territoryTuple)->getNumberOfArmies() << " armies from " <<
+                        get<0>(territoryTuple)->getName() << " vs " << get<1>(territoryTuple)->getNumberOfArmies() <<
+                        " armies from " << get<1>(territoryTuple)->getName() << endl;
+                        if(get<0>(territoryTuple)->getNumberOfArmies() > multiplier * (get<1>(territoryTuple)->getNumberOfArmies()) && (get<1>(territoryTuple)->getNumberOfArmies()) > 0){
+                            cout << "Sending "<<multiplier<<"x the armies from " << get<0>(territoryTuple)->getName() << " to " << get<1>(territoryTuple)->getName() << endl;
+                            cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: "<< get<1>(territoryTuple)->getNumberOfArmies()*multiplier << endl;
+                            advance = new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()*multiplier);
+                            break;
+                        }
+                    }
+                    if(advance == nullptr){
+                        cout << "doing +1 number of armies" << endl;
+                        advance = new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()+1);
+                        cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: "<< get<1>(territoryTuple)->getNumberOfArmies()+1 << endl;
+                    }
                     player->issueOrder(advance);
-                    cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: "<< get<1>(territoryTuple)->getNumberOfArmies()+1 << endl;
+
                     this->log->AddSubject(*advance);
                 }
                 else if(get<2>(territoryTuple) == "bomb"){
@@ -827,8 +845,6 @@ bool GameEngine::checkForWin(){
     for(auto i = 0; i < players->size(); i++){
         if(players->at(i)->getTerritories()->size() == gameMap->getSize()){
             cout << "Player "<< *players->at(i)->getPName() << " has captured all territories and won!" << endl;
-            //delete players->at(i);
-            //players->erase(players->begin() + i);
             return true;
         }
     }
@@ -844,15 +860,15 @@ Player* GameEngine::getNeutralPlayer(){
     return nullptr;
 }
 
-void GameEngine::startupPhase() {
+bool GameEngine::startupPhase() {
     cout << "\nStartup phase\n" << endl;
 
     vector<string> states = vector{string("assignreinforcement")};
 
-    readingCommands(states);
+    return readingCommands(states);
 }
 
-void GameEngine::readingCommands(const vector<string> &states) {
+bool GameEngine::readingCommands(const vector<string> &states) {
     Command *nextCommand = commandProcessor->getCommand(*this, *log);;
     tuple<bool, string, string> commandProcessorResult;
 
@@ -861,7 +877,7 @@ void GameEngine::readingCommands(const vector<string> &states) {
 
         if (nextCommand == nullptr) {
             cerr << "\nReached end of the file. Exiting..." << endl;
-            break;
+            return true;
         }
 
         // Validate against current state
@@ -888,12 +904,11 @@ void GameEngine::readingCommands(const vector<string> &states) {
         }
 
         for (const string &state: states) {
-            cout << "currentState " << *currentState << " | comparing to " << state << endl;
             if (*currentState == state) {
                 cout << "Waiting for input before continuing (enter 0)..." << endl;
                 int val;
                 cin >> val;
-                return;
+                return false;
             }
         }
 

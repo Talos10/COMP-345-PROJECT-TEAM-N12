@@ -172,7 +172,7 @@ public:
     void start();
 
     // A function to execute the startup phase of the game
-    void startupPhase();
+    bool startupPhase();
 
     // A function that prints the actions available for the user if setting up the game from the console.
     void printActionsIfNeeded();
@@ -198,7 +198,7 @@ public:
     // Override class from ILoggable
     string stringToLog() const override;
 
-    void readingCommands(const vector<string> &states);
+    bool readingCommands(const vector<string> &states);
 };
 
 // Free function in order to test the functionality of the GameEngine for assignment #2. Takes in a commandline argument

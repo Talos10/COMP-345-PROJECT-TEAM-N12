@@ -195,13 +195,15 @@ bool Advance::validate() {
         cout << "INVALID: The source territory (" << this->sourceTerritory->getName() << ") has " << this->sourceTerritory->getNumberOfArmies() << " armies, but you wish to Advance with " << this->numArmies << " armies." << endl;
         return false;
     }
-    //Checks if the owner of the target territory is also the owner of
-    //one of the neighboring territories of the source territory.
-    for(Territory* neighbor: this->sourceTerritory->getNeighbours()){
-        if(this->sourceTerritory->getOwner() == neighbor->getOwner()){
+    //Checks if the target territory is one of the neighboring
+    //territories of the source territory.
+    for(Territory* neighbor: this->targetTerritory->getNeighbours()){
+        if(this->sourceTerritory == neighbor){
+            cout << "Advance validation: sourceTerritory " << sourceTerritory->getName() << " is the same as neighbor " << neighbor->getName() << endl;
             return true;
         }
     }
+    cout << "Advance validation failure: sourceTerritory " << sourceTerritory->getName() << " is not a neighbor of targetTerritory " << targetTerritory->getName() << endl;
     return false;
 }
 
