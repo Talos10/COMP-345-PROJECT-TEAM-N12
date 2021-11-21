@@ -90,7 +90,7 @@ GameEngine::GameEngine(const string &readMode) {
                                                            "Loading map from file with the following name:")));
     descriptionMap->insert(make_pair("validatemap", make_tuple("Validate the given file with map(s): validatemap", 0,
                                                                "Validating the map.")));
-    descriptionMap->insert(make_pair("addplayer", make_tuple("Add a new player to the game: addplayer <playername>", 1,
+    descriptionMap->insert(make_pair("addplayer", make_tuple("Add a new player to the game: addplayer <playername>", 2,
                                                              "Adding a player with the following name:")));
     descriptionMap->insert(make_pair("gamestart", make_tuple(
             "Automatically assign each country to a player and start the game: gamestart", 0,
