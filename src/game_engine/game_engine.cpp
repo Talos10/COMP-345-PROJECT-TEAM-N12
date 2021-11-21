@@ -402,7 +402,10 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
         if (!playerExists) {
             cout << "Adding player " << *commandArgs.at(1) << " to list of players" << endl;
 
-            Player *player = new Player(*commandArgs.at(1));
+
+            PlayerStrategy& playerStrategy = chooseStrategy();
+
+            Player *player = new Player(*commandArgs.at(1), &playerStrategy);
             players->emplace_back(player);
             this->log->AddSubject(*player->getOrdersList());
 
@@ -585,6 +588,38 @@ void GameEngine::quit(const string &transitionState, const vector<string *> &com
     cout << "\nThank you for playing Risk! Shutting down game..." << endl;
 }
 
+PlayerStrategy& GameEngine::chooseStrategy() {
+    int strategy{};
+    PlayerStrategy* ps;
+
+    cout << "Choose your play strategy by entering the corresponding number" << endl << "1 - Human" << endl
+    << "2 - Aggressive" << endl << "3 - Benevolent" << endl << "4 - Neutral" << endl << "5 - Cheater" << endl;
+
+    cin >> strategy;
+
+    switch (strategy) {
+        case 1:
+            ps = new HumanPlayerStrategy();
+            break;
+        case 2:
+            ps = new AggressivePlayerStrategy();
+            break;
+        case 3:
+            ps = new BenevolentPlayerStrategy();
+            break;
+        case 4:
+            ps = new NeutralPlayerStrategy();
+            break;
+        case 5:
+            ps = new CheaterPlayerStrategy();
+            break;
+        default:
+            break;
+    }
+
+    return *ps;
+}
+
 // Free function in order to test the functionality of the GameEngine for assignment #1.
 void game_engine_driver(const string &cmdArg) {
 
@@ -743,7 +778,7 @@ void GameEngine::issueOrdersPhase(){
                 }
                 else if(get<2>(territoryTuple) == "blockade"){
                     if(this->getNeutralPlayer() == nullptr){
-                        players->emplace_back(new Player("Neutral"));
+                        players->emplace_back(new Player("Neutral", new NeutralPlayerStrategy()));
                         cout << "Created new Neutral player" << endl;
                     }
 

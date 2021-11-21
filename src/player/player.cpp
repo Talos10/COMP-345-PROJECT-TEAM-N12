@@ -17,10 +17,23 @@ Player::Player(){
     reinforcementPool = new int();
     pname = new string("Default Player Name");
     bool isNeutral = new bool();
+    playerStrategy = new HumanPlayerStrategy();
 };
 
-// Parameterized constructor to create a player with a name
-Player::Player(const string& pname){
+Player::Player(PlayerStrategy* player_strategy) {
+    territories = new std::vector<Territory*>{};
+    hand = new Hand();
+    ordersList = new OrdersList();
+    this->friendPlayers = vector<Player*>();
+    this->conqueredTerritoryInTurn = false;
+    reinforcementPool = new int();
+    pname = new string("Default Player Name");
+    bool isNeutral = new bool();
+    this->playerStrategy = player_strategy->clone();
+}
+
+// Parameterized constructor to create a player with a name and a player strategy
+Player::Player(const string& pname, PlayerStrategy* newPlayerStrategy) {
     territories = new std::vector<Territory*>{};
     hand = new Hand();
     ordersList = new OrdersList();
@@ -33,6 +46,7 @@ Player::Player(const string& pname){
     }else{
         isNeutral = new bool(false);
     }
+    this->playerStrategy = newPlayerStrategy->clone();
 }
 
 // Copy constructor.
@@ -47,6 +61,7 @@ Player::Player(const Player &pl) {
     this->pname = new string(*pl.pname);
     this->reinforcementPool = new int();
     this->isNeutral = new bool(false);
+    this->playerStrategy = pl.playerStrategy->clone();
 }
 
 // Swaps the member data between two Player objects.
@@ -56,6 +71,7 @@ void Player::swap(Player &first, Player &second) {
     std::swap(first.ordersList, second.ordersList);
     std::swap(first.pname, second.pname);
     std::swap(first.reinforcementPool, second.reinforcementPool);
+    std::swap(first.playerStrategy, second.playerStrategy);
 }
 
 // Destructor.
@@ -67,6 +83,7 @@ Player::~Player() {
     delete pname;
     delete reinforcementPool;
     delete isNeutral;
+    delete playerStrategy;
 }
 
 //Implementing the output operator
@@ -247,6 +264,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
         }
 
     }
+    playerStrategy->toAttack();
     return territories2Attack;
 }
 
@@ -320,12 +338,14 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
             cout << "ToDefend() adding blockade" << endl;
         }
     }
+    playerStrategy->toDefend();
     return territories2Defend;
 }
 
 //A function which creates an Order object and adds it to the list of Orders.
 void Player::issueOrder(Order* order){
     ordersList->addOrder(order);
+    playerStrategy->issueOrder(order);
 }
 
 int Player::hasCard(int cardType){
@@ -389,6 +409,15 @@ void Player::setConqueredTerritoryInTurn(bool conqueredTerritoryInTurn) {
     this->conqueredTerritoryInTurn = conqueredTerritoryInTurn;
 }
 
+//PlayerStrategy* Player::getPlayerStrategy() const {
+//    return this->playerStrategy;
+//}
+//
+//void Player::setStrategy(PlayerStrategy *playerStrategy) {
+//    delete this->playerStrategy;
+//    this->playerStrategy = playerStrategy;
+//}
+
 // Free function in order to test the functionality of the Player for assignment #1.
 void player_driver(const string &filename) {
 
@@ -398,7 +427,7 @@ void player_driver(const string &filename) {
     cout << "\n***************************Player driver function***************************" << endl;
 
     //Create player1 object
-    Player *player1 = new Player();
+    Player *player1 = new Player(new AggressivePlayerStrategy());
 
     //Set the territories with sample data from the Map
     player1->setTerritories({map->getTerritoryByID(1),map->getTerritoryByID(2), map->getTerritoryByID(3), map->getTerritoryByID(4)});
@@ -459,7 +488,7 @@ void player_driver(const string &filename) {
     cout << "player1 address: " << &player1 << "\tplayer2 address " << &player2 << endl;
 
     //Delete the objects on the heap
-    delete player1;
-    delete player2;
+    //delete player1;
+    //delete player2;
 
 }

@@ -105,6 +105,9 @@ private:
     // transition state the game will be in after the method is executed and the arguments of the command that triggered the execution of this method.
     void quit(const string &transitionState, const vector<string *> &commandArgs);
 
+    // A function which sets the player's strategy
+    PlayerStrategy& chooseStrategy();
+
 public:
 
     // One param constructor which initializes all the maps, the current game state, and the mode in which the game
