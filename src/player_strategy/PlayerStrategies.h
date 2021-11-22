@@ -31,6 +31,12 @@ public:
      * @return
      */
     virtual vector<tuple<Territory*,Territory*,string>> toDefend() = 0;
+
+    /**
+     * Method that returns the player strategy as a string
+     * @return
+     */
+     virtual string printStrategy() = 0;
 };
 
 class HumanPlayerStrategy : public PlayerStrategy {
@@ -42,6 +48,9 @@ public:
 
     // Destructor
     ~HumanPlayerStrategy();
+
+    // Output operator
+    string printStrategy() override;
 
     // issueOrder method for the human player type
     void issueOrder(Order* order) override;
@@ -63,6 +72,9 @@ public:
     // Destructor
     ~AggressivePlayerStrategy();
 
+    // Output operator
+    string printStrategy() override;
+
     // issueOrder method for the aggressive player type
     void issueOrder(Order* order) override;
 
@@ -82,6 +94,9 @@ public:
 
     // Destructor
     ~BenevolentPlayerStrategy();
+
+    // Output operator
+    string printStrategy() override;
 
     // issueOrder method for the benevolent player type
     void issueOrder(Order* order) override;
@@ -103,6 +118,9 @@ public:
     // Destructor
     ~NeutralPlayerStrategy();
 
+    // Output operator
+    string printStrategy() override;
+
     // issueOrder method for the neutral player type
     void issueOrder(Order* order) override;
 
@@ -122,6 +140,9 @@ public:
 
     // Destructor
     ~CheaterPlayerStrategy();
+
+    // Output operator
+    string printStrategy() override;
 
     // issueOrder method for the cheater player type
     void issueOrder(Order* order) override;

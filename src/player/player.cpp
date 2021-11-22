@@ -409,14 +409,14 @@ void Player::setConqueredTerritoryInTurn(bool conqueredTerritoryInTurn) {
     this->conqueredTerritoryInTurn = conqueredTerritoryInTurn;
 }
 
-//PlayerStrategy* Player::getPlayerStrategy() const {
-//    return this->playerStrategy;
-//}
-//
-//void Player::setStrategy(PlayerStrategy *playerStrategy) {
-//    delete this->playerStrategy;
-//    this->playerStrategy = playerStrategy;
-//}
+PlayerStrategy* Player::getPlayerStrategy() const {
+    return this->playerStrategy;
+}
+
+void Player::setStrategy(PlayerStrategy *playerStrategy) {
+    delete this->playerStrategy;
+    this->playerStrategy = playerStrategy;
+}
 
 // Free function in order to test the functionality of the Player for assignment #1.
 void player_driver(const string &filename) {

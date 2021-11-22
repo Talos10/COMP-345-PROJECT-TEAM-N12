@@ -106,7 +106,7 @@ private:
     void quit(const string &transitionState, const vector<string *> &commandArgs);
 
     // A function which sets the player's strategy
-    PlayerStrategy& chooseStrategy();
+    PlayerStrategy& getStrategyObjectByStrategyName(string& name);
 
 public:
 

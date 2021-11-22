@@ -19,6 +19,12 @@ HumanPlayerStrategy::HumanPlayerStrategy() {}
 // Default destructor
 HumanPlayerStrategy::~HumanPlayerStrategy() {}
 
+// Print the strategy
+string HumanPlayerStrategy::printStrategy() {
+    string strategy = "human strategy";
+    return strategy;
+}
+
 // clone a HumanStrategyPlayer
 PlayerStrategy* HumanPlayerStrategy::clone() const {
     return new HumanPlayerStrategy(*this);
@@ -50,6 +56,12 @@ AggressivePlayerStrategy::AggressivePlayerStrategy() {}
 
 // Default destructor
 AggressivePlayerStrategy::~AggressivePlayerStrategy() {}
+
+// Print the strategy
+string AggressivePlayerStrategy::printStrategy() {
+    string strategy = "aggressive strategy";
+    return strategy;
+}
 
 // clone an Aggressive Player Strategy
 PlayerStrategy* AggressivePlayerStrategy::clone() const {
@@ -83,6 +95,12 @@ BenevolentPlayerStrategy::BenevolentPlayerStrategy() {}
 // Default destructor
 BenevolentPlayerStrategy::~BenevolentPlayerStrategy() {}
 
+// Print the strategy
+string BenevolentPlayerStrategy::printStrategy() {
+    string strategy = "benevolent strategy";
+    return strategy;
+}
+
 // clone a Benevolent Player Strategy
 PlayerStrategy* BenevolentPlayerStrategy::clone() const {
     return new BenevolentPlayerStrategy(*this);
@@ -115,6 +133,12 @@ NeutralPlayerStrategy::NeutralPlayerStrategy() {}
 // Default destructor
 NeutralPlayerStrategy::~NeutralPlayerStrategy() {}
 
+// Print the strategy
+string NeutralPlayerStrategy::printStrategy() {
+    string strategy = "neutral strategy";
+    return strategy;
+}
+
 // clone a Neutral Player Strategy
 PlayerStrategy* NeutralPlayerStrategy::clone() const {
     return new NeutralPlayerStrategy(*this);
@@ -146,6 +170,12 @@ CheaterPlayerStrategy::CheaterPlayerStrategy() {}
 
 // Default destructor
 CheaterPlayerStrategy::~CheaterPlayerStrategy() {}
+
+// Print the strategy
+string CheaterPlayerStrategy::printStrategy() {
+    string strategy = "cheater strategy";
+    return strategy;
+}
 
 // clone a Cheater Player strategy
 PlayerStrategy* CheaterPlayerStrategy::clone() const {

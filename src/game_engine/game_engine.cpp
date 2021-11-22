@@ -383,7 +383,7 @@ void GameEngine::validateMap(const string &transitionState, const vector<string 
 // Currently just changes the current state of the game to playersAdded.
 void GameEngine::addPlayer(const string &transitionState, const vector<string *> &commandArgs) {
     cout << "\n****************************************\n" << endl;
-    cout << "Inside the add a player function! You are adding a player with name: " << *commandArgs.at(1) << endl;
+    cout << "Inside the add a player function! You are adding a player with name: " << *commandArgs.at(1) << " with the strategy: " << *commandArgs.at(2) << endl;
     cout << "\nThis is the state before the action: " << *currentState << endl;
 
     // Note: only a maximum of 6 players are supported
@@ -400,12 +400,10 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
         }
 
         if (!playerExists) {
-            cout << "Adding player " << *commandArgs.at(1) << " to list of players" << endl;
+            cout << "Adding player " << *commandArgs.at(1) << " with " << *commandArgs.at(2) << " strategy to the list of players" << endl;
 
 
-            PlayerStrategy& playerStrategy = chooseStrategy();
-
-            Player *player = new Player(*commandArgs.at(1), &playerStrategy);
+            Player *player = new Player(*commandArgs.at(1), &getStrategyObjectByStrategyName(*commandArgs.at(2)));
             players->emplace_back(player);
             this->log->AddSubject(*player->getOrdersList());
 
@@ -415,7 +413,7 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
 
     cout << "\nCurrent list of players:" << endl;
     for (const auto &player : *players) {
-        cout << "\t" << *player->getPName() << endl;
+        cout << "\t" << *player->getPName() << " - " << player->getPlayerStrategy()->printStrategy() << endl;
     }
     cout << endl;
 
@@ -588,34 +586,19 @@ void GameEngine::quit(const string &transitionState, const vector<string *> &com
     cout << "\nThank you for playing Risk! Shutting down game..." << endl;
 }
 
-PlayerStrategy& GameEngine::chooseStrategy() {
-    int strategy{};
+PlayerStrategy& GameEngine::getStrategyObjectByStrategyName(string& name) {
     PlayerStrategy* ps;
 
-    cout << "Choose your play strategy by entering the corresponding number" << endl << "1 - Human" << endl
-    << "2 - Aggressive" << endl << "3 - Benevolent" << endl << "4 - Neutral" << endl << "5 - Cheater" << endl;
-
-    cin >> strategy;
-
-    switch (strategy) {
-        case 1:
-            ps = new HumanPlayerStrategy();
-            break;
-        case 2:
-            ps = new AggressivePlayerStrategy();
-            break;
-        case 3:
-            ps = new BenevolentPlayerStrategy();
-            break;
-        case 4:
-            ps = new NeutralPlayerStrategy();
-            break;
-        case 5:
-            ps = new CheaterPlayerStrategy();
-            break;
-        default:
-            break;
-    }
+    if(name == "human")
+        ps = new HumanPlayerStrategy();
+    else if(name == "aggressive")
+        ps = new AggressivePlayerStrategy();
+    else if(name == "benevolent")
+        ps = new BenevolentPlayerStrategy();
+    else if(name == "neutral")
+        ps = new NeutralPlayerStrategy();
+    else if(name == "cheater")
+        ps = new CheaterPlayerStrategy();
 
     return *ps;
 }
