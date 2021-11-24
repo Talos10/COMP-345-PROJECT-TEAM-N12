@@ -91,7 +91,7 @@ GameEngine::GameEngine(const string &readMode) {
     descriptionMap->insert(make_pair("validatemap", make_tuple("Validate the given file with map(s): validatemap", 0,
                                                                "Validating the map.")));
     descriptionMap->insert(make_pair("addplayer", make_tuple("Add a new player to the game: addplayer <playername>", 2,
-                                                             "Adding a player with the following name:")));
+                                                             "Adding a player with the following name and strategy:")));
     descriptionMap->insert(make_pair("gamestart", make_tuple(
             "Automatically assign each country to a player and start the game: gamestart", 0,
             "Assigning the countries and starting the game.")));
@@ -887,12 +887,11 @@ bool GameEngine::startupPhase() {
 }
 
 bool GameEngine::readingCommands(const vector<string> &states) {
+    printActionsIfNeeded();
     Command *nextCommand = commandProcessor->getCommand(*this, *log);;
     tuple<bool, string, string> commandProcessorResult;
 
     while (true) {
-        printActionsIfNeeded();
-
         if (nextCommand == nullptr) {
             cerr << "\nReached end of the file. Exiting..." << endl;
             return true;
@@ -929,6 +928,8 @@ bool GameEngine::readingCommands(const vector<string> &states) {
                 return false;
             }
         }
+
+        printActionsIfNeeded();
 
         // Get next command from command processor
         nextCommand = commandProcessor->getCommand(*this, *log);

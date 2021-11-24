@@ -32,7 +32,7 @@ PlayerStrategy* HumanPlayerStrategy::clone() const {
 
 void HumanPlayerStrategy::issueOrder(Order *order) {
     cout << "Issuing order from Human Player Strategy" << endl;
-    cout << order;
+    cout << *order;
 }
 
 vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toAttack() {
@@ -70,7 +70,7 @@ PlayerStrategy* AggressivePlayerStrategy::clone() const {
 
 void AggressivePlayerStrategy::issueOrder(Order *order) {
     cout << "Issuing order from Aggressive Player Strategy" << endl;
-    cout << order;
+    cout << *order;
 }
 
 vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toAttack() {
@@ -108,7 +108,7 @@ PlayerStrategy* BenevolentPlayerStrategy::clone() const {
 
 void BenevolentPlayerStrategy::issueOrder(Order *order) {
     cout << "Issuing order from Benevolent Player Strategy" << endl;
-    cout << order;
+    cout << *order;
 }
 
 vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toAttack() {
@@ -146,7 +146,7 @@ PlayerStrategy* NeutralPlayerStrategy::clone() const {
 
 void NeutralPlayerStrategy::issueOrder(Order *order) {
     cout << "Issuing order from Neutral Player Strategy" << endl;
-    cout << order;
+    cout << *order;
 }
 
 vector<tuple<Territory *, Territory *, string>> NeutralPlayerStrategy::toAttack() {
@@ -184,7 +184,7 @@ PlayerStrategy* CheaterPlayerStrategy::clone() const {
 
 void CheaterPlayerStrategy::issueOrder(Order *order) {
     cout << "Issuing order from Cheater Player Strategy" << endl;
-    cout << order;
+    cout << *order;
 }
 
 vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toAttack() {

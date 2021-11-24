@@ -12,23 +12,25 @@ public:
 
     // Default destructor
     ~PlayerStrategy();
-    /**
-     * Method that takes an Order parameter will issue an order depending on the chosen player strategy
-     * @param order
-     */
 
     // clones a PlayerStrategy clone
-    virtual PlayerStrategy* clone() const = 0;
+    [[nodiscard]] virtual PlayerStrategy *clone() const = 0;
 
-    virtual void issueOrder(Order* order) = 0;
+    /**
+     * Method that takes an Order parameter will issue an order depending on the chosen player strategy
+     * @param order the order to be issued
+     */
+    virtual void issueOrder(Order *order) = 0;
+
     /**
      * Method that takes none arguments, attacks a territory and returns nothing
-     * @return
+     * @return the territories to be attacked
      */
-    virtual vector<tuple<Territory*,Territory*,string>> toAttack() = 0;
+    virtual vector<tuple<Territory *, Territory *, string>> toAttack() = 0;
+
     /**
      * Method that takes none arguments, defends a territory and returns nothing
-     * @return
+     * @return the territories to be defended
      */
     virtual vector<tuple<Territory*,Territory*,string>> toDefend() = 0;
 
@@ -41,7 +43,9 @@ public:
 
 class HumanPlayerStrategy : public PlayerStrategy {
 private:
-    PlayerStrategy* clone() const override;
+    // clones a HumanPlayerStrategy clone
+    [[nodiscard]] PlayerStrategy *clone() const override;
+
 public:
     // Default constructor
     HumanPlayerStrategy();
@@ -64,7 +68,9 @@ public:
 
 class AggressivePlayerStrategy : public PlayerStrategy {
 private:
-    PlayerStrategy* clone() const override;
+    // clones a AggressivePlayerStrategy clone
+    [[nodiscard]] PlayerStrategy *clone() const override;
+
 public:
     // Default constructor
     AggressivePlayerStrategy();
@@ -87,7 +93,9 @@ public:
 
 class BenevolentPlayerStrategy : public PlayerStrategy {
 private:
-    PlayerStrategy* clone() const override;
+    // clones a BenevolentPlayerStrategy clone
+    [[nodiscard]] PlayerStrategy *clone() const override;
+
 public:
     // Default constructor
     BenevolentPlayerStrategy();
@@ -110,7 +118,9 @@ public:
 
 class NeutralPlayerStrategy : public PlayerStrategy {
 private:
-    PlayerStrategy* clone() const override;
+    // clones a NeutralPlayerStrategy clone
+    [[nodiscard]] PlayerStrategy *clone() const override;
+
 public:
     // Default constructor
     NeutralPlayerStrategy();
@@ -131,9 +141,11 @@ public:
     vector<tuple<Territory*,Territory*,string>> toDefend() override;
 };
 
-class CheaterPlayerStrategy: public PlayerStrategy {
+class CheaterPlayerStrategy : public PlayerStrategy {
 private:
-    PlayerStrategy* clone() const override;
+    // clones a CheaterPlayerStrategy clone
+    [[nodiscard]] PlayerStrategy *clone() const override;
+
 public:
     // Default constructor
     CheaterPlayerStrategy();
