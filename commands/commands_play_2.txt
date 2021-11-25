@@ -1,12 +1,12 @@
 loadmap canada-map.txt
 validatemap
-addplayer talos
-addplayer obama
+addplayer talos aggressive
+addplayer obama benevolent
 gamestart
 replay
 loadmap earthbound-map.txt
 validatemap
-addplayer david
-addplayer eric
+addplayer david neutral
+addplayer eric cheater
 gamestart
 quit

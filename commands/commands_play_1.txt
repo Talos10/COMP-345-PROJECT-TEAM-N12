@@ -1,6 +1,6 @@
 loadmap canada-map.txt
 validatemap
-addplayer talos
-addplayer obama
+addplayer talos aggressive
+addplayer obama benevolent
 gamestart
 quit

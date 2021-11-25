@@ -90,8 +90,8 @@ GameEngine::GameEngine(const string &readMode) {
                                                            "Loading map from file with the following name:")));
     descriptionMap->insert(make_pair("validatemap", make_tuple("Validate the given file with map(s): validatemap", 0,
                                                                "Validating the map.")));
-    descriptionMap->insert(make_pair("addplayer", make_tuple("Add a new player to the game: addplayer <playername>", 1,
-                                                             "Adding a player with the following name:")));
+    descriptionMap->insert(make_pair("addplayer", make_tuple("Add a new player to the game: addplayer <playername>", 2,
+                                                             "Adding a player with the following name and strategy:")));
     descriptionMap->insert(make_pair("gamestart", make_tuple(
             "Automatically assign each country to a player and start the game: gamestart", 0,
             "Assigning the countries and starting the game.")));
@@ -383,7 +383,7 @@ void GameEngine::validateMap(const string &transitionState, const vector<string 
 // Currently just changes the current state of the game to playersAdded.
 void GameEngine::addPlayer(const string &transitionState, const vector<string *> &commandArgs) {
     cout << "\n****************************************\n" << endl;
-    cout << "Inside the add a player function! You are adding a player with name: " << *commandArgs.at(1) << endl;
+    cout << "Inside the add a player function! You are adding a player with name: " << *commandArgs.at(1) << " with the strategy: " << *commandArgs.at(2) << endl;
     cout << "\nThis is the state before the action: " << *currentState << endl;
 
     // Note: only a maximum of 6 players are supported
@@ -400,9 +400,10 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
         }
 
         if (!playerExists) {
-            cout << "Adding player " << *commandArgs.at(1) << " to list of players" << endl;
+            cout << "Adding player " << *commandArgs.at(1) << " with " << *commandArgs.at(2) << " strategy to the list of players" << endl;
 
-            Player *player = new Player(*commandArgs.at(1));
+
+            Player *player = new Player(*commandArgs.at(1), &getStrategyObjectByStrategyName(*commandArgs.at(2)));
             players->emplace_back(player);
             this->log->AddSubject(*player->getOrdersList());
 
@@ -412,7 +413,7 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
 
     cout << "\nCurrent list of players:" << endl;
     for (const auto &player : *players) {
-        cout << "\t" << *player->getPName() << endl;
+        cout << "\t" << *player->getPName() << " - " << player->getPlayerStrategy()->printStrategy() << endl;
     }
     cout << endl;
 
@@ -585,6 +586,23 @@ void GameEngine::quit(const string &transitionState, const vector<string *> &com
     cout << "\nThank you for playing Risk! Shutting down game..." << endl;
 }
 
+PlayerStrategy& GameEngine::getStrategyObjectByStrategyName(string& name) {
+    PlayerStrategy* ps;
+
+    if(name == "human")
+        ps = new HumanPlayerStrategy();
+    else if(name == "aggressive")
+        ps = new AggressivePlayerStrategy();
+    else if(name == "benevolent")
+        ps = new BenevolentPlayerStrategy();
+    else if(name == "neutral")
+        ps = new NeutralPlayerStrategy();
+    else if(name == "cheater")
+        ps = new CheaterPlayerStrategy();
+
+    return *ps;
+}
+
 // Free function in order to test the functionality of the GameEngine for assignment #1.
 void game_engine_driver(const string &cmdArg) {
 
@@ -743,7 +761,7 @@ void GameEngine::issueOrdersPhase(){
                 }
                 else if(get<2>(territoryTuple) == "blockade"){
                     if(this->getNeutralPlayer() == nullptr){
-                        players->emplace_back(new Player("Neutral"));
+                        players->emplace_back(new Player("Neutral", new NeutralPlayerStrategy()));
                         cout << "Created new Neutral player" << endl;
                     }
 
@@ -869,12 +887,11 @@ bool GameEngine::startupPhase() {
 }
 
 bool GameEngine::readingCommands(const vector<string> &states) {
+    printActionsIfNeeded();
     Command *nextCommand = commandProcessor->getCommand(*this, *log);;
     tuple<bool, string, string> commandProcessorResult;
 
     while (true) {
-        printActionsIfNeeded();
-
         if (nextCommand == nullptr) {
             cerr << "\nReached end of the file. Exiting..." << endl;
             return true;
@@ -911,6 +928,8 @@ bool GameEngine::readingCommands(const vector<string> &states) {
                 return false;
             }
         }
+
+        printActionsIfNeeded();
 
         // Get next command from command processor
         nextCommand = commandProcessor->getCommand(*this, *log);

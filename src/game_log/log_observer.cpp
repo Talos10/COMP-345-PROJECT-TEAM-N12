@@ -1,6 +1,6 @@
 #include "log_observer.h"
 
-#define LOG_DIRECTORY "../log/"
+#define LOG_DIRECTORY "../"
 
 
 // Default constructor

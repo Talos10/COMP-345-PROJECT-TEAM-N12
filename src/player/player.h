@@ -10,6 +10,7 @@
 #include "cards/cards.h"
 #include "orders/orders.h"
 #include "map/map.h"
+#include "player_strategy/PlayerStrategies.h"
 #include <algorithm>
 #include <map>
 
@@ -21,6 +22,7 @@ class Hand;
 class Territory;
 class OrdersList;
 class Order;
+class PlayerStrategy;
 
 // This class implements the player of the game (who will carry certain information about the territories,
 // the hand with cards and the list of orders).
@@ -52,12 +54,18 @@ private:
     //Neutral player or not
     bool* isNeutral;
 
+    // Player strategy class containing all the player types
+    PlayerStrategy* playerStrategy;
+
 public:
     // Default constructor which initializes all the maps and the current game state.
     Player();
 
+    // Parametrized constructor that takes a player strategy and initializes all maps and current state
+    Player(PlayerStrategy* player_strategy);
+
     // Parameterized constructor to create a player with a name
-    Player(const string& pname);
+    Player(const string& pname, PlayerStrategy* player_strategy);
 
     // A copy constructor.
     Player(const Player& pl);
@@ -149,6 +157,12 @@ public:
 
     // Setter for the isNeutral status.
     void setIsNeutral(const bool &isNeutral);
+
+    // Getter for the player strategy
+    PlayerStrategy* getPlayerStrategy() const;
+
+    // Setter for the player strategy
+    void setStrategy(PlayerStrategy *playerStrategy);
 };
 
 // Free function in order to test the functionality of the Player for assignment #1.
