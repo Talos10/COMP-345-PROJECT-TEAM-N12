@@ -30,18 +30,17 @@ PlayerStrategy* HumanPlayerStrategy::clone() const {
     return new HumanPlayerStrategy(*this);
 }
 
-void HumanPlayerStrategy::issueOrder(Order *order) {
+void HumanPlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) {
     cout << "Issuing order from Human Player Strategy" << endl;
-    cout << *order;
 }
 
-vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toAttack() {
+vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toAttack(Player* player) {
     cout << "toAttack method from Human Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack{};
     return toAttack;
 }
 
-vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toDefend() {
+vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toDefend(Player* player) {
     cout << "toDefend method from Human Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend{};
     return toDefend;
@@ -68,20 +67,137 @@ PlayerStrategy* AggressivePlayerStrategy::clone() const {
     return new AggressivePlayerStrategy(*this);
 }
 
-void AggressivePlayerStrategy::issueOrder(Order *order) {
+void AggressivePlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) {
     cout << "Issuing order from Aggressive Player Strategy" << endl;
-    cout << *order;
+    if (get<2>(orderInfo) == "deploy") {
+        int reinforcementPool = *player->getReinforcementPool();
+        Order* deploy = new Deploy(*player, *get<0>(orderInfo), reinforcementPool);
+        player->getOrdersList()->addOrder(deploy);
+        cout << "**issueOrder Deploy | Player: " << *player->getPName() << " | Target territory: " << get<0>(orderInfo)->getName() << " | Armies: " << reinforcementPool << endl;
+//    this->log->AddSubject(*deploy);
+        player->decreasePool(reinforcementPool);
+    }
+    else if(get<2>(orderInfo) == "negotiate") {
+        cout << "An Aggressive Player does not do negotiate order. It does Deploy and Advance" << endl;
+    }
+    else if(get<2>(orderInfo) == "blockade") {
+        cout << "An Aggressive Player does not do blockade order. It does Deploy and Advance" << endl;
+    }
+    else if(get<2>(orderInfo) == "airlift" && get<0>(orderInfo)->getNumberOfArmies()>=2) {
+        Order* airlift = new Airlift(*player,*get<0>(orderInfo), *get<1>(orderInfo), get<0>(orderInfo)->getNumberOfArmies()-1);
+        cout << "**issueOrder Airlift | Player: " << *player->getPName() << " | Source territory: " << get<0>(orderInfo)->getName() << " | Target territory: " << get<1>(orderInfo)->getName() << " | Armies: " << get<0>(orderInfo)->getNumberOfArmies()-1 << endl;
+        player->getOrdersList()->addOrder(airlift);
+//        this->log->AddSubject(*airlift);
+    }
+    else if(get<2>(orderInfo) == "advance") {
+        //Defend Advance
+        if (get<0>(orderInfo)->getOwner() == get<1>(orderInfo)->getOwner() && get<0>(orderInfo)->getNumberOfArmies()>=2) {
+            Order* advance = new Advance(*player,*get<0>(orderInfo),*get<1>(orderInfo),get<0>(orderInfo)->getNumberOfArmies()-1);
+            player->getOrdersList()->addOrder(advance);
+            cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(orderInfo)->getName() << " | Target territory: " << get<1>(orderInfo)->getName() << " | Armies: "<< get<0>(orderInfo)->getNumberOfArmies()-1 << endl;
+        }
+        else {  //Attack Advance
+            int differenceOfArmies = get<0>(orderInfo)->getNumberOfArmies() - get<1>(orderInfo)->getNumberOfArmies();
+            if (differenceOfArmies > 5) {
+                Order* advance = new Advance(*player,*get<0>(orderInfo),*get<1>(orderInfo),get<0>(orderInfo)->getNumberOfArmies()-differenceOfArmies+5);
+                player->getOrdersList()->addOrder(advance);
+                cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(orderInfo)->getName() << " | Target territory: " << get<1>(orderInfo)->getName() << " | Armies: "<< get<0>(orderInfo)->getNumberOfArmies()-differenceOfArmies+5 << endl;
+            }
+            else if (differenceOfArmies >= 1) {
+                Order* advance = new Advance(*player,*get<0>(orderInfo),*get<1>(orderInfo),get<0>(orderInfo)->getNumberOfArmies());
+                player->getOrdersList()->addOrder(advance);
+                cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(orderInfo)->getName() << " | Target territory: " << get<1>(orderInfo)->getName() << " | Armies: "<< get<0>(orderInfo)->getNumberOfArmies() << endl;
+            }
+            else {
+                cout << "Cannot issue Advance order because numArmies source territory is less than numArmies target territory" << endl;
+            }
+        }
+//        this->log->AddSubject(*advance);
+    }
+    else if(get<2>(orderInfo) == "bomb") {
+        Order* bomb = new Bomb(*player,*get<1>(orderInfo));
+        player->getOrdersList()->addOrder(bomb);
+        cout << "**issueOrder Bomb | Player: " << *player->getPName() << " | Target territory: " << get<1>(orderInfo)->getName() << endl;
+//        this->log->AddSubject(*bomb);
+    }
 }
 
-vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toAttack() {
+vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toAttack(Player* player) {
     cout << "toAttack method from Aggressive Player Strategy" << endl;
-    vector<tuple<Territory *, Territory *, string>> toAttack{};
+    vector<tuple<Territory *, Territory *, string>> toAttack;
+    //Copy of the player's hand to keep track of which cards are going to be played
+    std::map<int,int> tempHand;
+    tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
+    //Counts the number of cards for each type
+    for(Card *card: *player->getHand()->getHandsCards()){
+        tempHand[*card->getType()] += 1;
+    }
+    //Find strongest territory
+    Territory* strongestTerritory = player->getTerritories()->at(0);
+    for (Territory* terr : *player->getTerritories()) {
+        if (terr->getNumberOfArmies() > strongestTerritory->getNumberOfArmies()) {
+            strongestTerritory = terr;
+        }
+    }
+    //Attack neighbors of strongest territory
+    for (Territory* neighbor: strongestTerritory->getNeighbours()) {
+        if (tempHand[0] > 0 && neighbor->getNumberOfArmies() > strongestTerritory->getNumberOfArmies()) {
+            toAttack.emplace_back(strongestTerritory,neighbor,"bomb");
+            tempHand[0]--;
+        }
+        else {
+            toAttack.emplace_back(strongestTerritory, neighbor,"advance");
+        }
+    }
+    //Attack neighbors of other territories
+    for (Territory* territory: *player->getTerritories()) {
+        if (territory != strongestTerritory) {
+            for (Territory* neighbor: territory->getNeighbours()) {
+                if(neighbor->getNumberOfArmies() < territory->getNumberOfArmies() && territory->getNumberOfArmies() > 0){
+                    toAttack.emplace_back(territory,neighbor,"advance");
+                }
+            }
+        }
+    }
     return toAttack;
 }
 
-vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toDefend() {
+vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toDefend(Player* player) {
     cout << "toDefend method from Aggressive Player Strategy" << endl;
-    vector<tuple<Territory *, Territory *, string>> toDefend{};
+    vector<tuple<Territory *, Territory *, string>> toDefend;
+    //Copy of the player's hand to keep track of which cards are going to be played
+    std::map<int,int> tempHand;
+    tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
+    //Counts the number of cards for each type
+    for(Card *card: *player->getHand()->getHandsCards()){
+        tempHand[*card->getType()] += 1;
+    }
+    //Find strongest territory
+    Territory* strongestTerritory = player->getTerritories()->at(0);
+    for (Territory* terr : *player->getTerritories()) {
+        if (terr->getNumberOfArmies() > strongestTerritory->getNumberOfArmies()) {
+            strongestTerritory = terr;
+        }
+    }
+    //Deploy all of reinforcement pool on strongest territory
+    if(player->getTerritories()->size() > 1){
+        toDefend.emplace_back(strongestTerritory, strongestTerritory,"deploy");
+    }
+    //for each territory that is a neighbor of the strongest territory to an advance order towards the strongest territory
+    for (Territory* territory : *player->getTerritories()) {
+        bool addedAdvanceOrder = false;
+        for (Territory* neighbor : territory->getNeighbours()) {
+            if (neighbor == strongestTerritory) {
+                toDefend.emplace_back(territory, neighbor,"advance");
+                addedAdvanceOrder = true;
+                break;
+            }
+        }
+        if (tempHand[3] > 0 && !addedAdvanceOrder && territory->getNumberOfArmies() > 2) {
+            toDefend.emplace_back(territory, strongestTerritory,"airlift");
+            tempHand[3]--;
+        }
+    }
     return toDefend;
 }
 
@@ -106,18 +222,17 @@ PlayerStrategy* BenevolentPlayerStrategy::clone() const {
     return new BenevolentPlayerStrategy(*this);
 }
 
-void BenevolentPlayerStrategy::issueOrder(Order *order) {
+void BenevolentPlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) {
     cout << "Issuing order from Benevolent Player Strategy" << endl;
-    cout << *order;
 }
 
-vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toAttack() {
+vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toAttack(Player* player) {
     cout << "toAttack method from Benevolent Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack{};
     return toAttack;
 }
 
-vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toDefend() {
+vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toDefend(Player* player) {
     cout << "toDefend method from Benevolent Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend{};
     return toDefend;
@@ -144,18 +259,18 @@ PlayerStrategy* NeutralPlayerStrategy::clone() const {
     return new NeutralPlayerStrategy(*this);
 }
 
-void NeutralPlayerStrategy::issueOrder(Order *order) {
+void NeutralPlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) {
     cout << "Issuing order from Neutral Player Strategy" << endl;
-    cout << *order;
+    cout << "Neutral player does not issue any orders" << endl;
 }
 
-vector<tuple<Territory *, Territory *, string>> NeutralPlayerStrategy::toAttack() {
+vector<tuple<Territory *, Territory *, string>> NeutralPlayerStrategy::toAttack(Player* player) {
     cout << "toAttack method from Neutral Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack{};
     return toAttack;
 }
 
-vector<tuple<Territory *, Territory *, string>> NeutralPlayerStrategy::toDefend() {
+vector<tuple<Territory *, Territory *, string>> NeutralPlayerStrategy::toDefend(Player* player) {
     cout << "toDefend method from Neutral Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend{};
     return toDefend;
@@ -182,18 +297,17 @@ PlayerStrategy* CheaterPlayerStrategy::clone() const {
     return new CheaterPlayerStrategy(*this);
 }
 
-void CheaterPlayerStrategy::issueOrder(Order *order) {
+void CheaterPlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) {
     cout << "Issuing order from Cheater Player Strategy" << endl;
-    cout << *order;
 }
 
-vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toAttack() {
+vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toAttack(Player* player) {
     cout << "toAttack method from Cheater Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack{};
     return toAttack;
 }
 
-vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toDefend() {
+vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toDefend(Player* player) {
     cout << "toDefend method from Cheater Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend{};
     return toDefend;

@@ -101,7 +101,7 @@ public:
     Territory* findWeakestTerritory();
 
     //A function that will create an Order object and add it to the list of Orders.
-    void issueOrder(Order* order);
+    void issueOrder(tuple<Territory*,Territory*,string> orderInfo);
 
     // Getter for the territories.
     [[nodiscard]] std::vector<Territory*>* getTerritories() const;

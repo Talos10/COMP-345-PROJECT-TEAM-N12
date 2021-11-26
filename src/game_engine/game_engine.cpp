@@ -673,7 +673,13 @@ void GameEngine::mainGameLoop() {
             for(Player* player: *players){
                 player->clearPlayerFriends();
                 if (player->hasConqueredTerritoryInTurn()) {
-                    deck->draw(*player->getHand());
+                    if (deck->getWarzoneCards()->empty()) {
+                        cout << "Cannot draw card because deck is empty!" << endl;
+                    }
+                    else {
+                        deck->draw(*player->getHand());
+                        cout << *player->getPName() << " drew a card!" << endl;
+                    }
                     player->setConqueredTerritoryInTurn(false);
                 }
             }
@@ -728,87 +734,40 @@ void GameEngine::issueOrdersPhase(){
 //            for (tuple<Territory*,Territory*,string> tuple: territoriesToDefend) {
 //                cout << "Source territory: " << get<0>(tuple) << " | Target territory: " << get<1>(tuple) << " | Order type: " << get<2>(tuple) << endl;
 //            }
-            int numOfDeploys = 0;
-            for(auto& territoryTuple: territoriesToDefend){
-                if(get<2>(territoryTuple) == "deploy"){
-                    numOfDeploys++;
-                }
-            }
-            int currentDeployIndex = 0;
             cout << "issuing orders for defend" << endl;
             for(auto& territoryTuple: territoriesToDefend){
                 if(get<2>(territoryTuple) == "airlift"){
-                    Order* airlift = new Airlift(*player,*get<0>(territoryTuple),*get<1>(territoryTuple), get<0>(territoryTuple)->getNumberOfArmies()/3);
-                    player->getHand()->getHandsCards()->at(player->hasCard(3))->play(*deck, *player, airlift);
-                    cout << "**issueOrder Airlift | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: " << get<0>(territoryTuple)->getNumberOfArmies()/3 << endl;
-                    this->log->AddSubject(*airlift);
+                    player->getHand()->getHandsCards()->at(player->hasCard(3))->play(*deck, *player, territoryTuple);
                 }
                 else if(get<2>(territoryTuple) == "deploy"){
-                    int reinforcementPool = *player->getReinforcementPool();
-                    currentDeployIndex++;
-                    Order* deploy = new Deploy(*player, *get<0>(territoryTuple), reinforcementPool/numOfDeploys);
-                    cout << "**issueOrder Deploy | Player: " << *player->getPName() << " | Target territory: " << get<0>(territoryTuple)->getName() << " | Armies: " << reinforcementPool/numOfDeploys << endl;
-                    player->issueOrder(deploy);
-                    this->log->AddSubject(*deploy);
-                    player->decreasePool(reinforcementPool/numOfDeploys);
+                      player->issueOrder(territoryTuple);
                 }
                 else if(get<2>(territoryTuple) == "negotiate"){
-                    cout << "issueOrder Negotiate" << endl;
-                    Order* negotiate = new Negotiate(*player,*get<1>(territoryTuple)->getOwner());
-                    player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, negotiate);
-                    cout << "**issueOrder Negotiate | Player: " << *player->getPName() << " | Enemy player: " << *get<1>(territoryTuple)->getOwner() << endl;
-                    this->log->AddSubject(*negotiate);
+                    player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, territoryTuple);
                 }
                 else if(get<2>(territoryTuple) == "blockade"){
-                    if(this->getNeutralPlayer() == nullptr){
-                        players->emplace_back(new Player("Neutral", new NeutralPlayerStrategy()));
-                        cout << "Created new Neutral player" << endl;
-                    }
-
-                    Order* blockade = new Blockade(*player,*this->getNeutralPlayer(),*get<1>(territoryTuple));
-                    player->getHand()->getHandsCards()->at(player->hasCard(2))->play(*deck, *player, blockade);
-                    cout << "**issueOrder Blockade | Player: " << *player->getPName() << " | Neutral player: " << *this->getNeutralPlayer()->getPName() << " | Target territory: " << get<1>(territoryTuple)->getName() << endl;
-                    this->log->AddSubject(*blockade);
+//                    if(this->getNeutralPlayer() == nullptr){
+//                        players->emplace_back(new Player("Neutral", new NeutralPlayerStrategy()));
+//                        cout << "Created new Neutral player" << endl;
+//                    }
+//
+//                    Order* blockade = new Blockade(*player,*this->getNeutralPlayer(),*get<1>(territoryTuple));
+//                    player->getHand()->getHandsCards()->at(player->hasCard(2))->play(*deck, *player, blockade);
+//                    cout << "**issueOrder Blockade | Player: " << *player->getPName() << " | Neutral player: " << *this->getNeutralPlayer()->getPName() << " | Target territory: " << get<1>(territoryTuple)->getName() << endl;
+//                    this->log->AddSubject(*blockade);
                 }
                 else if(get<2>(territoryTuple) == "advance"){
-                    Order* advance = new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<0>(territoryTuple)->getNumberOfArmies()/3);
-                    player->issueOrder(advance);
-                    cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: "<< get<0>(territoryTuple)->getNumberOfArmies()/3 << endl;
-                    this->log->AddSubject(*advance);
+                    player->issueOrder(territoryTuple);
                 }
             }
             //Issue the orders related to attack other territories
             cout << "issuing orders for attack" << endl;
             for(auto& territoryTuple: player->toAttack()){
                 if(get<2>(territoryTuple) == "advance"){
-                    cout << "issueOrder advance" << endl;
-                    Order* advance = nullptr;
-                    for(int multiplier:multipliers){
-                        cout << "Comparing " << get<0>(territoryTuple)->getNumberOfArmies() << " armies from " <<
-                        get<0>(territoryTuple)->getName() << " vs " << get<1>(territoryTuple)->getNumberOfArmies() <<
-                        " armies from " << get<1>(territoryTuple)->getName() << endl;
-                        if(get<0>(territoryTuple)->getNumberOfArmies() > multiplier * (get<1>(territoryTuple)->getNumberOfArmies()) && (get<1>(territoryTuple)->getNumberOfArmies()) > 0){
-                            cout << "Sending "<<multiplier<<"x the armies from " << get<0>(territoryTuple)->getName() << " to " << get<1>(territoryTuple)->getName() << endl;
-                            cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: "<< get<1>(territoryTuple)->getNumberOfArmies()*multiplier << endl;
-                            advance = new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()*multiplier);
-                            break;
-                        }
-                    }
-                    if(advance == nullptr){
-                        cout << "doing +1 number of armies" << endl;
-                        advance = new Advance(*player,*get<0>(territoryTuple),*get<1>(territoryTuple),get<1>(territoryTuple)->getNumberOfArmies()+1);
-                        cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(territoryTuple)->getName() << " | Target territory: " << get<1>(territoryTuple)->getName() << " | Armies: "<< get<1>(territoryTuple)->getNumberOfArmies()+1 << endl;
-                    }
-                    player->issueOrder(advance);
-
-                    this->log->AddSubject(*advance);
+                    player->issueOrder(territoryTuple);
                 }
                 else if(get<2>(territoryTuple) == "bomb"){
-                    cout << "issueOrder bomb" << endl;
-                    Order* bomb = new Bomb(*player,*get<1>(territoryTuple));
-                    player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, bomb);
-                    cout << "**issueOrder Bomb | Player: " << *player->getPName() << " | Target territory: " << get<1>(territoryTuple)->getName() << endl;
-                    this->log->AddSubject(*bomb);
+                    player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, territoryTuple);
                 }
             }
     }
