@@ -21,7 +21,7 @@ public:
      * Method that takes an Order parameter will issue an order depending on the chosen player strategy
      * @param order the order to be issued
      */
-    virtual void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) = 0;
+    virtual void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) = 0;
 
     /**
      * Method that takes none arguments, attacks a territory and returns nothing
@@ -58,7 +58,7 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the human player type
-    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) override;
+    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) override;
 
     // toAttack method for the human player
     vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
@@ -83,7 +83,7 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the aggressive player type
-    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) override;
+    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) override;
 
     // toAttack method for the aggressive player
     vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
@@ -111,7 +111,7 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the benevolent player type
-    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) override;
+    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) override;
 
     // toAttack method for the benevolent player
     vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
@@ -136,7 +136,7 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the neutral player type
-    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) override;
+    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) override;
 
     // toAttack method for the neutral player
     vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
@@ -161,7 +161,7 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the cheater player type
-    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) override;
+    void issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) override;
 
     // toAttack method for the cheater player
     vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
