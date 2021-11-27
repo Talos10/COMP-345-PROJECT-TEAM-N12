@@ -391,6 +391,7 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
         cerr << "Error: Cannot add more than 6 players to game" << endl;
     } else {
         bool playerExists = false;
+        // Check if player already exists
         for (const auto &player : *players) {
             if (*player->getPName() == *commandArgs.at(1)) {
                 cerr << "Error: Player with name " << *commandArgs.at(1) << " already exists" << endl;
@@ -906,10 +907,10 @@ bool GameEngine::readingCommands(const vector<string> &states) {
             nextCommand->saveEffect(get<2>(descriptionMap->at(get<1>(commandProcessorResult))), true);
 
             std::invoke(
-                    functionMap->at(get<1>(commandProcessorResult)).first,
-                    this,
-                    functionMap->at(get<1>(commandProcessorResult)).second,
-                    *nextCommand->getCommandArgs()
+                    functionMap->at(get<1>(commandProcessorResult)).first, // Command name - as a string
+                    this, // Object being called
+                    functionMap->at(get<1>(commandProcessorResult)).second, // Pair of function reference and transition state
+                    *nextCommand->getCommandArgs() // Arguments
             );
 
         } else {
