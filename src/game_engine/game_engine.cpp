@@ -746,15 +746,11 @@ void GameEngine::issueOrdersPhase(){
                     player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, territoryTuple);
                 }
                 else if(get<2>(territoryTuple) == "blockade"){
-//                    if(this->getNeutralPlayer() == nullptr){
-//                        players->emplace_back(new Player("Neutral", new NeutralPlayerStrategy()));
-//                        cout << "Created new Neutral player" << endl;
-//                    }
-//
-//                    Order* blockade = new Blockade(*player,*this->getNeutralPlayer(),*get<1>(territoryTuple));
-//                    player->getHand()->getHandsCards()->at(player->hasCard(2))->play(*deck, *player, blockade);
-//                    cout << "**issueOrder Blockade | Player: " << *player->getPName() << " | Neutral player: " << *this->getNeutralPlayer()->getPName() << " | Target territory: " << get<1>(territoryTuple)->getName() << endl;
-//                    this->log->AddSubject(*blockade);
+                    if(this->getNeutralPlayer() == nullptr){
+                        players->emplace_back(new Player("Neutral", new NeutralPlayerStrategy()));
+                        cout << "Created new Neutral player due to Blockade" << endl;
+                    }
+                    player->getHand()->getHandsCards()->at(player->hasCard(2))->play(*deck, *player, territoryTuple);
                 }
                 else if(get<2>(territoryTuple) == "advance"){
                     player->issueOrder(territoryTuple);
