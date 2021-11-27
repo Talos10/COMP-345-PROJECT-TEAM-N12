@@ -195,7 +195,7 @@ vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toDefe
                 break;
             }
         }
-        if (tempHand[3] > 0 && !addedAdvanceOrder && territory->getNumberOfArmies() > 2) {
+        if (tempHand[3] > 0 && !addedAdvanceOrder && territory->getNumberOfArmies() > 2 && territory != strongestTerritory) {
             toDefend.emplace_back(territory, strongestTerritory,"airlift");
             tempHand[3]--;
         }
