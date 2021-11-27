@@ -249,6 +249,11 @@ void Advance::execute() {
                 }
             }
             cout << "Advance::execute() AFTER BATTLE | Attacking armies: " << attackingArmies << " | Defending armies: " << defendingArmies << endl;
+            //Check if Neutral Player was attacked -> If Yes, player will become an Aggressive Player
+            if (targetTerritory->getOwner()->getPlayerStrategy()->printStrategy() == "neutral strategy") {
+                targetTerritory->getOwner()->setStrategy(new AggressivePlayerStrategy());
+                cout << "Neutral player " << *targetTerritory->getOwner()->getPName() << " was attacked! The player will now become an Aggressive player." << endl;
+            }
             //All enemies dead and you still have attacking armies
             if (attackingArmies > 0 && defendingArmies == 0) {
 
@@ -343,6 +348,12 @@ void Bomb::execute() {
         this->targetTerritory->setNumberOfArmies(this->targetTerritory->getNumberOfArmies()/2);
         this->setEffect("removed half of the armies from the target territory!");
         cout << *this->getEffect() << endl;
+
+        //Check if Neutral Player was attacked -> If Yes, player will become an Aggressive Player
+        if (targetTerritory->getOwner()->getPlayerStrategy()->printStrategy() == "neutral strategy") {
+            targetTerritory->getOwner()->setStrategy(new AggressivePlayerStrategy());
+            cout << "Neutral player " << *targetTerritory->getOwner()->getPName() << " was attacked! The player will now become an Aggressive player." << endl;
+        }
         Notify(*this);
     }
 }

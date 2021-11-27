@@ -135,7 +135,7 @@ vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toAtta
     //Find strongest territory
     Territory* strongestTerritory = player->getTerritories()->at(0);
     for (Territory* terr : *player->getTerritories()) {
-        if (terr->getNumberOfArmies() > strongestTerritory->getNumberOfArmies()) {
+        if (terr->getNumberOfArmies() > strongestTerritory->getNumberOfArmies() && !checkIfAllNeighborsBelongToSamePlayer(terr)) {
             strongestTerritory = terr;
         }
     }
@@ -175,7 +175,7 @@ vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toDefe
     //Find strongest territory
     Territory* strongestTerritory = player->getTerritories()->at(0);
     for (Territory* terr : *player->getTerritories()) {
-        if (terr->getNumberOfArmies() > strongestTerritory->getNumberOfArmies()) {
+        if (terr->getNumberOfArmies() > strongestTerritory->getNumberOfArmies() && !checkIfAllNeighborsBelongToSamePlayer(terr)) {
             strongestTerritory = terr;
         }
     }
@@ -199,6 +199,16 @@ vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toDefe
         }
     }
     return toDefend;
+}
+
+//Checks if all neighbors of a territory belong to the same player. If Yes, return true. Otherwise, return false.
+bool AggressivePlayerStrategy::checkIfAllNeighborsBelongToSamePlayer(Territory* terr) {
+    for (Territory* neighbor : terr->getNeighbours()) {
+        if (neighbor->getOwner() != terr->getOwner()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -261,17 +271,19 @@ PlayerStrategy* NeutralPlayerStrategy::clone() const {
 
 void NeutralPlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo) {
     cout << "Issuing order from Neutral Player Strategy" << endl;
-    cout << "Neutral player does not issue any orders" << endl;
+    cout << "Neutral player does not issue any orders!" << endl;
 }
 
 vector<tuple<Territory *, Territory *, string>> NeutralPlayerStrategy::toAttack(Player* player) {
     cout << "toAttack method from Neutral Player Strategy" << endl;
+    cout << "Neutral player does not attack!" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack{};
     return toAttack;
 }
 
 vector<tuple<Territory *, Territory *, string>> NeutralPlayerStrategy::toDefend(Player* player) {
     cout << "toDefend method from Neutral Player Strategy" << endl;
+    cout << "Neutral player does not defend!" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend{};
     return toDefend;
 }
