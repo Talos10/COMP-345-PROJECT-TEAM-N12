@@ -348,7 +348,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
 }
 
 //A function which creates an Order object and adds it to the list of Orders.
-void Player::issueOrder(tuple<Territory*,Territory*,string> orderInfo){
+void Player::issueOrder(tuple<Territory *, Territory *, string> *orderInfo) {
     playerStrategy->issueOrder(this, orderInfo);
 }
 

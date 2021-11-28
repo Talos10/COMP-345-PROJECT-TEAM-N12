@@ -54,7 +54,7 @@ public:
     void setType(const Type& type);
 
     // A function which lets a player create orders. If a card has been played, remove it from the hands and put it back in the deck
-    void play(Deck& deck, Player& player, tuple<Territory*,Territory*,string> orderInfo);
+    void play(Deck &deck, Player &player, tuple<Territory *, Territory *, string> *orderInfo);
 
     // A function that checks if two objects are the same
     friend bool operator == (const Card &c1, const Card &c2);
