@@ -30,7 +30,7 @@ PlayerStrategy* HumanPlayerStrategy::clone() const {
     return new HumanPlayerStrategy(*this);
 }
 
-void HumanPlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) {
+void HumanPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
     cout << "Issuing order from Human Player Strategy" << endl;
 }
 
@@ -67,48 +67,48 @@ PlayerStrategy* AggressivePlayerStrategy::clone() const {
     return new AggressivePlayerStrategy(*this);
 }
 
-void AggressivePlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) {
+void AggressivePlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
     cout << "Issuing order from Aggressive Player Strategy" << endl;
-    if (get<2>(orderInfo) == "deploy") {
+    if (get<2>(*orderInfo) == "deploy") {
         int reinforcementPool = *player->getReinforcementPool();
-        Order* deploy = new Deploy(*player, *get<0>(orderInfo), reinforcementPool);
+        Order *deploy = new Deploy(*player, *get<0>(*orderInfo), reinforcementPool);
         player->getOrdersList()->addOrder(deploy);
-        cout << "**issueOrder Deploy | Player: " << *player->getPName() << " | Target territory: " << get<0>(orderInfo)->getName() << " | Armies: " << reinforcementPool << endl;
+        cout << "**issueOrder Deploy | Player: " << *player->getPName() << " | Target territory: " << get<0>(*orderInfo)->getName() << " | Armies: " << reinforcementPool << endl;
         log.AddSubject(*deploy);
         player->decreasePool(reinforcementPool);
     }
-    else if(get<2>(orderInfo) == "negotiate") {
+    else if (get<2>(*orderInfo) == "negotiate") {
         cout << "An Aggressive Player does not do negotiate order. It does Deploy and Advance" << endl;
     }
-    else if(get<2>(orderInfo) == "blockade") {
+    else if (get<2>(*orderInfo) == "blockade") {
         cout << "An Aggressive Player does not do blockade order. It does Deploy and Advance" << endl;
     }
-    else if(get<2>(orderInfo) == "airlift" && get<0>(orderInfo)->getNumberOfArmies()>=2) {
-        Order* airlift = new Airlift(*player,*get<0>(orderInfo), *get<1>(orderInfo), get<0>(orderInfo)->getNumberOfArmies()-1);
-        cout << "**issueOrder Airlift | Player: " << *player->getPName() << " | Source territory: " << get<0>(orderInfo)->getName() << " | Target territory: " << get<1>(orderInfo)->getName() << " | Armies: " << get<0>(orderInfo)->getNumberOfArmies()-1 << endl;
+    else if (get<2>(*orderInfo) == "airlift" && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
+        Order *airlift = new Airlift(*player, *get<0>(*orderInfo), *get<1>(*orderInfo), get<0>(*orderInfo)->getNumberOfArmies() - 1);
+        cout << "**issueOrder Airlift | Player: " << *player->getPName() << " | Source territory: " << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName() << " | Armies: " << get<0>(*orderInfo)->getNumberOfArmies() - 1 << endl;
         player->getOrdersList()->addOrder(airlift);
         log.AddSubject(*airlift);
     }
-    else if(get<2>(orderInfo) == "advance") {
+    else if (get<2>(*orderInfo) == "advance") {
         //Defend Advance
-        if (get<0>(orderInfo)->getOwner() == get<1>(orderInfo)->getOwner() && get<0>(orderInfo)->getNumberOfArmies()>=2) {
-            Order* advance = new Advance(*player,*get<0>(orderInfo),*get<1>(orderInfo),get<0>(orderInfo)->getNumberOfArmies()-1);
+        if (get<0>(*orderInfo)->getOwner() == get<1>(*orderInfo)->getOwner() && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
+            Order *advance = new Advance(*player, *get<0>(*orderInfo), *get<1>(*orderInfo),get<0>(*orderInfo)->getNumberOfArmies() - 1);
             player->getOrdersList()->addOrder(advance);
-            cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(orderInfo)->getName() << " | Target territory: " << get<1>(orderInfo)->getName() << " | Armies: "<< get<0>(orderInfo)->getNumberOfArmies()-1 << endl;
+            cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName() << " | Armies: " << get<0>(*orderInfo)->getNumberOfArmies() - 1 << endl;
             log.AddSubject(*advance);
         }
         else {  //Attack Advance
-            int differenceOfArmies = get<0>(orderInfo)->getNumberOfArmies() - get<1>(orderInfo)->getNumberOfArmies();
+            int differenceOfArmies = get<0>(*orderInfo)->getNumberOfArmies() - get<1>(*orderInfo)->getNumberOfArmies();
             if (differenceOfArmies > 5) {
-                Order* advance = new Advance(*player,*get<0>(orderInfo),*get<1>(orderInfo),get<0>(orderInfo)->getNumberOfArmies()-differenceOfArmies+5);
+                Order *advance = new Advance(*player, *get<0>(*orderInfo), *get<1>(*orderInfo), get<0>(*orderInfo)->getNumberOfArmies() - differenceOfArmies + 5);
                 player->getOrdersList()->addOrder(advance);
-                cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(orderInfo)->getName() << " | Target territory: " << get<1>(orderInfo)->getName() << " | Armies: "<< get<0>(orderInfo)->getNumberOfArmies()-differenceOfArmies+5 << endl;
+                cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName() << " | Armies: " << get<0>(*orderInfo)->getNumberOfArmies() - differenceOfArmies + 5 << endl;
                 log.AddSubject(*advance);
             }
             else if (differenceOfArmies >= 1) {
-                Order* advance = new Advance(*player,*get<0>(orderInfo),*get<1>(orderInfo),get<0>(orderInfo)->getNumberOfArmies());
+                Order *advance = new Advance(*player, *get<0>(*orderInfo), *get<1>(*orderInfo),get<0>(*orderInfo)->getNumberOfArmies());
                 player->getOrdersList()->addOrder(advance);
-                cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(orderInfo)->getName() << " | Target territory: " << get<1>(orderInfo)->getName() << " | Armies: "<< get<0>(orderInfo)->getNumberOfArmies() << endl;
+                cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName() << " | Armies: " << get<0>(*orderInfo)->getNumberOfArmies() << endl;
                 log.AddSubject(*advance);
             }
             else {
@@ -116,10 +116,10 @@ void AggressivePlayerStrategy::issueOrder(Player* player, tuple<Territory*,Terri
             }
         }
     }
-    else if(get<2>(orderInfo) == "bomb") {
-        Order* bomb = new Bomb(*player,*get<1>(orderInfo));
+    else if (get<2>(*orderInfo) == "bomb") {
+        Order *bomb = new Bomb(*player, *get<1>(*orderInfo));
         player->getOrdersList()->addOrder(bomb);
-        cout << "**issueOrder Bomb | Player: " << *player->getPName() << " | Target territory: " << get<1>(orderInfo)->getName() << endl;
+        cout << "**issueOrder Bomb | Player: " << *player->getPName() << " | Target territory: " << get<1>(*orderInfo)->getName() << endl;
         log.AddSubject(*bomb);
     }
 }
@@ -234,7 +234,7 @@ PlayerStrategy* BenevolentPlayerStrategy::clone() const {
     return new BenevolentPlayerStrategy(*this);
 }
 
-void BenevolentPlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) {
+void BenevolentPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
     cout << "Issuing order from Benevolent Player Strategy" << endl;
 }
 
@@ -271,7 +271,7 @@ PlayerStrategy* NeutralPlayerStrategy::clone() const {
     return new NeutralPlayerStrategy(*this);
 }
 
-void NeutralPlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) {
+void NeutralPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
     cout << "Issuing order from Neutral Player Strategy" << endl;
     cout << "Neutral player does not issue any orders!" << endl;
 }
@@ -311,7 +311,7 @@ PlayerStrategy* CheaterPlayerStrategy::clone() const {
     return new CheaterPlayerStrategy(*this);
 }
 
-void CheaterPlayerStrategy::issueOrder(Player* player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) {
+void CheaterPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
     cout << "Issuing order from Cheater Player Strategy" << endl;
 }
 

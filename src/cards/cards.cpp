@@ -62,17 +62,17 @@ void Card::setType(const Type& card_type) {
 // This function creates an order of the current card and adds it to a list of orders which is a parameter passed by reference.
 // Then, it removes the card that was played from the hand which is a parameter passed by reference
 // Finally, it adds the same card to the deck
-void Card::play(Deck& deck, Player& player, tuple<Territory*,Territory*,string> orderInfo, LogObserver& log) {
+void Card::play(Deck &deck, Player &player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
 
     // Create references for the content of the hand cards and the content of the card being played
-    vector<Card*>* hand_cards = player.getHand()->getHandsCards();
-    Card* card_address = this;
+    vector<Card *> *hand_cards = player.getHand()->getHandsCards();
+    Card *card_address = this;
 
     // Create an iterator that will point to the same card in the hand as the current card being played
-    vector<Card*>::iterator it = std::find(hand_cards->begin(), hand_cards->end(), card_address);
+    vector<Card *>::iterator it = std::find(hand_cards->begin(), hand_cards->end(), card_address);
 
     // If the card is found, delete the reference to the hand card, and add the reference to the deck
-    if(it != hand_cards->end()){
+    if (it != hand_cards->end()) {
         // Put the created order in the list of orders
         player.issueOrder(orderInfo, log);
         hand_cards->erase(it);
