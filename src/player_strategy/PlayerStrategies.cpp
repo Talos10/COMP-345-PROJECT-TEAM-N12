@@ -1,4 +1,4 @@
-#include "PlayerStrategies.h"
+#include "game_engine/game_engine.h"
 
 /**
  * Player Strategy class
@@ -63,8 +63,10 @@ void HumanPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territor
         player->getOrdersList()->addOrder(negotiate);
     } else if (get<2>(*orderInfo) == "blockade") {
         cout << "Issuing blockade order!" << endl;
-//        Order* blockade = new Blockade(*player, *this->getNeutralPlayer() ,*get<1>(territoryTuple));
-//        cout << "**issueOrder Blockade | Player: " << *player->getPName() << " | Neutral player: " << *this->getNeutralPlayer()->getPName() << " | Target territory: " << get<1>(territoryTuple)->getName() << endl;
+        Order *blockade = new Blockade(*player, GameEngine::getNeutralPlayer(), get<1>(*orderInfo));
+        player->getOrdersList()->addOrder(blockade);
+        cout << "**issueOrder Blockade | Player: " << *player->getPName() << " | Neutral player: "
+             << GameEngine::getNeutralPlayer() << " | Target territory: " << get<1>(*orderInfo)->getName() << endl;
     } else if (get<2>(*orderInfo) == "airlift" && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
 
         int nbrAirlift;

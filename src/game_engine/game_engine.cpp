@@ -31,6 +31,7 @@ GameEngine::GameEngine(const string &readMode) {
     players = new std::vector<Player*>{};
     gameMap = new Map("gameMap");
     deck = new Deck(20);
+    neutralPlayer = nullptr;
 
     if (*commandReadMode == "-console") {
         cout << "Taking commands from console!" << endl;
@@ -145,6 +146,13 @@ GameEngine::GameEngine(const GameEngine &e) {
     this->stateMap = new map(*e.stateMap);
     this->descriptionMap = new map(*e.descriptionMap);
     this->functionMap = new map(*e.functionMap);
+    this->neutralPlayer = new Player(*e.neutralPlayer);
+    this->log = new LogObserver(*e.log);
+    this->commandReadMode = new string(*e.commandReadMode);
+    this->commandProcessor = new CommandProcessor(*e.commandProcessor);
+    this->players = new std::vector(*e.players);
+    this->gameMap = new Map(*e.gameMap);
+    this->deck = new Deck(*e.deck);
 }
 
 // Swaps the member data between two GameEngine objects.
@@ -153,6 +161,12 @@ void GameEngine::swap(GameEngine &first, GameEngine &second) {
     std::swap(first.stateMap, second.stateMap);
     std::swap(first.descriptionMap, second.descriptionMap);
     std::swap(first.functionMap, second.functionMap);
+    std::swap(first.log, second.log);
+    std::swap(first.commandProcessor, second.commandProcessor);
+    std::swap(first.commandReadMode, second.commandReadMode);
+    std::swap(first.players, second.players);
+    std::swap(first.gameMap, second.gameMap);
+    std::swap(first.deck, second.deck);
 }
 
 // Destructor.
@@ -163,6 +177,11 @@ GameEngine::~GameEngine() {
     delete functionMap;
     delete commandProcessor;
     delete commandReadMode;
+    delete neutralPlayer;
+    delete log;
+    delete players;
+    delete gameMap;
+    delete deck;
 }
 
 // The way this method works is that it first creates a local temporary copy of the given object (called ge)
@@ -638,10 +657,14 @@ void GameEngine::start() {
 
         vector<string> states = vector{string("end"), string("start")};
 
-        if(readingCommands(states)){
+        if (readingCommands(states)) {
             break;
         }
     }
+}
+
+Player *GameEngine::getNeutralPlayer() {
+    return neutralPlayer;
 }
 
 
@@ -746,8 +769,10 @@ void GameEngine::issueOrdersPhase(){
                     player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, &territoryTuple);
                 }
                 else if(get<2>(territoryTuple) == "blockade"){
-                    if(this->getNeutralPlayer() == nullptr){
-                        players->emplace_back(new Player("Neutral", new NeutralPlayerStrategy()));
+                    if(this->getNeutralPlayer() == nullptr) {
+                        Player *neutralPlyr = new Player("Neutral", new NeutralPlayerStrategy());
+                        neutralPlayer = neutralPlyr;
+                        players->emplace_back(neutralPlyr);
                         cout << "Created new Neutral player due to Blockade" << endl;
                     }
                     player->getHand()->getHandsCards()->at(player->hasCard(2))->play(*deck, *player, &territoryTuple);
