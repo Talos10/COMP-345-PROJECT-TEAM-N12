@@ -260,6 +260,7 @@ Territory::Territory(const Territory& territory) : id(territory.id), name(territ
 std::ostream &operator<<(std::ostream &out, const Territory *territory) {
     out << "Country " << territory->getId() << " of name " << territory->getName();
     out << " of continent " << territory->getContinentId();
+    out << " , owned by " << territory->getOwner();
     out << " and x,y of " << territory->getX() << "," << territory->getY();
     return out;
 }
