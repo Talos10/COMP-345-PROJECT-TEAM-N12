@@ -118,6 +118,9 @@ public:
 
     // toDefend method for the benevolent player
     vector<tuple<Territory*,Territory*,string>> toDefend(Player* player) override;
+
+    //Checks if all neighbors of a territory belong to the same player (owner)
+    bool checkIfAllNeighborsBelongToSamePlayer(Territory* terr);
 };
 
 class NeutralPlayerStrategy : public PlayerStrategy {
