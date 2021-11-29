@@ -760,13 +760,13 @@ void GameEngine::issueOrdersPhase(){
             cout << "issuing orders for defend" << endl;
             for(auto& territoryTuple: territoriesToDefend){
                 if(get<2>(territoryTuple) == "airlift"){
-                    player->getHand()->getHandsCards()->at(player->hasCard(3))->play(*deck, *player, &territoryTuple);
+                    player->getHand()->getHandsCards()->at(player->hasCard(3))->play(*deck, *player, &territoryTuple, *log);
                 }
                 else if(get<2>(territoryTuple) == "deploy"){
-                    player->issueOrder(&territoryTuple);
+                    player->issueOrder(&territoryTuple, *log);
                 }
                 else if(get<2>(territoryTuple) == "negotiate"){
-                    player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, &territoryTuple);
+                    player->getHand()->getHandsCards()->at(player->hasCard(4))->play(*deck, *player, &territoryTuple, *log);
                 }
                 else if(get<2>(territoryTuple) == "blockade"){
                     if(this->getNeutralPlayer() == nullptr) {
@@ -775,20 +775,20 @@ void GameEngine::issueOrdersPhase(){
                         players->emplace_back(neutralPlyr);
                         cout << "Created new Neutral player due to Blockade" << endl;
                     }
-                    player->getHand()->getHandsCards()->at(player->hasCard(2))->play(*deck, *player, &territoryTuple);
+                    player->getHand()->getHandsCards()->at(player->hasCard(2))->play(*deck, *player, &territoryTuple, *log);
                 }
                 else if(get<2>(territoryTuple) == "advance"){
-                    player->issueOrder(&territoryTuple);
+                    player->issueOrder(&territoryTuple, *log);
                 }
             }
             //Issue the orders related to attack other territories
             cout << "issuing orders for attack" << endl;
             for(auto& territoryTuple: player->toAttack()){
                 if(get<2>(territoryTuple) == "advance"){
-                    player->issueOrder(&territoryTuple);
+                    player->issueOrder(&territoryTuple, *log);
                 }
                 else if(get<2>(territoryTuple) == "bomb"){
-                    player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, &territoryTuple);
+                    player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, &territoryTuple, *log);
                 }
             }
     }

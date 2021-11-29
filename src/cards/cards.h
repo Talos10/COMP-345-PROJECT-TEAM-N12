@@ -22,6 +22,7 @@ class Card;
 class Player;
 class Order;
 class Territory;
+class LogObserver;
 
 // This class represents the cards that will be played during the game, they can each have one of the 5 types
 class Card {
@@ -54,7 +55,7 @@ public:
     void setType(const Type& type);
 
     // A function which lets a player create orders. If a card has been played, remove it from the hands and put it back in the deck
-    void play(Deck &deck, Player &player, tuple<Territory *, Territory *, string> *orderInfo);
+    void play(Deck &deck, Player &player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log);
 
     // A function that checks if two objects are the same
     friend bool operator == (const Card &c1, const Card &c2);
