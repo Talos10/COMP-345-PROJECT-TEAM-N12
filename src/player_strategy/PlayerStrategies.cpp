@@ -313,16 +313,27 @@ PlayerStrategy* CheaterPlayerStrategy::clone() const {
 
 void CheaterPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
     cout << "Issuing order from Cheater Player Strategy" << endl;
+    cout << "The cheater player never issues an order, he just conquers everything !!!!" << endl;
 }
 
 vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toAttack(Player* player) {
     cout << "toAttack method from Cheater Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack{};
+    for(Territory* territory: *player->getTerritories()) {
+        for(Territory* neighbor: territory->getNeighbours()) {
+            if(neighbor->getOwner() != player) {
+                neighbor->setOwner(player);
+                goto endloop;
+            }
+        }
+    }
+    endloop:
     return toAttack;
 }
 
 vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toDefend(Player* player) {
     cout << "toDefend method from Cheater Player Strategy" << endl;
+    cout << "Cheater player never calls the to defend method" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend{};
     return toDefend;
 }
