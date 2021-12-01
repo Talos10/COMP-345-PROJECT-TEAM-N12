@@ -267,7 +267,7 @@ vector<tuple<Territory*,Territory*,string>> Player::toAttack(){
 //    playerStrategy->toAttack();
 //    return territories2Attack;
 
-    return playerStrategy->toAttack();
+    return playerStrategy->toAttack(this);
 }
 
 //A function which will go through the collection of territories the player owns and
@@ -344,13 +344,12 @@ vector<tuple<Territory*,Territory*,string>> Player::toDefend() {
 //    return territories2Defend;
 
 
-    return playerStrategy->toDefend();
+    return playerStrategy->toDefend(this);
 }
 
 //A function which creates an Order object and adds it to the list of Orders.
-void Player::issueOrder(Order* order){
-    ordersList->addOrder(order);
-    playerStrategy->issueOrder(order);
+void Player::issueOrder(tuple<Territory*,Territory*,string> *orderInfo, LogObserver& log){
+    playerStrategy->issueOrder(this, orderInfo, log);
 }
 
 int Player::hasCard(int cardType){
@@ -471,13 +470,13 @@ void player_driver(const string &filename) {
     cout << "\n" << endl;
 
     //Issue an order
-    player1->issueOrder(new Deploy());
+//    player1->issueOrder(new Deploy());
 
     //Output the list of orders
     cout << "Issued orders: \n" << *player1->getOrdersList() << endl;
 
     //Issue an additional order
-    player1->issueOrder(new Advance());
+//    player1->issueOrder(new Advance());
 
     //Output the list of orders with the 2 orders
     cout << "Issued orders after adding a 2nd order: \n" << *player1->getOrdersList() << endl;

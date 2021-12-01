@@ -4,6 +4,7 @@
 
 class Territory;
 class Order;
+class Player;
 
 class PlayerStrategy {
 public:
@@ -20,19 +21,19 @@ public:
      * Method that takes an Order parameter will issue an order depending on the chosen player strategy
      * @param order the order to be issued
      */
-    virtual void issueOrder(Order *order) = 0;
+    virtual void issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) = 0;
 
     /**
      * Method that takes none arguments, attacks a territory and returns nothing
      * @return the territories to be attacked
      */
-    virtual vector<tuple<Territory *, Territory *, string>> toAttack() = 0;
+    virtual vector<tuple<Territory *, Territory *, string>> toAttack(Player* player) = 0;
 
     /**
      * Method that takes none arguments, defends a territory and returns nothing
      * @return the territories to be defended
      */
-    virtual vector<tuple<Territory*,Territory*,string>> toDefend() = 0;
+    virtual vector<tuple<Territory*,Territory*,string>> toDefend(Player* player) = 0;
 
     /**
      * Method that returns the player strategy as a string
@@ -57,13 +58,16 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the human player type
-    void issueOrder(Order* order) override;
+    void issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver &log) override;
 
     // toAttack method for the human player
-    vector<tuple<Territory*,Territory*,string>> toAttack() override;
+    vector<tuple<Territory *, Territory *, string>> toAttack(Player *player) override;
 
     // toDefend method for the cheater player
-    vector<tuple<Territory*,Territory*,string>> toDefend() override;
+    vector<tuple<Territory *, Territory *, string>> toDefend(Player *player) override;
+
+    // Prints all the player's territories
+    static void printPlayerTerritories(const Player *player);
 };
 
 class AggressivePlayerStrategy : public PlayerStrategy {
@@ -82,13 +86,16 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the aggressive player type
-    void issueOrder(Order* order) override;
+    void issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) override;
 
     // toAttack method for the aggressive player
-    vector<tuple<Territory*,Territory*,string>> toAttack() override;
+    vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
 
     // toDefend method for the aggressive player
-    vector<tuple<Territory*,Territory*,string>> toDefend() override;
+    vector<tuple<Territory*,Territory*,string>> toDefend(Player* player) override;
+
+    //Checks if all neighbors of a territory belong to the same player (owner)
+    bool checkIfAllNeighborsBelongToSamePlayer(Territory* terr);
 };
 
 class BenevolentPlayerStrategy : public PlayerStrategy {
@@ -107,13 +114,13 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the benevolent player type
-    void issueOrder(Order* order) override;
+    void issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) override;
 
     // toAttack method for the benevolent player
-    vector<tuple<Territory*,Territory*,string>> toAttack() override;
+    vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
 
     // toDefend method for the benevolent player
-    vector<tuple<Territory*,Territory*,string>> toDefend() override;
+    vector<tuple<Territory*,Territory*,string>> toDefend(Player* player) override;
 };
 
 class NeutralPlayerStrategy : public PlayerStrategy {
@@ -132,13 +139,13 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the neutral player type
-    void issueOrder(Order* order) override;
+    void issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) override;
 
     // toAttack method for the neutral player
-    vector<tuple<Territory*,Territory*,string>> toAttack() override;
+    vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
 
     // toDefend method for the neutral player
-    vector<tuple<Territory*,Territory*,string>> toDefend() override;
+    vector<tuple<Territory*,Territory*,string>> toDefend(Player* player) override;
 };
 
 class CheaterPlayerStrategy : public PlayerStrategy {
@@ -157,13 +164,13 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the cheater player type
-    void issueOrder(Order* order) override;
+    void issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) override;
 
     // toAttack method for the cheater player
-    vector<tuple<Territory*,Territory*,string>> toAttack() override;
+    vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
 
     // toDefend method for the cheater player
-    vector<tuple<Territory*,Territory*,string>> toDefend() override;
+    vector<tuple<Territory*,Territory*,string>> toDefend(Player* player) override;
 };
 
 

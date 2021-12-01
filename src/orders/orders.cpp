@@ -195,11 +195,10 @@ bool Advance::validate() {
         cout << "INVALID: The source territory (" << this->sourceTerritory->getName() << ") has " << this->sourceTerritory->getNumberOfArmies() << " armies, but you wish to Advance with " << this->numArmies << " armies." << endl;
         return false;
     }
-    //Checks if the target territory is one of the neighboring
-    //territories of the source territory.
+    //Checks if the target territory is one of the neighboring territories of the source territory.
     for(Territory* neighbor: this->targetTerritory->getNeighbours()){
         if(this->sourceTerritory == neighbor){
-            cout << "Advance validation: sourceTerritory " << sourceTerritory->getName() << " is the same as neighbor " << neighbor->getName() << endl;
+            cout << "Advance validation success: sourceTerritory " << sourceTerritory->getName() << " is a neighbor of targetTerritory " << targetTerritory->getName() << endl;
             return true;
         }
     }
@@ -215,10 +214,11 @@ void Advance::execute() {
         Notify(*this);
         bool bothTerritoriesBelongToTheIssuingPlayer = this->sourceTerritory->getOwner() == this->getIssuingPlayer() && this->targetTerritory->getOwner() == this->getIssuingPlayer();
         if (bothTerritoriesBelongToTheIssuingPlayer) {
-            cout << "bothTerritoriesBelongToTheIssuingPlayer" << endl;
+            cout << "Both Territories belong to the issuing player!" << endl;
             this->targetTerritory->addArmies(this->numArmies);
             this->sourceTerritory->removeArmies(this->numArmies);
             this->setEffect("army units are moved from the source to the target territory.");
+            cout << "Army units moved from the source to the target territory." << endl;
         }
         else {
             if (this->getIssuingPlayer()->isPlayerFriend(this->sourceTerritory->getOwner())) {
@@ -249,6 +249,13 @@ void Advance::execute() {
                 }
             }
             cout << "Advance::execute() AFTER BATTLE | Attacking armies: " << attackingArmies << " | Defending armies: " << defendingArmies << endl;
+            //Check if Neutral Player was attacked -> If Yes, player will become an Aggressive Player
+            if (targetTerritory->getOwner()->getPlayerStrategy()->printStrategy() == "neutral strategy") {
+                targetTerritory->getOwner()->setStrategy(new AggressivePlayerStrategy());
+                targetTerritory->getOwner()->setPName("Neutral-Aggressive");
+                cout << "Neutral player " << *targetTerritory->getOwner()->getPName()
+                     << " was attacked! The player will now become an Aggressive player." << endl;
+            }
             //All enemies dead and you still have attacking armies
             if (attackingArmies > 0 && defendingArmies == 0) {
 
@@ -338,11 +345,20 @@ bool Bomb::validate() {
 
 //Executes a Bomb order
 void Bomb::execute() {
+    cout << "Bomb::execute() --> Issuing Player: " << *this->getIssuingPlayer()->getPName() << " | Target territory: " << this->targetTerritory->getName() << " | Target territory Player: " << *this->targetTerritory->getOwner()->getPName() << endl;
     if (this->validate()) {
         cout << "Executing Bomb Order..." << endl;
-        this->targetTerritory->setNumberOfArmies(this->targetTerritory->getNumberOfArmies()/2);
-        this->setEffect("removed half of the armies from the target territory!");
+        this->targetTerritory->setNumberOfArmies(this->targetTerritory->getNumberOfArmies() / 2);
+        this->setEffect("Removed half of the armies from the target territory!");
         cout << *this->getEffect() << endl;
+
+        //Check if Neutral Player was attacked -> If Yes, player will become an Aggressive Player
+        if (targetTerritory->getOwner()->getPlayerStrategy()->printStrategy() == "neutral strategy") {
+            targetTerritory->getOwner()->setStrategy(new AggressivePlayerStrategy());
+            targetTerritory->getOwner()->setPName("Neutral-Aggressive");
+            cout << "Neutral player " << *targetTerritory->getOwner()->getPName()
+                 << " was attacked! The player will now become an Aggressive player." << endl;
+        }
         Notify(*this);
     }
 }
@@ -407,6 +423,7 @@ bool Blockade::validate() {
 
 //Executes a Blockade order
 void Blockade::execute() {
+    cout << "Blockade::execute() --> Issuing Player: " << *this->getIssuingPlayer()->getPName() << " | Target territory: " << this->targetTerritory->getName() << endl;
     if (this->validate()) {
         cout << "Executing Blockcade Order..." << endl;
         Notify(*this);
@@ -492,6 +509,7 @@ bool Airlift::validate() {
 
 //Executes an Airlift order
 void Airlift::execute() {
+    cout << "Airlift::execute() --> Issuing Player: " << *this->getIssuingPlayer()->getPName() << " | Source territory: " << this->sourceTerritory->getName() << " | Target territory: " << this->targetTerritory->getName() << " | Num Armies: " << this->numArmies << endl;
     if (this->validate()) {
         cout << "Executing Airlift Order..." << endl;
         this->sourceTerritory->removeArmies(numArmies);
@@ -560,6 +578,7 @@ bool Negotiate::validate() {
 
 //Executes a Negotiate order
 void Negotiate::execute() {
+    cout << "Negotiate::execute() --> Issuing Player: " << *this->getIssuingPlayer()->getPName() << " | Enemy Player: " << *this->enemyPlayer->getPName() << endl;
     if (this->validate()) {
         cout << "Executing Negotiate Order..." << endl;
         Notify(*this);
