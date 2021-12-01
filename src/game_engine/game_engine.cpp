@@ -490,6 +490,9 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
             cout << *player->getHand() << endl;
         }
 
+        cout << "Mermaid code for the current map:" << endl;
+        cout << gameMap->toMermaid() << endl;
+
         transition(transitionState);
     }
     cout << "\nThis is the state after the action: " << *currentState << endl;
