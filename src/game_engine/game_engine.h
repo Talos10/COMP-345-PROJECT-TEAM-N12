@@ -44,13 +44,16 @@ private:
     string *commandReadMode;
 
     //A collection of players present in the game.
-    std::vector<Player*>* players;
+    std::vector<Player *> *players;
 
     //The map the players will fight on.
-    Map* gameMap;
+    Map *gameMap;
 
     //The deck from which the players will draw cards
-    Deck* deck;
+    Deck *deck;
+
+    //The neutral player of the game (if they exist yet)
+    static Player *neutralPlayer;
 
     // Defining the output operator for the GameEngine object.
     friend std::ostream &operator<<(std::ostream &stream, const GameEngine &ge);
@@ -106,7 +109,7 @@ private:
     void quit(const string &transitionState, const vector<string *> &commandArgs);
 
     // A function which sets the player's strategy
-    PlayerStrategy& getStrategyObjectByStrategyName(string& name);
+    PlayerStrategy &getStrategyObjectByStrategyName(string &name);
 
 public:
 
@@ -195,8 +198,11 @@ public:
     //Function that will check if there is a player that has won the game
     bool checkForWin();
 
-    //Will return the neutral player in the list of players
-    Player *getNeutralPlayer();
+    // A function which sets the neutral player
+    static void setNeutralPlayer(Player *ntrPlayer);
+
+    // A function which returns the neutral player (if they exist)
+    static Player *getNeutralPlayer();
 
     // Override class from ILoggable
     string stringToLog() const override;
