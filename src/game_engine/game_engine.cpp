@@ -806,6 +806,11 @@ void GameEngine::issueOrdersPhase(){
                     cout << "\nIssuing bomb order for player " << *player->getPName() << endl;
                     player->getHand()->getHandsCards()->at(player->hasCard(0))->play(*deck, *player, &territoryTuple,
                                                                                      *log);
+                } else if (get<2>(territoryTuple) == "cheating") {
+                    cout << "\n Shh.. The cheater is cheating, he will conquer 1 random neighbor territory" << endl;
+                    if(get<1>(territoryTuple)->getOwner())
+                        get<1>(territoryTuple)->getOwner()->removeTerritory(*get<1>(territoryTuple));
+                    player->acquireTerritory(get<1>(territoryTuple));
                 }
             }
     }

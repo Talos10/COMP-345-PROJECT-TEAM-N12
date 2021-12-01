@@ -507,6 +507,8 @@ void AggressivePlayerStrategy::issueOrder(Player *player, tuple<Territory *, Ter
 vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toAttack(Player *player) {
     cout << "toAttack method from Aggressive Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack;
+    if(player->getTerritories()->empty())
+        return toAttack;
     //Copy of the player's hand to keep track of which cards are going to be played
     std::map<int,int> tempHand;
     tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
@@ -547,6 +549,8 @@ vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toAtta
 vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toDefend(Player *player) {
     cout << "toDefend method from Aggressive Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend;
+    if (player->getTerritories()->empty())
+        return toDefend;
     //Copy of the player's hand to keep track of which cards are going to be played
     std::map<int,int> tempHand;
     tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
@@ -657,6 +661,8 @@ vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toAtta
 vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toDefend(Player *player) {
     cout << "toDefend method from Benevolent Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend;
+    if(player->getTerritories()->empty())
+        return toDefend;
     //Copy of the player's hand to keep track of which cards are going to be played
     std::map<int,int> tempHand;
     tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
@@ -755,17 +761,27 @@ PlayerStrategy *CheaterPlayerStrategy::clone() const {
 }
 
 void CheaterPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
-    cout << "Issuing order from Cheater Player Strategy" << endl;
+    cout << "Issuing order from Cheater Player Strategy..." << endl;
+    cout << "The cheater player never issues an order. No matter the given order, he just conquers everything !" << endl;
 }
 
 vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toAttack(Player *player) {
     cout << "toAttack method from Cheater Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack{};
+    for(Territory* territory: *player->getTerritories()) {
+        for(Territory* neighbor: territory->getNeighbours()) {
+            if(neighbor->getOwner() != player) {
+                toAttack.emplace_back(neighbor, neighbor, "cheating");
+                return toAttack;
+            }
+        }
+    }
     return toAttack;
 }
 
 vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toDefend(Player *player) {
     cout << "toDefend method from Cheater Player Strategy" << endl;
+    cout << "Cheater player never defends his territory, he just conquers territory, I'm a cheater..." << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend{};
     return toDefend;
 }
