@@ -252,7 +252,9 @@ void Advance::execute() {
             //Check if Neutral Player was attacked -> If Yes, player will become an Aggressive Player
             if (targetTerritory->getOwner()->getPlayerStrategy()->printStrategy() == "neutral strategy") {
                 targetTerritory->getOwner()->setStrategy(new AggressivePlayerStrategy());
-                cout << "Neutral player " << *targetTerritory->getOwner()->getPName() << " was attacked! The player will now become an Aggressive player." << endl;
+                targetTerritory->getOwner()->setPName("Neutral-Aggressive");
+                cout << "Neutral player " << *targetTerritory->getOwner()->getPName()
+                     << " was attacked! The player will now become an Aggressive player." << endl;
             }
             //All enemies dead and you still have attacking armies
             if (attackingArmies > 0 && defendingArmies == 0) {
@@ -346,14 +348,16 @@ void Bomb::execute() {
     cout << "Bomb::execute() --> Issuing Player: " << *this->getIssuingPlayer()->getPName() << " | Target territory: " << this->targetTerritory->getName() << " | Target territory Player: " << *this->targetTerritory->getOwner()->getPName() << endl;
     if (this->validate()) {
         cout << "Executing Bomb Order..." << endl;
-        this->targetTerritory->setNumberOfArmies(this->targetTerritory->getNumberOfArmies()/2);
-        this->setEffect("removed half of the armies from the target territory!");
+        this->targetTerritory->setNumberOfArmies(this->targetTerritory->getNumberOfArmies() / 2);
+        this->setEffect("Removed half of the armies from the target territory!");
         cout << *this->getEffect() << endl;
 
         //Check if Neutral Player was attacked -> If Yes, player will become an Aggressive Player
         if (targetTerritory->getOwner()->getPlayerStrategy()->printStrategy() == "neutral strategy") {
             targetTerritory->getOwner()->setStrategy(new AggressivePlayerStrategy());
-            cout << "Neutral player " << *targetTerritory->getOwner()->getPName() << " was attacked! The player will now become an Aggressive player." << endl;
+            targetTerritory->getOwner()->setPName("Neutral-Aggressive");
+            cout << "Neutral player " << *targetTerritory->getOwner()->getPName()
+                 << " was attacked! The player will now become an Aggressive player." << endl;
         }
         Notify(*this);
     }
