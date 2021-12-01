@@ -631,7 +631,6 @@ void BenevolentPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Ter
         player->getOrdersList()->addOrder(deploy);
         cout << "**issueOrder Deploy | Player: " << *player->getPName() << " | Target territory: " << get<0>(*orderInfo)->getName() << " | Armies: " << reinforcementPool << endl;
         log.AddSubject(*deploy);
-        player->decreasePool(reinforcementPool/2);
     }
     //Defend Advance
     else if (get<2>(*orderInfo) == "advance" && get<0>(*orderInfo)->getOwner() == get<1>(*orderInfo)->getOwner() && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
