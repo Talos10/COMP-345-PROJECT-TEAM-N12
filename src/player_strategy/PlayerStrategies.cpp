@@ -614,19 +614,82 @@ PlayerStrategy *BenevolentPlayerStrategy::clone() const {
     return new BenevolentPlayerStrategy(*this);
 }
 
+bool BenevolentPlayerStrategy::checkIfAllNeighborsBelongToSamePlayer(Territory* terr) {
+    for (Territory* neighbor : terr->getNeighbours()) {
+        if (neighbor->getOwner() != terr->getOwner()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void BenevolentPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
     cout << "Issuing order from Benevolent Player Strategy" << endl;
+    if (get<2>(*orderInfo) == "deploy") {
+        int reinforcementPool = *player->getReinforcementPool();
+        Order *deploy = new Deploy(*player, *get<0>(*orderInfo), reinforcementPool/2);
+        player->getOrdersList()->addOrder(deploy);
+        cout << "**issueOrder Deploy | Player: " << *player->getPName() << " | Target territory: " << get<0>(*orderInfo)->getName() << " | Armies: " << reinforcementPool << endl;
+        log.AddSubject(*deploy);
+    }
+    //Defend Advance
+    else if (get<2>(*orderInfo) == "advance" && get<0>(*orderInfo)->getOwner() == get<1>(*orderInfo)->getOwner() && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
+        Order *advance = new Advance(*player, *get<0>(*orderInfo), *get<1>(*orderInfo),get<0>(*orderInfo)->getNumberOfArmies()/2);
+        player->getOrdersList()->addOrder(advance);
+        cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName() << " | Armies: " << get<0>(*orderInfo)->getNumberOfArmies() - 1 << endl;
+        log.AddSubject(*advance);
+    }
+    else if (get<2>(*orderInfo) == "airlift" && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
+        Order *airlift = new Airlift(*player, *get<0>(*orderInfo), *get<1>(*orderInfo), get<0>(*orderInfo)->getNumberOfArmies()/2);
+        cout << "**issueOrder Airlift | Player: " << *player->getPName() << " | Source territory: " << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName() << " | Armies: " << get<0>(*orderInfo)->getNumberOfArmies() - 1 << endl;
+        player->getOrdersList()->addOrder(airlift);
+        log.AddSubject(*airlift);
+    }
 }
 
 vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toAttack(Player *player) {
     cout << "toAttack method from Benevolent Player Strategy" << endl;
+    cout << "Benevolent player does not attack!" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack{};
     return toAttack;
 }
 
 vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toDefend(Player *player) {
     cout << "toDefend method from Benevolent Player Strategy" << endl;
-    vector<tuple<Territory *, Territory *, string>> toDefend{};
+    vector<tuple<Territory *, Territory *, string>> toDefend;
+    //Copy of the player's hand to keep track of which cards are going to be played
+    std::map<int,int> tempHand;
+    tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
+    //Counts the number of cards for each type
+    for(Card *card: *player->getHand()->getHandsCards()){
+        tempHand[*card->getType()] += 1;
+    }
+    //Find weakest territory
+    Territory* weakestTerritory = player->getTerritories()->at(0);
+    for (Territory* terr : *player->getTerritories()) {
+        if (terr->getNumberOfArmies() < weakestTerritory->getNumberOfArmies() && !checkIfAllNeighborsBelongToSamePlayer(terr)) {
+            weakestTerritory = terr;
+        }
+    }
+    //Deploy all of reinforcement pool on weakest territory
+    if(player->getTerritories()->size() > 1){
+        toDefend.emplace_back(weakestTerritory, weakestTerritory,"deploy");
+    }
+    //for each territory that is a neighbor of the strongest territory to an advance order towards the weakest territory
+    for (Territory* territory : *player->getTerritories()) {
+        bool addedAdvanceOrder = false;
+        for (Territory* neighbor : territory->getNeighbours()) {
+            if (neighbor == weakestTerritory) {
+                toDefend.emplace_back(territory, neighbor,"advance");
+                addedAdvanceOrder = true;
+                break;
+            }
+        }
+        if (tempHand[3] > 0 && !addedAdvanceOrder && territory->getNumberOfArmies() > 2 && territory != weakestTerritory) {
+            toDefend.emplace_back(territory, weakestTerritory,"airlift");
+            tempHand[3]--;
+        }
+    }
     return toDefend;
 }
 
