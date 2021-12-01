@@ -451,9 +451,7 @@ void player_driver(const string &filename) {
     for(auto i = 0; i < player1->toAttack().size(); i++){
         cout << "\n" << get<0>(player1->toAttack().at(i));
     }
-//    player1->toAttack();
-//    player1->toAttack();
-//    player1->toAttack();
+
     cout << "\nPrinting the territories" << endl;
     for(auto i = 0; i < player1->getTerritories()->size(); i++){
         cout << "\n" << player1->getTerritories()->at(i) << endl;
@@ -467,14 +465,8 @@ void player_driver(const string &filename) {
     }
     cout << "\n" << endl;
 
-    //Issue an order
-//    player1->issueOrder(new Deploy());
-
     //Output the list of orders
     cout << "Issued orders: \n" << *player1->getOrdersList() << endl;
-
-    //Issue an additional order
-//    player1->issueOrder(new Advance());
 
     //Output the list of orders with the 2 orders
     cout << "Issued orders after adding a 2nd order: \n" << *player1->getOrdersList() << endl;
