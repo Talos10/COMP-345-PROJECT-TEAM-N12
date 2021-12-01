@@ -88,7 +88,12 @@ void HumanPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territor
                 if (nbrAirlift < get<0>(*orderInfo)->getNumberOfArmies()) {
                     repeat = false;
                 } else if (nbrAirlift < 0 || nbrAirlift > get<0>(*orderInfo)->getNumberOfArmies()) {
-                    cout << "Cannot airlift this amount of armies: " << nbrAirlift << ". Please try again." << endl;
+                    cout << "Cannot airlift this amount of armies: " << nbrAirlift
+                         << ". The number is either negative or more than the current amount of armies on the source territory. Please try again."
+                         << endl;
+                } else {
+                    cout << "Cannot airlift this amount of armies: " << nbrAirlift
+                         << " (must leave at least one army on source territory). Please try again." << endl;
                 }
             } while (repeat);
 
