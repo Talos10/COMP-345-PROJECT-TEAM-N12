@@ -20,18 +20,6 @@ Player::Player(){
     playerStrategy = new HumanPlayerStrategy();
 };
 
-Player::Player(PlayerStrategy* player_strategy) {
-    territories = new std::vector<Territory*>{};
-    hand = new Hand();
-    ordersList = new OrdersList();
-    this->friendPlayers = vector<Player*>();
-    this->conqueredTerritoryInTurn = false;
-    reinforcementPool = new int();
-    pname = new string("Default Player Name");
-    bool isNeutral = new bool();
-    this->playerStrategy = player_strategy->clone();
-}
-
 // Parameterized constructor to create a player with a name and a player strategy
 Player::Player(const string& pname, PlayerStrategy* newPlayerStrategy) {
     territories = new std::vector<Territory*>{};
@@ -431,10 +419,13 @@ void player_driver(const string &filename) {
     cout << "\n***************************Player driver function***************************" << endl;
 
     //Create player1 object
-    Player *player1 = new Player(new AggressivePlayerStrategy());
+    Player *player1 = new Player("Cheater", new CheaterPlayerStrategy());
 
     //Set the territories with sample data from the Map
-    player1->setTerritories({map->getTerritoryByID(1),map->getTerritoryByID(2), map->getTerritoryByID(3), map->getTerritoryByID(4)});
+    player1->acquireTerritory({map->getTerritoryByID(1)});
+    player1->acquireTerritory({map->getTerritoryByID(2)});
+    player1->acquireTerritory({map->getTerritoryByID(3)});
+    player1->acquireTerritory({map->getTerritoryByID(4)});
 
     //Output the list of territories
     cout << "\nList of Territories:" << endl;
@@ -459,6 +450,13 @@ void player_driver(const string &filename) {
     cout << "\nTerritories to attack:" << endl;
     for(auto i = 0; i < player1->toAttack().size(); i++){
         cout << "\n" << get<0>(player1->toAttack().at(i));
+    }
+//    player1->toAttack();
+//    player1->toAttack();
+//    player1->toAttack();
+    cout << "\nPrinting the territories" << endl;
+    for(auto i = 0; i < player1->getTerritories()->size(); i++){
+        cout << "\n" << player1->getTerritories()->at(i) << endl;
     }
     cout << endl;
 

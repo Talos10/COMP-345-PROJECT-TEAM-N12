@@ -61,9 +61,6 @@ public:
     // Default constructor which initializes all the maps and the current game state.
     Player();
 
-    // Parametrized constructor that takes a player strategy and initializes all maps and current state
-    Player(PlayerStrategy* player_strategy);
-
     // Parameterized constructor to create a player with a name
     Player(const string& pname, PlayerStrategy* player_strategy);
 

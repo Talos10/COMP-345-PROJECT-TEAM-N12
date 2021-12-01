@@ -702,12 +702,11 @@ vector<tuple<Territory *, Territory *, string>> CheaterPlayerStrategy::toAttack(
     for(Territory* territory: *player->getTerritories()) {
         for(Territory* neighbor: territory->getNeighbours()) {
             if(neighbor->getOwner() != player) {
-                neighbor->setOwner(player);
-                goto endloop;
+                toAttack.emplace_back(neighbor, neighbor, "cheating");
+                return toAttack;
             }
         }
     }
-    endloop:
     return toAttack;
 }
 
