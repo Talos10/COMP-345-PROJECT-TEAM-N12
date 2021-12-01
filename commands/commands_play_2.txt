@@ -1,6 +1,7 @@
 loadmap canada-map.txt
 validatemap
 addplayer talos aggressive
+addplayer mario aggressive
 addplayer obama benevolent
 gamestart
 replay

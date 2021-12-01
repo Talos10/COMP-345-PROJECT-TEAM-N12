@@ -627,21 +627,21 @@ void BenevolentPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Ter
     cout << "Issuing order from Benevolent Player Strategy" << endl;
     if (get<2>(*orderInfo) == "deploy") {
         int reinforcementPool = *player->getReinforcementPool();
-        Order *deploy = new Deploy(*player, *get<0>(*orderInfo), reinforcementPool);
+        Order *deploy = new Deploy(*player, *get<0>(*orderInfo), reinforcementPool/2);
         player->getOrdersList()->addOrder(deploy);
         cout << "**issueOrder Deploy | Player: " << *player->getPName() << " | Target territory: " << get<0>(*orderInfo)->getName() << " | Armies: " << reinforcementPool << endl;
         log.AddSubject(*deploy);
-        player->decreasePool(reinforcementPool);
+        player->decreasePool(reinforcementPool/2);
     }
     //Defend Advance
     else if (get<2>(*orderInfo) == "advance" && get<0>(*orderInfo)->getOwner() == get<1>(*orderInfo)->getOwner() && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
-        Order *advance = new Advance(*player, *get<0>(*orderInfo), *get<1>(*orderInfo),get<0>(*orderInfo)->getNumberOfArmies() - 1);
+        Order *advance = new Advance(*player, *get<0>(*orderInfo), *get<1>(*orderInfo),get<0>(*orderInfo)->getNumberOfArmies()/2);
         player->getOrdersList()->addOrder(advance);
         cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: " << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName() << " | Armies: " << get<0>(*orderInfo)->getNumberOfArmies() - 1 << endl;
         log.AddSubject(*advance);
     }
     else if (get<2>(*orderInfo) == "airlift" && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
-        Order *airlift = new Airlift(*player, *get<0>(*orderInfo), *get<1>(*orderInfo), get<0>(*orderInfo)->getNumberOfArmies() - 1);
+        Order *airlift = new Airlift(*player, *get<0>(*orderInfo), *get<1>(*orderInfo), get<0>(*orderInfo)->getNumberOfArmies()/2);
         cout << "**issueOrder Airlift | Player: " << *player->getPName() << " | Source territory: " << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName() << " | Armies: " << get<0>(*orderInfo)->getNumberOfArmies() - 1 << endl;
         player->getOrdersList()->addOrder(airlift);
         log.AddSubject(*airlift);
