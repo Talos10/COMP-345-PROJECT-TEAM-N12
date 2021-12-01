@@ -507,6 +507,8 @@ void AggressivePlayerStrategy::issueOrder(Player *player, tuple<Territory *, Ter
 vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toAttack(Player *player) {
     cout << "toAttack method from Aggressive Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toAttack;
+    if(player->getTerritories()->empty())
+        return toAttack;
     //Copy of the player's hand to keep track of which cards are going to be played
     std::map<int,int> tempHand;
     tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
@@ -547,6 +549,8 @@ vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toAtta
 vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toDefend(Player *player) {
     cout << "toDefend method from Aggressive Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend;
+    if (player->getTerritories()->empty())
+        return toDefend;
     //Copy of the player's hand to keep track of which cards are going to be played
     std::map<int,int> tempHand;
     tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
@@ -657,6 +661,8 @@ vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toAtta
 vector<tuple<Territory *, Territory *, string>> BenevolentPlayerStrategy::toDefend(Player *player) {
     cout << "toDefend method from Benevolent Player Strategy" << endl;
     vector<tuple<Territory *, Territory *, string>> toDefend;
+    if(player->getTerritories()->empty())
+        return toDefend;
     //Copy of the player's hand to keep track of which cards are going to be played
     std::map<int,int> tempHand;
     tempHand = {{0,0},{1,0},{2,0},{3,0},{4,0}};
