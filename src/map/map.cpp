@@ -258,10 +258,15 @@ Territory::Territory(const Territory& territory) : id(territory.id), name(territ
  * Stream insertion operator for the Territory class
  */
 std::ostream &operator<<(std::ostream &out, const Territory *territory) {
-    out << "Country " << territory->getId() << " of name " << territory->getName();
-    out << " of continent " << territory->getContinentId();
-    out << " , owned by " << territory->getOwner();
-    out << " and x,y of " << territory->getX() << "," << territory->getY();
+    out << "Country #" << territory->getId() << " of name " << territory->getName();
+    out << " of continent #" << territory->getContinentId();
+    if (territory->getOwner() != nullptr) {
+        out << " , owned by " << *territory->getOwner()->getPName();
+    } else {
+        out << " , owned by no one";
+    }
+    out << " , with " << territory->getNumberOfArmies() << " armies";
+    out << ", and x,y of " << territory->getX() << "," << territory->getY();
     return out;
 }
 
@@ -527,11 +532,7 @@ std::ostream &operator<<(std::ostream &out, Map* map) {
     // output the list of territories of the map
     out << ", with countries :[\n";
     for (const auto &territory : map->territories) {
-        if(territory->getOwner() == nullptr){
-            out << territory << " with " << territory->getNumberOfArmies() << " armies and owned by no one" << endl;
-        }else{
-            out << territory << " with " << territory->getNumberOfArmies() << " armies and owned by " << *territory->getOwner()->getPName() << endl;
-        }
+        out << territory << endl;
 
     }
 

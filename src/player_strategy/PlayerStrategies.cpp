@@ -56,87 +56,109 @@ void HumanPlayerStrategy::issueOrder(Player *player, tuple<Territory *, Territor
         player->getOrdersList()->addOrder(deploy);
         cout << "**issueOrder Deploy | Player: " << *player->getPName() << " | Target territory: "
              << get<0>(*orderInfo)->getName() << " | Armies: " << nbrDeploy << endl;
-//    this->log->AddSubject(*deploy);
+        log.AddSubject(*deploy);
 
     } else if (get<2>(*orderInfo) == "negotiate") {
         cout << "Issuing negotiate order!" << endl;
         Order *negotiate = new Negotiate(*player, *get<1>(*orderInfo)->getOwner());
         player->getOrdersList()->addOrder(negotiate);
+        log.AddSubject(*negotiate);
+
     } else if (get<2>(*orderInfo) == "blockade") {
         cout << "Issuing blockade order!" << endl;
-        Order *blockade = new Blockade(*player, GameEngine::getNeutralPlayer(), get<1>(*orderInfo));
+        Order *blockade = new Blockade(*player, *GameEngine::getNeutralPlayer(), *get<1>(*orderInfo));
         player->getOrdersList()->addOrder(blockade);
+        log.AddSubject(*blockade);
         cout << "**issueOrder Blockade | Player: " << *player->getPName() << " | Neutral player: "
-             << GameEngine::getNeutralPlayer() << " | Target territory: " << get<1>(*orderInfo)->getName() << endl;
-    } else if (get<2>(*orderInfo) == "airlift" && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
+             << *GameEngine::getNeutralPlayer()->getPName() << " | Target territory: " << get<1>(*orderInfo)->getName()
+             << endl;
 
+    } else if (get<2>(*orderInfo) == "airlift") {
         int nbrAirlift;
         bool repeat = true;
 
-        do {
-            cout << "Issuing an airlift order. Your current number of armies on territory "
-                 << get<0>(*orderInfo)->getName() << " is " << get<0>(*orderInfo)->getNumberOfArmies() << endl;
-            cout << "Please enter the number of armies to airlift to territory " << get<1>(*orderInfo)->getName()
+        if (get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
+            do {
+                cout << "Issuing an airlift order. Your current number of armies on territory "
+                     << get<0>(*orderInfo)->getName() << " is " << get<0>(*orderInfo)->getNumberOfArmies() << endl;
+                cout << "Please enter the number of armies to airlift to territory " << get<1>(*orderInfo)->getName()
+                     << endl;
+                cin >> nbrAirlift;
+
+                if (nbrAirlift < get<0>(*orderInfo)->getNumberOfArmies()) {
+                    repeat = false;
+                } else if (nbrAirlift < 0 || nbrAirlift > get<0>(*orderInfo)->getNumberOfArmies()) {
+                    cout << "Cannot airlift this amount of armies: " << nbrAirlift << ". Please try again." << endl;
+                }
+            } while (repeat);
+
+            Order *airlift = new Airlift(*player, *get<0>(*orderInfo), *get<1>(*orderInfo),
+                                         nbrAirlift);
+            cout << "**issueOrder Airlift | Player: " << *player->getPName() << " | Source territory: "
+                 << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName()
+                 << " | Armies left on source territory: " << get<0>(*orderInfo)->getNumberOfArmies() - nbrAirlift
                  << endl;
-            cin >> nbrAirlift;
-
-            if (nbrAirlift < get<0>(*orderInfo)->getNumberOfArmies()) {
-                repeat = false;
-            } else if (nbrAirlift < 0 || nbrAirlift > get<0>(*orderInfo)->getNumberOfArmies()) {
-                cout << "Cannot airlift this amount of armies: " << nbrAirlift << ". Please try again." << endl;
-            }
-        } while (repeat);
-
-        Order *airlift = new Airlift(*player, *get<0>(*orderInfo), *get<1>(*orderInfo),
-                                     nbrAirlift);
-        cout << "**issueOrder Airlift | Player: " << *player->getPName() << " | Source territory: "
-             << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName()
-             << " | Armies left on source territory: " << get<0>(*orderInfo)->getNumberOfArmies() - nbrAirlift << endl;
-        player->getOrdersList()->addOrder(airlift);
-//        this->log->AddSubject(*airlift);
-    } else if (get<2>(*orderInfo) == "advance" && get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
+            player->getOrdersList()->addOrder(airlift);
+            log.AddSubject(*airlift);
+        } else {
+            cout << "Cannot issue airlift order because numArmies source territory " << get<0>(*orderInfo)->getName()
+                 << ", armies = " << get<0>(*orderInfo)->getNumberOfArmies() << " is less than 2" << endl;
+        }
+    } else if (get<2>(*orderInfo) == "advance") {
         int nbrAdvance;
         bool repeat = true;
 
-        do {
-            cout << "Issuing an advance order." << endl;
-            cout << "Your current number of armies on the source territory " << get<0>(*orderInfo)->getName() << " is "
-                 << get<0>(*orderInfo)->getNumberOfArmies() << endl;
+        if (get<0>(*orderInfo)->getNumberOfArmies() >= 2) {
+            do {
+                cout << "Issuing an advance order." << endl;
+                cout << "Your current number of armies on the source territory " << get<0>(*orderInfo)->getName()
+                     << " is "
+                     << get<0>(*orderInfo)->getNumberOfArmies() << endl;
 
-            if (get<0>(*orderInfo)->getOwner() == get<1>(*orderInfo)->getOwner()) {
-                cout << "The current number of armies on the FRIENDLY target territory "
-                     << get<1>(*orderInfo)->getName() << " is " << get<1>(*orderInfo)->getNumberOfArmies() << endl;
-            } else {
-                cout << "The current number of armies on the HOSTILE target territory "
-                     << get<1>(*orderInfo)->getName() << " is " << get<1>(*orderInfo)->getNumberOfArmies() << endl;
-            }
+                if (get<0>(*orderInfo)->getOwner() == get<1>(*orderInfo)->getOwner()) {
+                    cout << "The current number of armies on the FRIENDLY target territory "
+                         << get<1>(*orderInfo)->getName() << " is " << get<1>(*orderInfo)->getNumberOfArmies() << endl;
+                } else {
+                    cout << "The current number of armies on the HOSTILE target territory "
+                         << get<1>(*orderInfo)->getName() << " is " << get<1>(*orderInfo)->getNumberOfArmies() << endl;
+                }
 
-            cout << "Please enter the number of armies to advance from territory " << get<0>(*orderInfo)->getName()
-                 << " to territory " << get<1>(*orderInfo)->getName() << endl;
-            cin >> nbrAdvance;
+                cout << "Please enter the number of armies to advance from territory " << get<0>(*orderInfo)->getName()
+                     << " to territory " << get<1>(*orderInfo)->getName() << endl;
+                cin >> nbrAdvance;
 
-            if (nbrAdvance < get<0>(*orderInfo)->getNumberOfArmies()) {
-                repeat = false;
-            } else if (nbrAdvance < 0 || nbrAdvance > get<0>(*orderInfo)->getNumberOfArmies()) {
-                cout << "Cannot advance this amount of armies: " << nbrAdvance << ". Please try again." << endl;
-            }
-        } while (repeat);
+                if (nbrAdvance < get<0>(*orderInfo)->getNumberOfArmies()) {
+                    repeat = false;
+                } else if (nbrAdvance < 0 || nbrAdvance > get<0>(*orderInfo)->getNumberOfArmies()) {
+                    cout << "Cannot advance this amount of armies: " << nbrAdvance
+                         << ". The number is either negative or more than the current amount of armies on the source territory. Please try again."
+                         << endl;
+                } else {
+                    cout << "Cannot advance this amount of armies: " << nbrAdvance
+                         << " (must leave at least one army on source territory). Please try again." << endl;
+                }
+            } while (repeat);
 
-        Order *advance = new Advance(*player, *get<0>(*orderInfo), *get<1>(*orderInfo),
-                                     nbrAdvance);
-        player->getOrdersList()->addOrder(advance);
-        cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: "
-             << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName()
-             << " , owner: " << *get<1>(*orderInfo)->getOwner()->getPName()
-             << " | Armies left on source territory: " << get<0>(*orderInfo)->getNumberOfArmies() - nbrAdvance << endl;
-//        this->log->AddSubject(*advance);
+            Order *advance = new Advance(*player, *get<0>(*orderInfo), *get<1>(*orderInfo),
+                                         nbrAdvance);
+            player->getOrdersList()->addOrder(advance);
+            log.AddSubject(*advance);
+            cout << "**issueOrder Advance | Player: " << *player->getPName() << " | Source territory: "
+                 << get<0>(*orderInfo)->getName() << " | Target territory: " << get<1>(*orderInfo)->getName()
+                 << " , owner: " << *get<1>(*orderInfo)->getOwner()->getPName()
+                 << " | Armies left on source territory: " << get<0>(*orderInfo)->getNumberOfArmies() - nbrAdvance
+                 << endl;
+        } else {
+            cout << "Cannot issue advance order because numArmies source territory " << get<0>(*orderInfo)->getName()
+                 << ", armies = " << get<0>(*orderInfo)->getNumberOfArmies() << " is less than 2" << endl;
+        }
     } else if (get<2>(*orderInfo) == "bomb") {
         cout << "Issuing a bomb order." << endl;
         Order *bomb = new Bomb(*player, *get<1>(*orderInfo));
         player->getOrdersList()->addOrder(bomb);
         cout << "**issueOrder Bomb | Player: " << *player->getPName() << " | Target territory: "
              << get<1>(*orderInfo)->getName() << endl;
-//        this->log->AddSubject(*bomb);
+        log.AddSubject(*bomb);
     }
 }
 
@@ -156,7 +178,7 @@ vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toAttack(Pl
                 {1, pair("reinforcement", 0)},
                 {2, pair("blockade", 0)},
                 {3, pair("airlift", 0)},
-                {4, pair("diplomacy", 0)}};
+                {4, pair("negotiate", 0)}};
     //Counts the number of cards for each type
     for (Card *card: *player->getHand()->getHandsCards()) {
         tempHand[*card->getType()].second += 1;
@@ -174,8 +196,10 @@ vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toAttack(Pl
 
         cin >> orderType;
 
-        if (orderType == -1) shouldContinue = false;
-        else if (orderType < 0 || orderType > 1) {
+        if (orderType == -1) {
+            shouldContinue = false;
+            continue;
+        } else if (orderType < 0 || orderType > 1) {
             cout << "The order type number " << orderType << " doesn't exist! Please enter a number between 0-1!"
                  << endl;
             continue;
@@ -194,26 +218,25 @@ vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toAttack(Pl
                 tempHand[orderType].second -= 1;
         }
 
+        cout << "\nYou selected a attack order of type " << orderName << "\n" << endl;
+
         do {
             cout
-                    << "Choose two territories from the list below. Type the first territory id, hit enter, and then type the second territory id and hit enter."
+                    << "-Choose two territories from the list below. Type the first territory id, hit enter, and then type the second territory id and hit enter."
                     << endl;
             cout
-                    << "For advance and bomb, the second territory should be neighbouring the first one (and should be a hostile territory)."
+                    << "-For advance and bomb, the second territory should be neighbouring the first one (and should be a hostile territory)."
                     << endl;
             cout
-                    << "For advance and bomb, the second id should be formatted like so \"2-5\" which means that the second territory is territory with id 5 which is a neighbour of territory with id 2.\n"
+                    << "-For advance and bomb, the second id should be formatted like so \"2-5\"."
                     << endl;
 
-            for (int i = 0; i < player->getTerritories()->size(); i++) {
-                cout << "Territory number #" << i << ": " << player->getTerritories()->at(i) << endl;
+            cout
+                    << "This means that the second territory is territory with id 5 which is a neighbour of territory with id 2.\n"
+                    << endl;
 
-                int count = 0;
-                for (auto const &entry: player->getTerritories()->at(i)->getNeighbours()) {
-                    cout << "\t-Neighbour Territory number #" << count << ": " << entry << endl;
-                    count++;
-                }
-            }
+
+            printPlayerTerritories(player);
 
             cout << "\nEnter source territory id:" << endl;
             cin >> sourceTerritoryIndex;
@@ -273,7 +296,7 @@ vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toDefend(Pl
                 {1, pair("reinforcement", 0)},
                 {2, pair("blockade", 0)},
                 {3, pair("airlift", 0)},
-                {4, pair("diplomacy", 0)}};
+                {4, pair("negotiate", 0)}};
     //Counts the number of cards for each type
     for (Card *card: *player->getHand()->getHandsCards()) {
         tempHand[*card->getType()].second += 1;
@@ -298,8 +321,10 @@ vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toDefend(Pl
 
         cin >> orderType;
 
-        if (orderType == -1) shouldContinue = false;
-        else if (orderType < 0 || orderType > 5) {
+        if (orderType == -1) {
+            shouldContinue = false;
+            continue;
+        } else if (orderType < 0 || orderType > 5) {
             cout << "The order type number " << orderType << " doesn't exist! Please enter a number between 0-5!"
                  << endl;
             continue;
@@ -321,6 +346,8 @@ vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toDefend(Pl
                 tempHand[orderType].second -= 1;
         }
 
+        cout << "\nYou selected a defend order of type " << orderName << "\n" << endl;
+
         do {
             cout
                     << "Choose two territories from the list below. Type the first territory id, hit enter, and then type the second territory id and hit enter."
@@ -333,15 +360,7 @@ vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toDefend(Pl
                     << "For negotiate, the second id should be formatted like so \"2-5\" which means that the second territory is territory with id 5 which is a neighbour of territory with id 2.\n"
                     << endl;
 
-            for (int i = 0; i < player->getTerritories()->size(); i++) {
-                cout << "Territory number #" << i << ": " << player->getTerritories()->at(i) << endl;
-
-                int count = 0;
-                for (auto const &entry: player->getTerritories()->at(i)->getNeighbours()) {
-                    cout << "\t-Neighbour Territory number #" << count << ": " << entry << endl;
-                    count++;
-                }
-            }
+            printPlayerTerritories(player);
 
             cout << "\nEnter source territory id:" << endl;
             cin >> sourceTerritoryIndex;
@@ -377,6 +396,7 @@ vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toDefend(Pl
                 chooseTerritoryAgain = false;
 
             } catch (out_of_range &e) {
+                cerr << e.what() << endl;
                 cerr << "Incorrect first or second territory id! Choose two territories again." << endl;
             }
         } while (chooseTerritoryAgain);
@@ -384,6 +404,18 @@ vector<tuple<Territory *, Territory *, string>> HumanPlayerStrategy::toDefend(Pl
     } while (shouldContinue);
 
     return toDefend;
+}
+
+void HumanPlayerStrategy::printPlayerTerritories(const Player *player) {
+    for (int i = 0; i < player->getTerritories()->size(); i++) {
+        cout << "\nTerritory number #" << i << ": " << player->getTerritories()->at(i) << endl;
+
+        int count = 0;
+        for (auto const &entry: player->getTerritories()->at(i)->getNeighbours()) {
+            cout << "\t-Neighbour Territory number #" << count << ": " << entry << endl;
+            count++;
+        }
+    }
 }
 
 /**
@@ -452,7 +484,10 @@ void AggressivePlayerStrategy::issueOrder(Player *player, tuple<Territory *, Ter
                 log.AddSubject(*advance);
             }
             else {
-                cout << "Cannot issue Advance order because numArmies source territory is less than numArmies target territory" << endl;
+                cout << "Cannot issue Advance order because numArmies source territory "
+                     << get<0>(*orderInfo)->getName() << ", armies = " << get<0>(*orderInfo)->getNumberOfArmies()
+                     << " is less than or equal to the numArmies target territory " << get<1>(*orderInfo)->getName()
+                     << ", armies = " << get<1>(*orderInfo)->getNumberOfArmies() << endl;
             }
         }
     }
@@ -522,8 +557,8 @@ vector<tuple<Territory *, Territory *, string>> AggressivePlayerStrategy::toDefe
         }
     }
     //Deploy all of reinforcement pool on strongest territory
-    if(player->getTerritories()->size() > 1){
-        toDefend.emplace_back(strongestTerritory, strongestTerritory,"deploy");
+    if (!player->getTerritories()->empty()) {
+        toDefend.emplace_back(strongestTerritory, strongestTerritory, "deploy");
     }
     //for each territory that is a neighbor of the strongest territory to an advance order towards the strongest territory
     for (Territory* territory : *player->getTerritories()) {

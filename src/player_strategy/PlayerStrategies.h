@@ -58,13 +58,16 @@ public:
     string printStrategy() override;
 
     // issueOrder method for the human player type
-    void issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) override;
+    void issueOrder(Player *player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver &log) override;
 
     // toAttack method for the human player
-    vector<tuple<Territory*,Territory*,string>> toAttack(Player* player) override;
+    vector<tuple<Territory *, Territory *, string>> toAttack(Player *player) override;
 
     // toDefend method for the cheater player
-    vector<tuple<Territory*,Territory*,string>> toDefend(Player* player) override;
+    vector<tuple<Territory *, Territory *, string>> toDefend(Player *player) override;
+
+    // Prints all the player's territories
+    static void printPlayerTerritories(const Player *player);
 };
 
 class AggressivePlayerStrategy : public PlayerStrategy {

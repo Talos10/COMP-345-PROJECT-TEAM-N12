@@ -111,9 +111,6 @@ private:
     // A function which sets the player's strategy
     PlayerStrategy &getStrategyObjectByStrategyName(string &name);
 
-    // A function which returns the neutral player (if they exist)
-    static Player *getNeutralPlayer();
-
 public:
 
     // One param constructor which initializes all the maps, the current game state, and the mode in which the game
@@ -201,8 +198,11 @@ public:
     //Function that will check if there is a player that has won the game
     bool checkForWin();
 
-    //Will return the neutral player in the list of players
-    Player *getNeutralPlayer();
+    // A function which sets the neutral player
+    static void setNeutralPlayer(Player *ntrPlayer);
+
+    // A function which returns the neutral player (if they exist)
+    static Player *getNeutralPlayer();
 
     // Override class from ILoggable
     string stringToLog() const override;

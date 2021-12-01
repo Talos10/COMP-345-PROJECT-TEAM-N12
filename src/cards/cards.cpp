@@ -73,10 +73,13 @@ void Card::play(Deck &deck, Player &player, tuple<Territory *, Territory *, stri
 
     // If the card is found, delete the reference to the hand card, and add the reference to the deck
     if (it != hand_cards->end()) {
+        cout << "Card found!" << endl;
         // Put the created order in the list of orders
         player.issueOrder(orderInfo, log);
         hand_cards->erase(it);
         deck.getWarzoneCards()->insert(deck.getWarzoneCards()->begin(), card_address);
+    } else {
+        cout << "Card not found..." << endl;
     }
 }
 
