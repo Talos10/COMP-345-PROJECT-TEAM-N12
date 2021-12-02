@@ -62,21 +62,24 @@ void Card::setType(const Type& card_type) {
 // This function creates an order of the current card and adds it to a list of orders which is a parameter passed by reference.
 // Then, it removes the card that was played from the hand which is a parameter passed by reference
 // Finally, it adds the same card to the deck
-void Card::play(Deck& deck, Player& player, Order* order) {
+void Card::play(Deck &deck, Player &player, tuple<Territory *, Territory *, string> *orderInfo, LogObserver& log) {
 
     // Create references for the content of the hand cards and the content of the card being played
-    vector<Card*>* hand_cards = player.getHand()->getHandsCards();
-    Card* card_address = this;
+    vector<Card *> *hand_cards = player.getHand()->getHandsCards();
+    Card *card_address = this;
 
     // Create an iterator that will point to the same card in the hand as the current card being played
-    vector<Card*>::iterator it = std::find(hand_cards->begin(), hand_cards->end(), card_address);
+    vector<Card *>::iterator it = std::find(hand_cards->begin(), hand_cards->end(), card_address);
 
     // If the card is found, delete the reference to the hand card, and add the reference to the deck
-    if(it != hand_cards->end()){
+    if (it != hand_cards->end()) {
+        cout << "Card found!" << endl;
         // Put the created order in the list of orders
-        player.issueOrder(order);
+        player.issueOrder(orderInfo, log);
         hand_cards->erase(it);
         deck.getWarzoneCards()->insert(deck.getWarzoneCards()->begin(), card_address);
+    } else {
+        cout << "Card not found..." << endl;
     }
 }
 
@@ -158,6 +161,8 @@ void Deck::setDeckCards(const vector<Card*> &cards) {
 void Deck::draw(const Hand &hand) {
     int lastElementPosition = this->warzoneCards->size() - 1;
     Card *card = this->warzoneCards->back();
+    cout << "Size of deck: " << this->warzoneCards->size() << endl;
+    cout << "Card Type from back of deck: " << *card->getType() << endl;
 
     hand.getHandsCards()->emplace_back(card); // put deck card in hand
     this->warzoneCards->erase(this->warzoneCards->begin() + lastElementPosition); // erase last pointer
@@ -287,7 +292,7 @@ void card_driver() {
 
     // Play all the cards in the hand
     while (!player.getHand()->getHandsCards()->empty()) {
-        player.getHand()->getHandsCards()->at(0)->play(deck, player, order);
+//        player.getHand()->getHandsCards()->at(0)->play(deck, player, order);
     }
 
     // Print the deck, the hand and the orders

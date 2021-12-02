@@ -61,9 +61,6 @@ public:
     // Default constructor which initializes all the maps and the current game state.
     Player();
 
-    // Parametrized constructor that takes a player strategy and initializes all maps and current state
-    Player(PlayerStrategy* player_strategy);
-
     // Parameterized constructor to create a player with a name
     Player(const string& pname, PlayerStrategy* player_strategy);
 
@@ -101,7 +98,7 @@ public:
     Territory* findWeakestTerritory();
 
     //A function that will create an Order object and add it to the list of Orders.
-    void issueOrder(Order* order);
+    void issueOrder(tuple<Territory*,Territory*,string> *orderInfo, LogObserver& log);
 
     // Getter for the territories.
     [[nodiscard]] std::vector<Territory*>* getTerritories() const;
