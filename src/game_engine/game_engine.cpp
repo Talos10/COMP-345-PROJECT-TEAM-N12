@@ -10,6 +10,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <sstream>
 
 using namespace std;
 
@@ -47,6 +48,11 @@ GameEngine::GameEngine(const string &readMode) {
     // all the possible actions from each state.
     auto *start = new vector<string>();
     start->emplace_back("loadmap");
+    start->emplace_back("tournament");
+
+    auto *tournament = new vector<string>();
+    tournament->emplace_back("start");
+    tournament->emplace_back("gameStart");
 
     auto *mapLoaded = new vector<string>();
     mapLoaded->emplace_back("loadmap");
@@ -74,9 +80,11 @@ GameEngine::GameEngine(const string &readMode) {
     auto *winVector = new vector<string>();
     winVector->emplace_back("replay");
     winVector->emplace_back("quit");
+    winVector->emplace_back("tournament");
 
     // Linking states to their vector of possible actions.
     stateMap->insert(make_pair("start", start));
+    stateMap->insert(make_pair("tournament", tournament));
     stateMap->insert(make_pair("maploaded", mapLoaded));
     stateMap->insert(make_pair("mapvalidated", mapValidated));
     stateMap->insert(make_pair("playersadded", playersAdded));
@@ -88,6 +96,8 @@ GameEngine::GameEngine(const string &readMode) {
     // Linking actions to their corresponding description to trigger the action and the effect of that action.
     descriptionMap->insert(make_pair("loadmap", make_tuple("Load a file with your map(s): loadmap <mapfile>", 1,
                                                            "Loading map from file with the following name:")));
+    descriptionMap->insert(make_pair("tournament", make_tuple("Configure a tournament with the given maps, number of players/strategies, number of games per map and maximum number of turns: tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>", 8,
+                           "Creating a tournament with configuration:")));
     descriptionMap->insert(make_pair("validatemap", make_tuple("Validate the given file with map(s): validatemap", 0,
                                                                "Validating the map.")));
     descriptionMap->insert(make_pair("addplayer", make_tuple("Add a new player to the game: addplayer <playername>", 2,
@@ -114,6 +124,7 @@ GameEngine::GameEngine(const string &readMode) {
 
     // Creating pointers to functions that will be called for the corresponding action.
     Game_Engine_Mem_Fn loadMap = &GameEngine::loadMap;
+    Game_Engine_Mem_Fn tournamentMethod = &GameEngine::tournament;
     Game_Engine_Mem_Fn validateMap = &GameEngine::validateMap;
     Game_Engine_Mem_Fn addPlayer = &GameEngine::addPlayer;
     Game_Engine_Mem_Fn gameStart = &GameEngine::gameStart;
@@ -127,6 +138,7 @@ GameEngine::GameEngine(const string &readMode) {
 
     // Linking the trigger keyword of an action to their method handler and the transition state.
     functionMap->insert(make_pair("loadmap", make_pair(loadMap, "maploaded")));
+    functionMap->insert(make_pair("tournament", make_pair(tournamentMethod, "assignreinforcement")));
     functionMap->insert(make_pair("validatemap", make_pair(validateMap, "mapvalidated")));
     functionMap->insert(make_pair("addplayer", make_pair(addPlayer, "playersadded")));
     functionMap->insert(make_pair("gamestart", make_pair(gameStart, "assignreinforcement")));
@@ -357,6 +369,159 @@ void GameEngine::loadMap(const string &transitionState, const vector<string *> &
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
+// A function which will attempt to create a tournament
+void GameEngine::tournament(const string &transitionState, const vector<string *> &commandArgs) {
+    cout << "\n****************************************\n" << endl;
+    cout << "Inside the tournament function! You are creating a tournament!" << endl;
+
+    cout << "\nThis is the state before the action: " << *currentState << endl;
+
+    // The commandArgs array must follow this format:
+    //  commandArgs[0] == "tournament" // already validated by command processor
+    //  commandArgs[1] == "-M"
+    //  commandArgs[2] == {list of map files, delimited by commas}
+    //  commandArgs[3] == "-P"
+    //  commandArgs[4] == {list of player strategies, delimited by commas}
+    //  commandArgs[5] == "-G"
+    //  commandArgs[6] == {number of games per map played}
+    //  commandArgs[7] == "-D"
+    //  commandArgs[8] == {maximum number of turns}
+
+    // Validate command order
+    const string VALID_PARAM_NAMES[] = {"-M", "-P", "-G", "-D"};
+
+    bool isValidTournament = true;
+
+    for (int i = 0; i < 4; i++) {
+        if (*commandArgs[i*2+1] != VALID_PARAM_NAMES[i]) {
+            cout << "Error parsing arguments: expected arg " << (i*2+1) << " as \"" << VALID_PARAM_NAMES[i] << "\", instead received \"" << *commandArgs[1] << "\"" << endl;
+            isValidTournament = false;
+        }
+    }
+
+    // Create vectors of maps and players
+    parseTournamentMaps(*commandArgs[2]);
+    parseTournamentPlayers(*commandArgs[4]);
+
+    // Validate number of games per map
+    int gamesPerMap = -1;
+    try {
+        gamesPerMap = stoi(*commandArgs[6]);
+    } catch (exception &e) {
+        cout << "Error: Cannot parse -G argument as integer -- " << e.what() << endl;
+    }
+
+    if (gamesPerMap < 1 || gamesPerMap > 5) {
+        cout << "Error: Provided invalid games per map. Number must be between 1 and 5" << endl;
+        isValidTournament = false;
+    }
+
+    // Validate maximum number of turns
+    int maxTurns = -1;
+    try {
+        maxTurns = stoi(*commandArgs[8]);
+    } catch (exception &e) {
+        cout << "Error: Cannot parse -D argument as integer -- " << e.what() << endl;
+    }
+
+    if (maxTurns < 10 || maxTurns > 50) {
+        cout << "Error: Provided invalid max number of turns. Number must be between 10 and 50" << endl;
+        isValidTournament = false;
+    }
+
+    if (isValidTournament) {
+        transition(transitionState);
+    }
+
+    cout << "\nThis is the state after the action: " << *currentState << endl;
+}
+
+bool GameEngine::parseTournamentPlayers(const string &playersLine) const {
+    bool isValidPlayers = false;
+    const string VALID_STRATEGIES[] = {"aggressive", "benevolent", "neutral", "cheater"};
+
+    vector<string> playerStrategies;
+    extractCsv(&playersLine, playerStrategies);
+
+    // Validate number of player strategies
+    if (playerStrategies.size() < 2 || playerStrategies.size() > 4) {
+        cout << "Error: Provided " << playerStrategies.size() << " players. Number must be between 2 and 4" << endl;
+        isValidPlayers = false;
+    }
+
+    // Validate all player strategies
+    for (const auto &playerStrategy : playerStrategies) {
+        bool foundMatch = false;
+
+        // Check that the current player strategy is a valid name for a strategy
+        for (const auto &validStrategy : VALID_STRATEGIES) {
+            if (playerStrategy == validStrategy) {
+                foundMatch = true;
+                break;
+            }
+        }
+
+        if (!foundMatch) {
+            cout << "Error: stategy name \"" << playerStrategy << "\" is not a valid strategy. "
+                    << R"(Possible values are "aggressive", "benevolent", "neutral", "cheater")" << endl;
+        }
+    }
+
+    return isValidPlayers;
+}
+
+bool GameEngine::parseTournamentMaps(const string &mapsLine) const {
+    bool isValidMapsLine = false;
+
+    vector<string> mapFiles;
+    extractCsv(&mapsLine, mapFiles);
+    vector<Map*> tournamentMaps;
+
+    if (mapFiles.empty() || mapFiles.size() > 5) {
+        cout << "Error: Provided " << mapFiles.size() << " map files. Number must be between 1 and 5" << endl;
+        isValidMapsLine = false;
+    } else {
+        // Load and validate each map file
+
+        for (const auto &mapFile : mapFiles) {
+            // Check that file exists
+            ifstream file;
+            file.open(MAPS_DIR + mapFile);
+            if (!file) {
+                // File doesn't exist
+                cout << "Error: File " << mapFile << " doesn't exist" << endl;
+                isValidMapsLine = false;
+            } else {
+                // File exists, create the map
+                try {
+                    // Load map from file
+                    Map *loadedMap = MapLoader::load(mapFile);
+
+                    // Validate loaded map
+                    loadedMap->validate();
+
+                    // If map is valid, add to the list of tournament maps
+                    tournamentMaps.emplace_back(MapLoader::load(mapFile));
+                } catch (runtime_error &exp) {
+                    // Catch all exceptions defined as runtime errors
+                    cerr << "Error: Could not load/validate map " << mapFile << endl;
+                    cerr << exp.what() << endl;
+                }
+            }
+        }
+    }
+
+    return isValidMapsLine;
+}
+
+void GameEngine::extractCsv(const string *csvLine, vector<string> &csvVector) const {
+    stringstream stream = stringstream(*csvLine);
+    string token;
+    while (getline(stream, token, ',')) {
+        csvVector.emplace_back(token);
+    }
+}
+
 // A function which will validate the game map using the map class.
 // Currently just changes the current state of the game to mapValidated.
 void GameEngine::validateMap(const string &transitionState, const vector<string *> &commandArgs) {
@@ -491,6 +656,9 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
             cout << *player->getHand() << endl;
         }
 
+        // Initialize the turn count to 1
+        turnCount = 1;
+
         transition(transitionState);
     }
     cout << "\nThis is the state after the action: " << *currentState << endl;
@@ -543,7 +711,8 @@ void GameEngine::endExecOrders(const string &transitionState, const vector<strin
     cout << "Inside the quit execute orders function! You are ending the order execution phase!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-
+    // Increment the turn count
+    turnCount++;
     transition(transitionState);
 
     cout << "\nThis is the state after the action: " << *currentState << endl;

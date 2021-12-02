@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <string>
 #include "command_processor/command_processing.h"
 #include "player/player.h"
 #include "map/map.h"
@@ -52,6 +53,9 @@ private:
     //The deck from which the players will draw cards
     Deck* deck;
 
+    // The turn count of the current game
+    int turnCount;
+
     // Defining the output operator for the GameEngine object.
     friend std::ostream &operator<<(std::ostream &stream, const GameEngine &ge);
 
@@ -62,6 +66,10 @@ private:
     // A function which will load the game map using the map class. It takes in the transition state the game will be in
     // after the method is executed and the arguments of the command that triggered the execution of this method.
     void loadMap(const string &transitionState, const vector<string *> &commandArgs);
+
+    // A function which will set up a new tournament. It takes in the transition state the game will be in
+    // after the method is executed and the arguments of the command that triggered the execution of this method.
+    void tournament(const string &transitionState, const vector<string *> &commandArgs);
 
     // A function which will validate the game map using the map class. It takes in the transition state the game will
     // be in after the method is executed and the arguments of the command that triggered the execution of this method.
@@ -202,6 +210,13 @@ public:
     string stringToLog() const override;
 
     bool readingCommands(const vector<string> &states);
+
+    // TODO: Document each function here
+    void extractCsv(const string *csvLine, vector<string> &csvVector) const;
+
+    bool parseTournamentMaps(const string &mapsLine) const;
+
+    bool parseTournamentPlayers(const string &playersLine) const;
 };
 
 // Free function in order to test the functionality of the GameEngine for assignment #2. Takes in a commandline argument
