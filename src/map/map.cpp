@@ -557,6 +557,10 @@ Map &Map::operator=(Map other) {
     return *this;
 }
 
+string Map::getName() {
+    return name;
+}
+
 /**
  * Load a map from a given file, while making sure file is valid (i.e. can be fully parsed)
  * @param string the filename
@@ -575,7 +579,7 @@ Map* MapLoader::load(const string& filename) {
     const std::regex borderRegex(R"(^\d+( \d+)+$)", ECMAScript); // e.g. "7 4 5 6 8 11"
 
     // Create new map object to be used for parsing
-    Map* gameMap = new Map("myMap");
+    Map* gameMap = new Map(filename);
 
     // Some text appears above the first section, call this "head"
     string currentSection = "head";

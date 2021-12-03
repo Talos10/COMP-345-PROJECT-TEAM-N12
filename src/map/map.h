@@ -105,6 +105,7 @@ public:
     void addEdge(int originID, int destID);
 
     unsigned int getSize();
+    string getName();
     string toMermaid();
     void addContinent(Continent* continent);
     Continent* getContinentByID(int continentID);

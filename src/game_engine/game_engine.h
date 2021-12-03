@@ -50,6 +50,12 @@ private:
     //The map the players will fight on.
     Map *gameMap;
 
+    // The ordered collection of Maps for use in the tournament
+    vector<Map *> *tournamentMaps;
+
+    // The ordered collection of Player strategies for use in the tournament
+    vector<string> *tournamentPlayerStrategies;
+
     //The deck from which the players will draw cards
     Deck *deck;
 
@@ -58,6 +64,9 @@ private:
 
     // The turn count of the current game
     int turnCount;
+
+    // The maximum number of turns allowed in tournament play
+    int maxTurns;
 
     // Defining the output operator for the GameEngine object.
     friend std::ostream &operator<<(std::ostream &stream, const GameEngine &ge);
@@ -118,6 +127,9 @@ private:
 
     // A function which sets the player's strategy
     PlayerStrategy &getStrategyObjectByStrategyName(string &name);
+
+    // Starts the tournament
+    void startTournament(int i, int i1);
 
 public:
 
@@ -223,6 +235,8 @@ public:
     bool parseTournamentMaps(const string &mapsLine) const;
 
     bool parseTournamentPlayers(const string &playersLine) const;
+
+    void gameStart();
 };
 
 // Free function in order to test the functionality of the GameEngine for assignment #2. Takes in a commandline argument

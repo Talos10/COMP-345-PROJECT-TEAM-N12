@@ -34,6 +34,9 @@ GameEngine::GameEngine(const string &readMode) {
     deck = new Deck(20);
     neutralPlayer = nullptr;
 
+    tournamentMaps = new vector<Map*>{};
+    tournamentPlayerStrategies = new vector<string>{};
+
     if (*commandReadMode == "-console") {
         cout << "Taking commands from console!" << endl;
         commandProcessor = new CommandProcessor();
@@ -52,8 +55,7 @@ GameEngine::GameEngine(const string &readMode) {
     start->emplace_back("tournament");
 
     auto *tournament = new vector<string>();
-    tournament->emplace_back("start");
-    tournament->emplace_back("gameStart");
+    tournament->emplace_back("quit");
 
     auto *mapLoaded = new vector<string>();
     mapLoaded->emplace_back("loadmap");
@@ -81,7 +83,6 @@ GameEngine::GameEngine(const string &readMode) {
     auto *winVector = new vector<string>();
     winVector->emplace_back("replay");
     winVector->emplace_back("quit");
-    winVector->emplace_back("tournament");
 
     // Linking states to their vector of possible actions.
     stateMap->insert(make_pair("start", start));
@@ -139,7 +140,7 @@ GameEngine::GameEngine(const string &readMode) {
 
     // Linking the trigger keyword of an action to their method handler and the transition state.
     functionMap->insert(make_pair("loadmap", make_pair(loadMap, "maploaded")));
-    functionMap->insert(make_pair("tournament", make_pair(tournamentMethod, "assignreinforcement")));
+    functionMap->insert(make_pair("tournament", make_pair(tournamentMethod, "end")));
     functionMap->insert(make_pair("validatemap", make_pair(validateMap, "mapvalidated")));
     functionMap->insert(make_pair("addplayer", make_pair(addPlayer, "playersadded")));
     functionMap->insert(make_pair("gamestart", make_pair(gameStart, "assignreinforcement")));
@@ -164,6 +165,8 @@ GameEngine::GameEngine(const GameEngine &e) {
     this->players = new std::vector(*e.players);
     this->gameMap = new Map(*e.gameMap);
     this->deck = new Deck(*e.deck);
+    this->tournamentMaps = new std::vector(*e.tournamentMaps);
+    this->tournamentPlayerStrategies = new vector(*e.tournamentPlayerStrategies);
 }
 
 // Swaps the member data between two GameEngine objects.
@@ -178,6 +181,8 @@ void GameEngine::swap(GameEngine &first, GameEngine &second) {
     std::swap(first.players, second.players);
     std::swap(first.gameMap, second.gameMap);
     std::swap(first.deck, second.deck);
+    std::swap(first.tournamentMaps, second.tournamentMaps);
+    std::swap(first.tournamentPlayerStrategies, second.tournamentPlayerStrategies);
 }
 
 // Destructor.
@@ -193,6 +198,8 @@ GameEngine::~GameEngine() {
     delete players;
     delete gameMap;
     delete deck;
+    delete tournamentMaps;
+    delete tournamentPlayerStrategies;
 }
 
 // The way this method works is that it first creates a local temporary copy of the given object (called ge)
@@ -435,7 +442,7 @@ void GameEngine::tournament(const string &transitionState, const vector<string *
     }
 
     // Validate maximum number of turns
-    int maxTurns = -1;
+    maxTurns = -1;
     try {
         maxTurns = stoi(*commandArgs[8]);
     } catch (exception &e) {
@@ -448,14 +455,106 @@ void GameEngine::tournament(const string &transitionState, const vector<string *
     }
 
     if (isValidTournament) {
+        startTournament(gamesPerMap, maxTurns);
         transition(transitionState);
     }
 
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
+void GameEngine::startTournament(int gamesPerMap, int maxTurns) {
+    cout << "Beginning the tournament" << endl;
+
+    // TODO: Export these to a file
+    cout << "Tournament mode:" << endl;
+
+    // Print out the maps in the tourney
+    string mapsLine;
+    for (const auto &item : *tournamentMaps) {
+        mapsLine += item->getName() + "\t";
+    }
+
+    cout << "M: " << mapsLine << endl;
+
+    // Print out the players in the tourney
+    string playersLine;
+    for (const auto &item : *tournamentPlayerStrategies) {
+        playersLine += item + "\t";
+    }
+
+    cout << "P: " << playersLine << endl;
+
+    cout <<"G: " << gamesPerMap << endl;
+    cout <<"D: " << maxTurns << endl;
+
+    cout << "Printed out the configuration to the log file" << endl;
+
+    string winners[tournamentMaps->size()][tournamentPlayerStrategies->size()];
+
+    for (int i = 0; i < tournamentMaps->size(); i++) {
+        cout << "Changing active map to index " << i << ": " << tournamentMaps->at(i)->getName() << endl;
+        for (int j = 0; j < gamesPerMap; j++) {
+            // Set up a new map (validation not necessary)
+            setMap(tournamentMaps->at(i)->getName());
+
+            // Set up the players
+            auto *newPlayers = new vector<Player*>{};
+            int playerIndex = 1;
+            for (int k = 0; k < tournamentPlayerStrategies->size(); k++) {
+                auto *player = new Player(to_string(playerIndex) + "-" + tournamentPlayerStrategies->at(k), &getStrategyObjectByStrategyName(tournamentPlayerStrategies->at(j)));
+                newPlayers->emplace_back(player);
+                playerIndex++;
+            }
+            setPlayers(*newPlayers);
+
+            gameStart();
+
+            turnCount = 0;
+            mainGameLoop();
+
+            // At end of game, register the name of the winning player (or draw if no player won)
+            bool gameHasWinner = false;
+            for (auto & player : *players) {
+                if (player->getTerritories()->size() == gameMap->getSize()) {
+                    winners[i][j] = *player->getPName();
+                    gameHasWinner = true;
+                }
+            }
+
+            if (!gameHasWinner) {
+                winners[i][j] = "draw";
+            }
+
+
+        }
+    }
+
+    // Print out final results
+    // Header line
+
+    cout << "\nResults:" << endl;
+    for (int i = 1; i <= gamesPerMap; i++) {
+        cout << "\t\tGame-" << i;
+    }
+    cout << endl;
+
+    // Print out one row at a time
+    for (auto i = 0; i < tournamentMaps->size(); i++) {
+        // Print out the map name as the first column of the row
+        cout << tournamentMaps->at(i)->getName() << "\t";
+
+        for (auto j = 0; j < tournamentPlayerStrategies->size(); j++){
+            cout << winners[i][j] << "\t";
+        }
+
+        cout << endl;
+    }
+
+    cout << endl;
+}
+
 bool GameEngine::parseTournamentPlayers(const string &playersLine) const {
-    bool isValidPlayers = false;
+    bool isValidPlayers = true;
     const string VALID_STRATEGIES[] = {"aggressive", "benevolent", "neutral", "cheater"};
 
     vector<string> playerStrategies;
@@ -480,8 +579,22 @@ bool GameEngine::parseTournamentPlayers(const string &playersLine) const {
         }
 
         if (!foundMatch) {
-            cout << "Error: stategy name \"" << playerStrategy << "\" is not a valid strategy. "
+            cout << "Error: strategy name \"" << playerStrategy << "\" is not a valid strategy. "
                     << R"(Possible values are "aggressive", "benevolent", "neutral", "cheater")" << endl;
+
+            isValidPlayers = false;
+        }
+    }
+
+    // If all players are valid, replace the existing tournamentPlayerStrategies
+    if (isValidPlayers) {
+        tournamentPlayerStrategies->clear();
+
+        for (const string& item : playerStrategies) {
+//            string *strategy = new string(item);
+//            *strategy = item;
+            string *dupeStr = new string(item);
+            tournamentPlayerStrategies->emplace_back(*dupeStr);
         }
     }
 
@@ -493,7 +606,6 @@ bool GameEngine::parseTournamentMaps(const string &mapsLine) const {
 
     vector<string> mapFiles;
     extractCsv(&mapsLine, mapFiles);
-    vector<Map*> tournamentMaps;
 
     if (mapFiles.empty() || mapFiles.size() > 5) {
         cout << "Error: Provided " << mapFiles.size() << " map files. Number must be between 1 and 5" << endl;
@@ -519,7 +631,7 @@ bool GameEngine::parseTournamentMaps(const string &mapsLine) const {
                     loadedMap->validate();
 
                     // If map is valid, add to the list of tournament maps
-                    tournamentMaps.emplace_back(MapLoader::load(mapFile));
+                    tournamentMaps->emplace_back(MapLoader::load(mapFile));
                 } catch (runtime_error &exp) {
                     // Catch all exceptions defined as runtime errors
                     cerr << "Error: Could not load/validate map " << mapFile << endl;
@@ -614,65 +726,7 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
     if (players->size() < 2) {
         cerr << "Not enough players to start the game!" << endl;
     } else {
-        // Enough players to begin the game!
-        // Shuffle list of players to randomize order of play
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        default_random_engine randomEngine(seed);
-        shuffle(players->begin(), players->end(), randomEngine);
-
-        cout << "\nOrder of play:" << endl;
-        for (const auto &player : *players) {
-            cout << "\t" << *player->getPName() << endl;
-        }
-        cout << endl;
-
-        cout << "\nAssigning territories to each player..." << endl;
-        // Distribute all territories to every player in a fair manner:
-        // Iterate through a random permutation of the players vector
-        // When the iterator reaches the end of the vector, generate a new permutation and move iterator back to the start
-        vector<Player *> unpickedPlayers;
-        auto iterator = unpickedPlayers.cbegin();
-
-        for (int i = 0; i < gameMap->getContinentsSize(); i++) {
-            Continent *continent = gameMap->getContinentByID(i+1);
-
-            for (const auto &territory : continent->getTerritories()) {
-                if (iterator == unpickedPlayers.cend()) {
-                    unpickedPlayers = *players;
-                    randomEngine.seed(std::chrono::system_clock::now().time_since_epoch().count());
-                    shuffle(unpickedPlayers.begin(), unpickedPlayers.end(), randomEngine);
-                    iterator = unpickedPlayers.cbegin();
-                }
-
-                // Iterator points to the next player to be assigned a territory
-                if(!*static_cast<Player*>(*iterator)->getIsNeutral()){
-                    static_cast<Player*>(*iterator)->acquireTerritory(territory);
-                }
-                cout << "Territory " << territory->getId() << " (" << territory->getName() << ") is owned by player " << *static_cast<Player>(**iterator).getPName() << endl;
-
-                // Point iterator to next player
-                iterator++;
-            }
-        }
-
-        cout << "\nGiving 50 armies and 2 cards to each player" << endl;
-
-        // Give 50 initial armies to each player
-        for (auto player : *players) {
-            player->increasePool(50);
-            cout << "Player " << *player->getPName() << " has army count " << *player->getReinforcementPool() << endl;
-
-            // Draw 2 cards per player
-            for (int i = 0; i < 2; ++i) {
-                // Only draw if there are cards left in the deck
-                if (!deck->getWarzoneCards()->empty()) {
-                    deck->draw(*player->getHand());
-                }
-            }
-
-            cout << "Player " << *player->getPName() << " has drawn cards in their hand" << endl;
-            cout << *player->getHand() << endl;
-        }
+        gameStart();
 
         cout << "Mermaid code for the current map:" << endl;
         cout << gameMap->toMermaid() << endl;
@@ -684,6 +738,68 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
     }
     cout << "\nThis is the state after the action: " << *currentState << endl;
     cout << "\nGame is about to start!" << endl;
+}
+
+void GameEngine::gameStart() {
+    // Enough players to begin the game!
+    // Shuffle list of players to randomize order of play
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine randomEngine(seed);
+    shuffle(players->begin(), players->end(), randomEngine);
+
+    cout << "\nOrder of play:" << endl;
+    for (const auto &player : *players) {
+        cout << "\t" << *player->getPName() << endl;
+    }
+    cout << endl;
+
+    cout << "\nAssigning territories to each player..." << endl;
+    // Distribute all territories to every player in a fair manner:
+    // Iterate through a random permutation of the players vector
+    // When the iterator reaches the end of the vector, generate a new permutation and move iterator back to the start
+    vector<Player *> unpickedPlayers;
+    auto iterator = unpickedPlayers.cbegin();
+
+    for (int i = 0; i < gameMap->getContinentsSize(); i++) {
+        Continent *continent = gameMap->getContinentByID(i + 1);
+
+        for (const auto &territory : continent->getTerritories()) {
+            if (iterator == unpickedPlayers.cend()) {
+                unpickedPlayers = *players;
+                randomEngine.seed(std::chrono::system_clock::now().time_since_epoch().count());
+                shuffle(unpickedPlayers.begin(), unpickedPlayers.end(), randomEngine);
+                iterator = unpickedPlayers.cbegin();
+            }
+
+            // Iterator points to the next player to be assigned a territory
+            if(!*static_cast<Player*>(*iterator)->getIsNeutral()){
+                static_cast<Player*>(*iterator)->acquireTerritory(territory);
+            }
+            cout << "Territory " << territory->getId() << " (" << territory->getName() << ") is owned by player " << *static_cast<Player>(**iterator).getPName() << endl;
+
+            // Point iterator to next player
+            iterator++;
+        }
+    }
+
+    cout << "\nGiving 50 armies and 2 cards to each player" << endl;
+
+    // Give 50 initial armies to each player
+    for (auto player : *players) {
+        player->increasePool(50);
+        cout << "Player " << *player->getPName() << " has army count " << *player->getReinforcementPool() << endl;
+
+        // Draw 2 cards per player
+        for (int i = 0; i < 2; ++i) {
+            // Only draw if there are cards left in the deck
+            if (!deck->getWarzoneCards()->empty()) {
+                deck->draw(*player->getHand());
+            }
+        }
+
+        cout << "Player " << *player->getPName() << " has drawn cards in their hand" << endl;
+        cout << *player->getHand() << endl;
+    }
 }
 
 // A function which will allow the issuing of an order using the orders_list class.
@@ -732,8 +848,7 @@ void GameEngine::endExecOrders(const string &transitionState, const vector<strin
     cout << "Inside the quit execute orders function! You are ending the order execution phase!" << endl;
 
     cout << "\nThis is the state before the action: " << *currentState << endl;
-    // Increment the turn count
-    turnCount++;
+
     transition(transitionState);
 
     cout << "\nThis is the state after the action: " << *currentState << endl;
@@ -848,6 +963,10 @@ Player *GameEngine::getNeutralPlayer() {
 void GameEngine::mainGameLoop() {
     bool gameOver = false;
     while (!gameOver) {
+        if (!tournamentMaps->empty()) {
+            turnCount++;
+            cout << "Turn #" << turnCount << " of " << maxTurns << endl;
+        }
 
         reinforcementPhase();
         issueOrdersPhase();
@@ -862,14 +981,14 @@ void GameEngine::mainGameLoop() {
                      << " has no territories left. Player is therefore eliminated." << endl;
                 delete players->at(i);
                 players->erase(players->begin() + i);
-
+                
                 cout << "Waiting for input before continuing (enter 0)..." << endl;
                 int val;
                 cin >> val;
             }
         }
         gameOver = checkForWin();
-        if(!gameOver){
+        if(!gameOver && turnCount < maxTurns){
             for(Player* player: *players){
                 player->clearPlayerFriends();
                 if (player->hasConqueredTerritoryInTurn()) {
@@ -883,6 +1002,10 @@ void GameEngine::mainGameLoop() {
                     player->setConqueredTerritoryInTurn(false);
                 }
             }
+        } else if (!gameOver) {
+            // Result is a draw
+            cout << "End of game reached - draw" << endl;
+            break;
         }
     }
 
