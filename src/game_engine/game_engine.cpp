@@ -563,8 +563,6 @@ bool GameEngine::parseTournamentPlayers(const string &playersLine) const {
         tournamentPlayerStrategies->clear();
 
         for (const string& item : playerStrategies) {
-//            string *strategy = new string(item);
-//            *strategy = item;
             string *dupeStr = new string(item);
             tournamentPlayerStrategies->emplace_back(*dupeStr);
         }
