@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <string>
 #include "command_processor/command_processing.h"
 #include "player/player.h"
 #include "map/map.h"
@@ -49,11 +50,23 @@ private:
     //The map the players will fight on.
     Map *gameMap;
 
+    // The ordered collection of Maps for use in the tournament
+    vector<Map *> *tournamentMaps;
+
+    // The ordered collection of Player strategies for use in the tournament
+    vector<string> *tournamentPlayerStrategies;
+
     //The deck from which the players will draw cards
     Deck *deck;
 
     //The neutral player of the game (if they exist yet)
     static Player *neutralPlayer;
+
+    // The turn count of the current game
+    int turnCount;
+
+    // The maximum number of turns allowed in tournament play
+    int maxTurns;
 
     // Defining the output operator for the GameEngine object.
     friend std::ostream &operator<<(std::ostream &stream, const GameEngine &ge);
@@ -65,6 +78,10 @@ private:
     // A function which will load the game map using the map class. It takes in the transition state the game will be in
     // after the method is executed and the arguments of the command that triggered the execution of this method.
     void loadMap(const string &transitionState, const vector<string *> &commandArgs);
+
+    // A function which will set up a new tournament. It takes in the transition state the game will be in
+    // after the method is executed and the arguments of the command that triggered the execution of this method.
+    void tournament(const string &transitionState, const vector<string *> &commandArgs);
 
     // A function which will validate the game map using the map class. It takes in the transition state the game will
     // be in after the method is executed and the arguments of the command that triggered the execution of this method.
@@ -110,6 +127,9 @@ private:
 
     // A function which sets the player's strategy
     PlayerStrategy &getStrategyObjectByStrategyName(string &name);
+
+    // Starts the tournament with a provided number of games per map and limit on number of turns in each game
+    void startTournament(int gamesPerMap, int maxTurns);
 
 public:
 
@@ -207,7 +227,20 @@ public:
     // Override class from ILoggable
     string stringToLog() const override;
 
+    // Reads the commands
     bool readingCommands(const vector<string> &states);
+
+    // Converts a string of comma separated values and stores into a provided vector of strings
+    void extractCsv(const string *csvLine, vector<string> &csvVector) const;
+
+    // Reads the value of "-M" parameter when executing the tournament command, storing the corresponding Maps
+    bool parseTournamentMaps(const string &mapsLine) const;
+
+    // Reads the value of the "-P" parameter when executing the tournament command, saving the player strategie names in a vector
+    bool parseTournamentPlayers(const string &playersLine) const;
+
+    // Starts the game, whether from regular gameplay or from tournament play
+    void gameStart();
 };
 
 // Free function in order to test the functionality of the GameEngine for assignment #2. Takes in a commandline argument

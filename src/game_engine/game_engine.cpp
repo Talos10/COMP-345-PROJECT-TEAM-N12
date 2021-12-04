@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <random>
 #include <string>
-#include <chrono>
 #include <thread>
+#include <sstream>
 
 using namespace std;
 
@@ -33,6 +33,9 @@ GameEngine::GameEngine(const string &readMode) {
     deck = new Deck(20);
     neutralPlayer = nullptr;
 
+    tournamentMaps = new vector<Map*>{};
+    tournamentPlayerStrategies = new vector<string>{};
+
     if (*commandReadMode == "-console") {
         cout << "Taking commands from console!" << endl;
         commandProcessor = new CommandProcessor();
@@ -48,6 +51,10 @@ GameEngine::GameEngine(const string &readMode) {
     // all the possible actions from each state.
     auto *start = new vector<string>();
     start->emplace_back("loadmap");
+    start->emplace_back("tournament");
+
+    auto *tournament = new vector<string>();
+    tournament->emplace_back("win");
 
     auto *mapLoaded = new vector<string>();
     mapLoaded->emplace_back("loadmap");
@@ -78,6 +85,7 @@ GameEngine::GameEngine(const string &readMode) {
 
     // Linking states to their vector of possible actions.
     stateMap->insert(make_pair("start", start));
+    stateMap->insert(make_pair("tournament", tournament));
     stateMap->insert(make_pair("maploaded", mapLoaded));
     stateMap->insert(make_pair("mapvalidated", mapValidated));
     stateMap->insert(make_pair("playersadded", playersAdded));
@@ -89,6 +97,8 @@ GameEngine::GameEngine(const string &readMode) {
     // Linking actions to their corresponding description to trigger the action and the effect of that action.
     descriptionMap->insert(make_pair("loadmap", make_tuple("Load a file with your map(s): loadmap <mapfile>", 1,
                                                            "Loading map from file with the following name:")));
+    descriptionMap->insert(make_pair("tournament", make_tuple("Configure a tournament with the given maps, number of players/strategies, number of games per map and maximum number of turns: tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>", 8,
+                           "Creating a tournament with configuration:")));
     descriptionMap->insert(make_pair("validatemap", make_tuple("Validate the given file with map(s): validatemap", 0,
                                                                "Validating the map.")));
     descriptionMap->insert(make_pair("addplayer", make_tuple("Add a new player to the game: addplayer <playername>", 2,
@@ -115,6 +125,7 @@ GameEngine::GameEngine(const string &readMode) {
 
     // Creating pointers to functions that will be called for the corresponding action.
     Game_Engine_Mem_Fn loadMap = &GameEngine::loadMap;
+    Game_Engine_Mem_Fn tournamentMethod = &GameEngine::tournament;
     Game_Engine_Mem_Fn validateMap = &GameEngine::validateMap;
     Game_Engine_Mem_Fn addPlayer = &GameEngine::addPlayer;
     Game_Engine_Mem_Fn gameStart = &GameEngine::gameStart;
@@ -128,6 +139,7 @@ GameEngine::GameEngine(const string &readMode) {
 
     // Linking the trigger keyword of an action to their method handler and the transition state.
     functionMap->insert(make_pair("loadmap", make_pair(loadMap, "maploaded")));
+    functionMap->insert(make_pair("tournament", make_pair(tournamentMethod, "win")));
     functionMap->insert(make_pair("validatemap", make_pair(validateMap, "mapvalidated")));
     functionMap->insert(make_pair("addplayer", make_pair(addPlayer, "playersadded")));
     functionMap->insert(make_pair("gamestart", make_pair(gameStart, "assignreinforcement")));
@@ -152,6 +164,11 @@ GameEngine::GameEngine(const GameEngine &e) {
     this->players = new std::vector(*e.players);
     this->gameMap = new Map(*e.gameMap);
     this->deck = new Deck(*e.deck);
+    this->tournamentMaps = new std::vector(*e.tournamentMaps);
+    this->tournamentPlayerStrategies = new vector(*e.tournamentPlayerStrategies);
+
+    this->turnCount = 0;
+    this->maxTurns = 0;
 }
 
 // Swaps the member data between two GameEngine objects.
@@ -166,6 +183,8 @@ void GameEngine::swap(GameEngine &first, GameEngine &second) {
     std::swap(first.players, second.players);
     std::swap(first.gameMap, second.gameMap);
     std::swap(first.deck, second.deck);
+    std::swap(first.tournamentMaps, second.tournamentMaps);
+    std::swap(first.tournamentPlayerStrategies, second.tournamentPlayerStrategies);
 }
 
 // Destructor.
@@ -181,6 +200,8 @@ GameEngine::~GameEngine() {
     delete players;
     delete gameMap;
     delete deck;
+    delete tournamentMaps;
+    delete tournamentPlayerStrategies;
 }
 
 // The way this method works is that it first creates a local temporary copy of the given object (called ge)
@@ -283,61 +304,15 @@ void GameEngine::setMap(const string &filename) {
     this->gameMap = MapLoader::load(filename);
 }
 
-//// TODO Change the description of the start method once A2 is finished.
-//// Contains the main while loop of the game which creates the game flow. Based on the current state,
-//// a list of actions are fetched from the stateMap, then for each action fetched, a description and
-//// trigger keyword are fetched from the description map. Then finally, based on the trigger keyword
-//// entered by the user, the corresponding handler method is fetched from the function map which will
-//// be executed in order to execute the action wanted by the user.
-//void GameEngine::start() {
-//    // <0> A boolean indicating if the command is valid or not
-//    // <1> A string corresponding to the command keyword without arguments
-//    // <2> A string saying that the command is valid or why the command is invalid
-//    tuple<bool, string, string> optionInfo;
-//    Command *command;
-//
-//    cout << "\n********************************************\n" << endl;
-//    cout << "*************Welcome to Warzone!************" << endl;
-//    cout << "\n********************************************\n" << endl;
-//
-//    while (*currentState != "end") {
-//        printActionsIfNeeded();
-//
-//        //////////////////
-//
-//        //TODO Change logic here so that commands are retrieved automatically only in two cases: non-stop, but only until
-//        // 1. From the start state until the arriving in the assignreinforcement state
-//        // 2. From the win state until either exiting OR until arriving in the assignreinforcement state again
-//        command = commandProcessor->getCommand(*this, *this->log);
-//        if (command == nullptr) {
-//            cout << "\nReached end of the file. Exiting..." << endl;
-//            break;
-//        }
-//
-//        /////////////////
-//
-//        optionInfo = commandProcessor->validate(*this, *command);
-//
-//        if (get<0>(optionInfo)) {
-//            cout << "\nExecuting valid command!" << endl;
-//            command->saveEffect(get<2>(descriptionMap->at(get<1>(optionInfo))), true);
-//            std::invoke(functionMap->at(get<1>(optionInfo)).first, this, functionMap->at(get<1>(optionInfo)).second,
-//                        *command->getCommandArgs());
-//        } else {
-//            cout << "\nCommand is not valid and will not be executed!" << endl;
-//            command->saveEffect(get<2>(optionInfo), false);
-//        }
-//
-//        cout << "\nRe-printing current command:\n" << *command << endl;
-//    }
-//}
-
 // A function that prints the actions available for the user if setting up the game from the console.
 void GameEngine::printActionsIfNeeded() {
     if (*commandReadMode != "-console") {
         return;
     }
 
+    if (*currentState == "end") {
+        return;
+    }
     cout << "\n****************************************\n" << endl;
     cout << "\nHere are the current actions you can take:" << endl;
 
@@ -375,6 +350,282 @@ void GameEngine::loadMap(const string &transitionState, const vector<string *> &
     cout << "\nThis is the state after the action: " << *currentState << endl;
 }
 
+// A function which will attempt to create a tournament
+void GameEngine::tournament(const string &transitionState, const vector<string *> &commandArgs) {
+    cout << "\n****************************************\n" << endl;
+    cout << "Inside the tournament function! You are creating a tournament!" << endl;
+
+    cout << "\nThis is the state before the action: " << *currentState << endl;
+
+    // The commandArgs array must follow this format:
+    //  commandArgs[0] == "tournament" // already validated by command processor
+    //  commandArgs[1] == "-M"
+    //  commandArgs[2] == {list of map files, delimited by commas}
+    //  commandArgs[3] == "-P"
+    //  commandArgs[4] == {list of player strategies, delimited by commas}
+    //  commandArgs[5] == "-G"
+    //  commandArgs[6] == {number of games per map played}
+    //  commandArgs[7] == "-D"
+    //  commandArgs[8] == {maximum number of turns}
+
+    // Validate command order
+    const string VALID_PARAM_NAMES[] = {"-M", "-P", "-G", "-D"};
+
+    bool isValidTournament = true;
+
+    // Check that commandArgs array at indices 1,3,5 and 7 has values "-M","-P","-G","-D" respectively
+    for (int i = 0; i < 4; i++) {
+        // If the arguments at positions 1,3,5 and 7 are not as defined, the tournament is invalid
+        if (*commandArgs[i*2+1] != VALID_PARAM_NAMES[i]) {
+            cout << "Error parsing arguments: expected arg " << (i*2+1) << " as \"" << VALID_PARAM_NAMES[i] << "\", instead received \"" << *commandArgs[1] << "\"" << endl;
+            isValidTournament = false;
+        }
+    }
+
+    // Create vectors of maps and players
+    parseTournamentMaps(*commandArgs[2]);
+    parseTournamentPlayers(*commandArgs[4]);
+
+    // Validate number of games per map
+    int gamesPerMap = -1;
+    try {
+        gamesPerMap = stoi(*commandArgs[6]);
+    } catch (exception &e) {
+        cout << "Error: Cannot parse -G argument as integer -- " << e.what() << endl;
+    }
+
+    if (gamesPerMap < 1 || gamesPerMap > 5) {
+        cout << "Error: Provided invalid games per map. Number must be between 1 and 5" << endl;
+        isValidTournament = false;
+    }
+
+    // Validate maximum number of turns
+    maxTurns = -1;
+    try {
+        maxTurns = stoi(*commandArgs[8]);
+    } catch (exception &e) {
+        cout << "Error: Cannot parse -D argument as integer -- " << e.what() << endl;
+    }
+
+    if (maxTurns < 10 || maxTurns > 50) {
+        cout << "Error: Provided invalid max number of turns. Number must be between 10 and 50" << endl;
+        isValidTournament = false;
+    }
+
+    if (isValidTournament) {
+        startTournament(gamesPerMap, maxTurns);
+        transition(transitionState);
+    }
+
+    cout << "\nThis is the state after the action: " << *currentState << endl;
+}
+
+void GameEngine::startTournament(int gamesPerMap, int maxTurns) {
+    cout << "Beginning the tournament" << endl;
+
+    ofstream tournamentLogfile;
+    tournamentLogfile.open("../log/tournamentlog.txt");
+
+    tournamentLogfile << "Tournament mode:" << endl;
+
+    // Print out the maps in the tourney
+    string mapsLine;
+    for (const auto &item : *tournamentMaps) {
+        mapsLine += item->getName() + "\t";
+    }
+
+    tournamentLogfile << "M: " << mapsLine << endl;
+
+    // Print out the players in the tourney
+    string playersLine;
+    for (const auto &item : *tournamentPlayerStrategies) {
+        playersLine += item + "\t";
+    }
+
+    tournamentLogfile << "P: " << playersLine << endl;
+
+    // Print out the games per map and the maximum number of turns
+    tournamentLogfile <<"G: " << gamesPerMap << endl;
+    tournamentLogfile <<"D: " << maxTurns << endl;
+
+    cout << "Printed out the configuration to the log file" << endl;
+
+    // Array to store the winning player (or draw) for every game to be played in the tournament
+    string winners[tournamentMaps->size()][tournamentPlayerStrategies->size()];
+
+    for (int i = 0; i < tournamentMaps->size(); i++) {
+        cout << "Changing active map to index " << i << ": " << tournamentMaps->at(i)->getName() << endl;
+
+        // Play each map j times
+        for (int j = 0; j < gamesPerMap; j++) {
+            // Set up a new map (validation not necessary)
+            setMap(tournamentMaps->at(i)->getName());
+
+            // Set up the players
+            auto *newPlayers = new vector<Player*>{};
+            int playerIndex = 1;
+            // Read the vector of tournament strategies and create a new player configured in order
+            for (int k = 0; k < tournamentPlayerStrategies->size(); k++) {
+                auto *player = new Player(to_string(playerIndex) + "-" + tournamentPlayerStrategies->at(k), &getStrategyObjectByStrategyName(tournamentPlayerStrategies->at(j)));
+                newPlayers->emplace_back(player);
+                playerIndex++;
+            }
+            setPlayers(*newPlayers);
+
+            // Start the game proper
+            gameStart();
+
+            // reset the turn count
+            turnCount = 0;
+
+            // Run the main game loop
+            mainGameLoop();
+
+            // At end of game, register the name of the winning player (or draw if no player won)
+            bool gameHasWinner = false;
+            for (auto & player : *players) {
+                if (player->getTerritories()->size() == gameMap->getSize()) {
+                    winners[i][j] = *player->getPName();
+                    gameHasWinner = true;
+                }
+            }
+
+            // If no player has won, the result of the game is a draw
+            if (!gameHasWinner) {
+                winners[i][j] = "draw";
+            }
+
+
+        }
+    }
+
+    // Print out final results
+    // Header line
+
+    tournamentLogfile << "\nResults:" << endl;
+    for (int i = 1; i <= gamesPerMap; i++) {
+        tournamentLogfile << "\t\tGame-" << i;
+    }
+    tournamentLogfile << endl;
+
+    // Print out one row at a time
+    for (auto i = 0; i < tournamentMaps->size(); i++) {
+        // Print out the map name as the first column of the row
+        tournamentLogfile << tournamentMaps->at(i)->getName() << "\t";
+
+        for (auto j = 0; j < tournamentPlayerStrategies->size(); j++){
+            tournamentLogfile << winners[i][j] << "\t";
+        }
+
+        tournamentLogfile << endl;
+    }
+
+    cout << endl;
+
+    tournamentLogfile.close();
+}
+
+bool GameEngine::parseTournamentPlayers(const string &playersLine) const {
+    bool isValidPlayers = true;
+    const string VALID_STRATEGIES[] = {"aggressive", "benevolent", "neutral", "cheater"};
+
+    vector<string> playerStrategies;
+    extractCsv(&playersLine, playerStrategies);
+
+    // Validate number of player strategies
+    if (playerStrategies.size() < 2 || playerStrategies.size() > 4) {
+        cout << "Error: Provided " << playerStrategies.size() << " players. Number must be between 2 and 4" << endl;
+        isValidPlayers = false;
+    }
+
+    // Validate all player strategies
+    for (const auto &playerStrategy : playerStrategies) {
+        bool foundMatch = false;
+
+        // Check that the current player strategy is a valid name for a strategy
+        for (const auto &validStrategy : VALID_STRATEGIES) {
+            if (playerStrategy == validStrategy) {
+                foundMatch = true;
+                break;
+            }
+        }
+
+        if (!foundMatch) {
+            cout << "Error: strategy name \"" << playerStrategy << "\" is not a valid strategy. "
+                    << R"(Possible values are "aggressive", "benevolent", "neutral", "cheater")" << endl;
+
+            isValidPlayers = false;
+        }
+    }
+
+    // If all players are valid, replace the existing tournamentPlayerStrategies
+    if (isValidPlayers) {
+        tournamentPlayerStrategies->clear();
+
+        for (const string& item : playerStrategies) {
+            string *dupeStr = new string(item);
+            tournamentPlayerStrategies->emplace_back(*dupeStr);
+        }
+    }
+
+    return isValidPlayers;
+}
+
+// Loads the maps listed as CSVs in the tournament command
+bool GameEngine::parseTournamentMaps(const string &mapsLine) const {
+    // Assume string is invalid. Only when all map files described in the mapsLine have been successfully loaded
+    bool isValidMapsLine = false;
+
+    vector<string> mapFiles;
+    // Split the CSV and store into vector of strings
+    extractCsv(&mapsLine, mapFiles);
+
+    if (mapFiles.empty() || mapFiles.size() > 5) {
+        cout << "Error: Provided " << mapFiles.size() << " map files. Number must be between 1 and 5" << endl;
+        isValidMapsLine = false;
+    } else {
+        // Load and validate each map file
+
+        for (const auto &mapFile : mapFiles) {
+            // Check that file exists
+            ifstream file;
+            file.open(MAPS_DIR + mapFile);
+            if (!file) {
+                // File doesn't exist
+                cout << "Error: File " << mapFile << " doesn't exist" << endl;
+                isValidMapsLine = false;
+            } else {
+                // File exists, create the map
+                try {
+                    // Load map from file
+                    Map *loadedMap = MapLoader::load(mapFile);
+
+                    // Validate loaded map
+                    loadedMap->validate();
+
+                    // If map is valid, add to the list of tournament maps
+                    tournamentMaps->emplace_back(MapLoader::load(mapFile));
+                } catch (runtime_error &exp) {
+                    // Catch all exceptions defined as runtime errors
+                    cerr << "Error: Could not load/validate map " << mapFile << endl;
+                    cerr << exp.what() << endl;
+                }
+            }
+        }
+    }
+
+    return isValidMapsLine;
+}
+
+void GameEngine::extractCsv(const string *csvLine, vector<string> &csvVector) const {
+    stringstream stream = stringstream(*csvLine);
+    string token;
+
+    while (getline(stream, token, ',')) {
+        csvVector.emplace_back(token);
+    }
+}
+
 // A function which will validate the game map using the map class.
 // Currently just changes the current state of the game to mapValidated.
 void GameEngine::validateMap(const string &transitionState, const vector<string *> &commandArgs) {
@@ -409,6 +660,7 @@ void GameEngine::addPlayer(const string &transitionState, const vector<string *>
         cerr << "Error: Cannot add more than 6 players to game" << endl;
     } else {
         bool playerExists = false;
+        // Check if player already exists
         for (const auto &player : *players) {
             if (*player->getPName() == *commandArgs.at(1)) {
                 cerr << "Error: Player with name " << *commandArgs.at(1) << " already exists" << endl;
@@ -448,73 +700,80 @@ void GameEngine::gameStart(const string &transitionState, const vector<string *>
     if (players->size() < 2) {
         cerr << "Not enough players to start the game!" << endl;
     } else {
-        // Enough players to begin the game!
-        // Shuffle list of players to randomize order of play
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        default_random_engine randomEngine(seed);
-        shuffle(players->begin(), players->end(), randomEngine);
-
-        cout << "\nOrder of play:" << endl;
-        for (const auto &player : *players) {
-            cout << "\t" << *player->getPName() << endl;
-        }
-        cout << endl;
-
-        cout << "\nAssigning territories to each player..." << endl;
-        // Distribute all territories to every player in a fair manner:
-        // Iterate through a random permutation of the players vector
-        // When the iterator reaches the end of the vector, generate a new permutation and move iterator back to the start
-        vector<Player *> unpickedPlayers;
-        auto iterator = unpickedPlayers.cbegin();
-
-        for (int i = 0; i < gameMap->getContinentsSize(); i++) {
-            Continent *continent = gameMap->getContinentByID(i+1);
-
-            for (const auto &territory : continent->getTerritories()) {
-                if (iterator == unpickedPlayers.cend()) {
-                    unpickedPlayers = *players;
-                    randomEngine.seed(std::chrono::system_clock::now().time_since_epoch().count());
-                    shuffle(unpickedPlayers.begin(), unpickedPlayers.end(), randomEngine);
-                    iterator = unpickedPlayers.cbegin();
-                }
-
-                // Iterator points to the next player to be assigned a territory
-                if(!*static_cast<Player*>(*iterator)->getIsNeutral()){
-                    static_cast<Player*>(*iterator)->acquireTerritory(territory);
-                }
-                cout << "Territory " << territory->getId() << " (" << territory->getName() << ") is owned by player " << *static_cast<Player>(**iterator).getPName() << endl;
-
-                // Point iterator to next player
-                iterator++;
-            }
-        }
-
-        cout << "\nGiving 50 armies and 2 cards to each player" << endl;
-
-        // Give 50 initial armies to each player
-        for (auto player : *players) {
-            player->increasePool(50);
-            cout << "Player " << *player->getPName() << " has army count " << *player->getReinforcementPool() << endl;
-
-            // Draw 2 cards per player
-            for (int i = 0; i < 2; ++i) {
-                // Only draw if there are cards left in the deck
-                if (!deck->getWarzoneCards()->empty()) {
-                    deck->draw(*player->getHand());
-                }
-            }
-
-            cout << "Player " << *player->getPName() << " has drawn cards in their hand" << endl;
-            cout << *player->getHand() << endl;
-        }
+        gameStart();
 
         cout << "Mermaid code for the current map:" << endl;
         cout << gameMap->toMermaid() << endl;
+
+        // Initialize the turn count to 1
+        turnCount = 1;
 
         transition(transitionState);
     }
     cout << "\nThis is the state after the action: " << *currentState << endl;
     cout << "\nGame is about to start!" << endl;
+}
+
+void GameEngine::gameStart() {
+    // Enough players to begin the game!
+    // Shuffle list of players to randomize order of play
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine randomEngine(seed);
+    shuffle(players->begin(), players->end(), randomEngine);
+
+    cout << "\nOrder of play:" << endl;
+    for (const auto &player : *players) {
+        cout << "\t" << *player->getPName() << endl;
+    }
+    cout << endl;
+
+    cout << "\nAssigning territories to each player..." << endl;
+    // Distribute all territories to every player in a fair manner:
+    // Iterate through a random permutation of the players vector
+    // When the iterator reaches the end of the vector, generate a new permutation and move iterator back to the start
+    vector<Player *> unpickedPlayers;
+    auto iterator = unpickedPlayers.cbegin();
+
+    for (int i = 0; i < gameMap->getContinentsSize(); i++) {
+        Continent *continent = gameMap->getContinentByID(i + 1);
+
+        for (const auto &territory : continent->getTerritories()) {
+            if (iterator == unpickedPlayers.cend()) {
+                unpickedPlayers = *players;
+                randomEngine.seed(std::chrono::system_clock::now().time_since_epoch().count());
+                shuffle(unpickedPlayers.begin(), unpickedPlayers.end(), randomEngine);
+                iterator = unpickedPlayers.cbegin();
+            }
+
+            // Iterator points to the next player to be assigned a territory
+            if(!*static_cast<Player*>(*iterator)->getIsNeutral()){
+                static_cast<Player*>(*iterator)->acquireTerritory(territory);
+            }
+            cout << "Territory " << territory->getId() << " (" << territory->getName() << ") is owned by player " << *static_cast<Player>(**iterator).getPName() << endl;
+
+            // Point iterator to next player
+            iterator++;
+        }
+    }
+
+    cout << "\nGiving 50 armies and 2 cards to each player" << endl;
+
+    // Give 50 initial armies to each player
+    for (auto player : *players) {
+        player->increasePool(50);
+        cout << "Player " << *player->getPName() << " has army count " << *player->getReinforcementPool() << endl;
+
+        // Draw 2 cards per player
+        for (int i = 0; i < 2; ++i) {
+            // Only draw if there are cards left in the deck
+            if (!deck->getWarzoneCards()->empty()) {
+                deck->draw(*player->getHand());
+            }
+        }
+
+        cout << "Player " << *player->getPName() << " has drawn cards in their hand" << endl;
+        cout << *player->getHand() << endl;
+    }
 }
 
 // A function which will allow the issuing of an order using the orders_list class.
@@ -634,10 +893,40 @@ void game_engine_driver(const string &cmdArg) {
     cout << "\nRunning game engine driver!" << endl;
 
 
-    cout << "\n********************************************\n" << endl;
-    cout << "*************Welcome to Warzone!************" << endl;
-    cout << "\n********************************************\n" << endl;
-
+    cout << R"(
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++                                                                             +
++                                WELCOME TO                                   +
++     __        __                                _____ _  _  ____            +
++     \ \      / /_ _ _ __ _______  _ __   ___   |___ /| || || ___|           +
++      \ \ /\ / / _` | '__|_  / _ \| '_ \ / _ \    |_ \| || ||___ \           +
++       \ V  V / (_| | |   / / (_) | | | |  __/   ___) |__   _|__) |          +
++        \_/\_/ \__,_|_|  /___\___/|_| |_|\___|  |____/   |_||____/           +
++                                                                             +
++                                                                             +
++                                  |>>>                                       +
++                                  |                                          +
++                    |>>>      _  _|_  _         |>>>                         +
++                    |        |;| |;| |;|        |                            +
++                _  _|_  _    \\.    .  /    _  _|_  _                        +
++               |;|_|;|_|;|    \\:. ,  /    |;|_|;|_|;|                       +
++               \\..      /    ||;   . |    \\.    .  /                       +
++                \\.  ,  /     ||:  .  |     \\:  .  /                        +
++                 ||:   |_   _ ||_ . _ | _   _||:   |                         +
++                 ||:  .|||_|;|_|;|_|;|_|;|_|;||:.  |                         +
++                 ||:   ||.    .     .      . ||:  .|                         +
++                 ||: . || .     . .   .  ,   ||:   |                         +
++                 ||:   ||:  ,  _______   .   ||: , |                         +
++                 ||:   || .   /+++++++\    . ||:   |                         +
++                 ||:   ||.    |+++++++| .    ||: . |                         +
++              __ ||: . ||: ,  |+++++++|.  . _||_   |                         +
++     ____--`~    '--~~__|.    |+++++__|----~    ~`---,              ___      +
++-~--~                   ~---__|,--~'                  ~~----_____-~'   `~----+
++                                                                             +
++                                                                             +
++                          (c) 2021, TEAM   N12                               +
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        )";
     gameEngine.start();
 }
 
@@ -678,6 +967,10 @@ Player *GameEngine::getNeutralPlayer() {
 void GameEngine::mainGameLoop() {
     bool gameOver = false;
     while (!gameOver) {
+        if (!tournamentMaps->empty()) {
+            turnCount++;
+            cout << "Turn #" << turnCount << " of " << maxTurns << endl;
+        }
 
         reinforcementPhase();
         issueOrdersPhase();
@@ -699,7 +992,7 @@ void GameEngine::mainGameLoop() {
             }
         }
         gameOver = checkForWin();
-        if(!gameOver){
+        if(!gameOver && turnCount < maxTurns){
             for(Player* player: *players){
                 player->clearPlayerFriends();
                 if (player->hasConqueredTerritoryInTurn()) {
@@ -713,6 +1006,10 @@ void GameEngine::mainGameLoop() {
                     player->setConqueredTerritoryInTurn(false);
                 }
             }
+        } else if (!gameOver) {
+            // Result is a draw
+            cout << "End of game reached - draw" << endl;
+            break;
         }
     }
 
@@ -721,9 +1018,6 @@ void GameEngine::mainGameLoop() {
     cout << "Waiting for input before continuing (enter 0)..." << endl;
     int val;
     cin >> val;
-
-//    cout << "Waiting 10 seconds before continuing..." << endl;
-//    std::this_thread::sleep_for(std::chrono::seconds (10));
 }
 
 void GameEngine::reinforcementPhase(){
@@ -761,9 +1055,6 @@ void GameEngine::issueOrdersPhase(){
         cout << "\n**********issueOrdersPhase() for player " << *player->getPName() << endl;
             //Issue orders related to defend the player's territories
             vector<tuple<Territory*,Territory*,string>> territoriesToDefend = player->toDefend();
-//            for (tuple<Territory*,Territory*,string> tuple: territoriesToDefend) {
-//                cout << "Source territory: " << get<0>(tuple) << " | Target territory: " << get<1>(tuple) << " | Order type: " << get<2>(tuple) << endl;
-//            }
         cout << "\n\nIssuing orders for defend" << endl;
             for(auto& territoryTuple: territoriesToDefend){
                 if(get<2>(territoryTuple) == "airlift"){
@@ -902,15 +1193,14 @@ bool GameEngine::readingCommands(const vector<string> &states) {
             nextCommand->saveEffect(get<2>(descriptionMap->at(get<1>(commandProcessorResult))), true);
 
             std::invoke(
-                    functionMap->at(get<1>(commandProcessorResult)).first,
-                    this,
-                    functionMap->at(get<1>(commandProcessorResult)).second,
-                    *nextCommand->getCommandArgs()
+                    functionMap->at(get<1>(commandProcessorResult)).first, // Command name - as a string
+                    this, // Object being called
+                    functionMap->at(get<1>(commandProcessorResult)).second, // Pair of function reference and transition state
+                    *nextCommand->getCommandArgs() // Arguments
             );
 
         } else {
             // Report bad input
-            // TODO: Introduce better reporting
             nextCommand->saveEffect(get<2>(commandProcessorResult), false);
             cerr << "BAD INPUT! " << get<2>(commandProcessorResult) << endl;
             cerr << "Remaining in state " << *getCurrentState() << endl;

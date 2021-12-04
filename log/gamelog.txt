@@ -1,0 +1,7 @@
+The state of the game engine has been changed, it is now at: start
+A new COMMAND "loadmap foggychommo-map.txt" has been added to the COMMAND PROCESSOR
+The command 'loadmap foggychommo-map.txt' has the following effect: Loading map from file with the following name: foggychommo-map.txt
+The state of the game engine has been changed, it is now at: maploaded
+A new COMMAND "validatemap" has been added to the COMMAND PROCESSOR
+The command 'validatemap' has the following effect: Validating the map.
+The state of the game engine has been changed, it is now at: mapvalidated
