@@ -603,7 +603,7 @@ Map* MapLoader::load(const string& filename) {
 
         // check if the line indicates the beginning of a new section in the file
         if (std::regex_match(line, sectionRegex)) {
-            // TODO: Make sure sections are sequential
+            
             // extract section name by removing enclosing square brackets (first and last character of line)
             string sectionName = line.substr(1, line.length()-2);
 

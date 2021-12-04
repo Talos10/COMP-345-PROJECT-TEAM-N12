@@ -128,8 +128,8 @@ private:
     // A function which sets the player's strategy
     PlayerStrategy &getStrategyObjectByStrategyName(string &name);
 
-    // Starts the tournament
-    void startTournament(int i, int i1);
+    // Starts the tournament with a provided number of games per map and limit on number of turns in each game
+    void startTournament(int gamesPerMap, int maxTurns);
 
 public:
 
@@ -227,15 +227,19 @@ public:
     // Override class from ILoggable
     string stringToLog() const override;
 
+    // Reads the commands
     bool readingCommands(const vector<string> &states);
 
-    // TODO: Document each function here
+    // Converts a string of comma separated values and stores into a provided vector of strings
     void extractCsv(const string *csvLine, vector<string> &csvVector) const;
 
+    // Reads the value of "-M" parameter when executing the tournament command, storing the corresponding Maps
     bool parseTournamentMaps(const string &mapsLine) const;
 
+    // Reads the value of the "-P" parameter when executing the tournament command, saving the player strategie names in a vector
     bool parseTournamentPlayers(const string &playersLine) const;
 
+    // Starts the game, whether from regular gameplay or from tournament play
     void gameStart();
 };
 

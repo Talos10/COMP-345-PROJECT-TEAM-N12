@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <random>
 #include <string>
-#include <chrono>
 #include <thread>
 #include <sstream>
 
@@ -55,7 +54,7 @@ GameEngine::GameEngine(const string &readMode) {
     start->emplace_back("tournament");
 
     auto *tournament = new vector<string>();
-    tournament->emplace_back("quit");
+    tournament->emplace_back("win");
 
     auto *mapLoaded = new vector<string>();
     mapLoaded->emplace_back("loadmap");
@@ -140,7 +139,7 @@ GameEngine::GameEngine(const string &readMode) {
 
     // Linking the trigger keyword of an action to their method handler and the transition state.
     functionMap->insert(make_pair("loadmap", make_pair(loadMap, "maploaded")));
-    functionMap->insert(make_pair("tournament", make_pair(tournamentMethod, "end")));
+    functionMap->insert(make_pair("tournament", make_pair(tournamentMethod, "win")));
     functionMap->insert(make_pair("validatemap", make_pair(validateMap, "mapvalidated")));
     functionMap->insert(make_pair("addplayer", make_pair(addPlayer, "playersadded")));
     functionMap->insert(make_pair("gamestart", make_pair(gameStart, "assignreinforcement")));
@@ -167,6 +166,9 @@ GameEngine::GameEngine(const GameEngine &e) {
     this->deck = new Deck(*e.deck);
     this->tournamentMaps = new std::vector(*e.tournamentMaps);
     this->tournamentPlayerStrategies = new vector(*e.tournamentPlayerStrategies);
+
+    this->turnCount = 0;
+    this->maxTurns = 0;
 }
 
 // Swaps the member data between two GameEngine objects.
@@ -308,6 +310,9 @@ void GameEngine::printActionsIfNeeded() {
         return;
     }
 
+    if (*currentState == "end") {
+        return;
+    }
     cout << "\n****************************************\n" << endl;
     cout << "\nHere are the current actions you can take:" << endl;
 
@@ -368,7 +373,9 @@ void GameEngine::tournament(const string &transitionState, const vector<string *
 
     bool isValidTournament = true;
 
+    // Check that commandArgs array at indices 1,3,5 and 7 has values "-M","-P","-G","-D" respectively
     for (int i = 0; i < 4; i++) {
+        // If the arguments at positions 1,3,5 and 7 are not as defined, the tournament is invalid
         if (*commandArgs[i*2+1] != VALID_PARAM_NAMES[i]) {
             cout << "Error parsing arguments: expected arg " << (i*2+1) << " as \"" << VALID_PARAM_NAMES[i] << "\", instead received \"" << *commandArgs[1] << "\"" << endl;
             isValidTournament = false;
@@ -416,8 +423,10 @@ void GameEngine::tournament(const string &transitionState, const vector<string *
 void GameEngine::startTournament(int gamesPerMap, int maxTurns) {
     cout << "Beginning the tournament" << endl;
 
-    // TODO: Export these to a file
-    cout << "Tournament mode:" << endl;
+    ofstream tournamentLogfile;
+    tournamentLogfile.open("../log/tournamentlog.txt");
+
+    tournamentLogfile << "Tournament mode:" << endl;
 
     // Print out the maps in the tourney
     string mapsLine;
@@ -425,7 +434,7 @@ void GameEngine::startTournament(int gamesPerMap, int maxTurns) {
         mapsLine += item->getName() + "\t";
     }
 
-    cout << "M: " << mapsLine << endl;
+    tournamentLogfile << "M: " << mapsLine << endl;
 
     // Print out the players in the tourney
     string playersLine;
@@ -433,17 +442,21 @@ void GameEngine::startTournament(int gamesPerMap, int maxTurns) {
         playersLine += item + "\t";
     }
 
-    cout << "P: " << playersLine << endl;
+    tournamentLogfile << "P: " << playersLine << endl;
 
-    cout <<"G: " << gamesPerMap << endl;
-    cout <<"D: " << maxTurns << endl;
+    // Print out the games per map and the maximum number of turns
+    tournamentLogfile <<"G: " << gamesPerMap << endl;
+    tournamentLogfile <<"D: " << maxTurns << endl;
 
     cout << "Printed out the configuration to the log file" << endl;
 
+    // Array to store the winning player (or draw) for every game to be played in the tournament
     string winners[tournamentMaps->size()][tournamentPlayerStrategies->size()];
 
     for (int i = 0; i < tournamentMaps->size(); i++) {
         cout << "Changing active map to index " << i << ": " << tournamentMaps->at(i)->getName() << endl;
+
+        // Play each map j times
         for (int j = 0; j < gamesPerMap; j++) {
             // Set up a new map (validation not necessary)
             setMap(tournamentMaps->at(i)->getName());
@@ -451,6 +464,7 @@ void GameEngine::startTournament(int gamesPerMap, int maxTurns) {
             // Set up the players
             auto *newPlayers = new vector<Player*>{};
             int playerIndex = 1;
+            // Read the vector of tournament strategies and create a new player configured in order
             for (int k = 0; k < tournamentPlayerStrategies->size(); k++) {
                 auto *player = new Player(to_string(playerIndex) + "-" + tournamentPlayerStrategies->at(k), &getStrategyObjectByStrategyName(tournamentPlayerStrategies->at(j)));
                 newPlayers->emplace_back(player);
@@ -458,9 +472,13 @@ void GameEngine::startTournament(int gamesPerMap, int maxTurns) {
             }
             setPlayers(*newPlayers);
 
+            // Start the game proper
             gameStart();
 
+            // reset the turn count
             turnCount = 0;
+
+            // Run the main game loop
             mainGameLoop();
 
             // At end of game, register the name of the winning player (or draw if no player won)
@@ -472,6 +490,7 @@ void GameEngine::startTournament(int gamesPerMap, int maxTurns) {
                 }
             }
 
+            // If no player has won, the result of the game is a draw
             if (!gameHasWinner) {
                 winners[i][j] = "draw";
             }
@@ -483,25 +502,27 @@ void GameEngine::startTournament(int gamesPerMap, int maxTurns) {
     // Print out final results
     // Header line
 
-    cout << "\nResults:" << endl;
+    tournamentLogfile << "\nResults:" << endl;
     for (int i = 1; i <= gamesPerMap; i++) {
-        cout << "\t\tGame-" << i;
+        tournamentLogfile << "\t\tGame-" << i;
     }
-    cout << endl;
+    tournamentLogfile << endl;
 
     // Print out one row at a time
     for (auto i = 0; i < tournamentMaps->size(); i++) {
         // Print out the map name as the first column of the row
-        cout << tournamentMaps->at(i)->getName() << "\t";
+        tournamentLogfile << tournamentMaps->at(i)->getName() << "\t";
 
         for (auto j = 0; j < tournamentPlayerStrategies->size(); j++){
-            cout << winners[i][j] << "\t";
+            tournamentLogfile << winners[i][j] << "\t";
         }
 
-        cout << endl;
+        tournamentLogfile << endl;
     }
 
     cout << endl;
+
+    tournamentLogfile.close();
 }
 
 bool GameEngine::parseTournamentPlayers(const string &playersLine) const {
@@ -552,10 +573,13 @@ bool GameEngine::parseTournamentPlayers(const string &playersLine) const {
     return isValidPlayers;
 }
 
+// Loads the maps listed as CSVs in the tournament command
 bool GameEngine::parseTournamentMaps(const string &mapsLine) const {
+    // Assume string is invalid. Only when all map files described in the mapsLine have been successfully loaded
     bool isValidMapsLine = false;
 
     vector<string> mapFiles;
+    // Split the CSV and store into vector of strings
     extractCsv(&mapsLine, mapFiles);
 
     if (mapFiles.empty() || mapFiles.size() > 5) {
@@ -598,6 +622,7 @@ bool GameEngine::parseTournamentMaps(const string &mapsLine) const {
 void GameEngine::extractCsv(const string *csvLine, vector<string> &csvVector) const {
     stringstream stream = stringstream(*csvLine);
     string token;
+
     while (getline(stream, token, ',')) {
         csvVector.emplace_back(token);
     }
@@ -870,10 +895,40 @@ void game_engine_driver(const string &cmdArg) {
     cout << "\nRunning game engine driver!" << endl;
 
 
-    cout << "\n********************************************\n" << endl;
-    cout << "*************Welcome to Warzone!************" << endl;
-    cout << "\n********************************************\n" << endl;
-
+    cout << R"(
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++                                                                             +
++                                WELCOME TO                                   +
++     __        __                                _____ _  _  ____            +
++     \ \      / /_ _ _ __ _______  _ __   ___   |___ /| || || ___|           +
++      \ \ /\ / / _` | '__|_  / _ \| '_ \ / _ \    |_ \| || ||___ \           +
++       \ V  V / (_| | |   / / (_) | | | |  __/   ___) |__   _|__) |          +
++        \_/\_/ \__,_|_|  /___\___/|_| |_|\___|  |____/   |_||____/           +
++                                                                             +
++                                                                             +
++                                  |>>>                                       +
++                                  |                                          +
++                    |>>>      _  _|_  _         |>>>                         +
++                    |        |;| |;| |;|        |                            +
++                _  _|_  _    \\.    .  /    _  _|_  _                        +
++               |;|_|;|_|;|    \\:. ,  /    |;|_|;|_|;|                       +
++               \\..      /    ||;   . |    \\.    .  /                       +
++                \\.  ,  /     ||:  .  |     \\:  .  /                        +
++                 ||:   |_   _ ||_ . _ | _   _||:   |                         +
++                 ||:  .|||_|;|_|;|_|;|_|;|_|;||:.  |                         +
++                 ||:   ||.    .     .      . ||:  .|                         +
++                 ||: . || .     . .   .  ,   ||:   |                         +
++                 ||:   ||:  ,  _______   .   ||: , |                         +
++                 ||:   || .   /+++++++\    . ||:   |                         +
++                 ||:   ||.    |+++++++| .    ||: . |                         +
++              __ ||: . ||: ,  |+++++++|.  . _||_   |                         +
++     ____--`~    '--~~__|.    |+++++__|----~    ~`---,              ___      +
++-~--~                   ~---__|,--~'                  ~~----_____-~'   `~----+
++                                                                             +
++                                                                             +
++                          (c) 2021, TEAM   N12                               +
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        )";
     gameEngine.start();
 }
 
@@ -932,7 +987,7 @@ void GameEngine::mainGameLoop() {
                      << " has no territories left. Player is therefore eliminated." << endl;
                 delete players->at(i);
                 players->erase(players->begin() + i);
-                
+
                 cout << "Waiting for input before continuing (enter 0)..." << endl;
                 int val;
                 cin >> val;
